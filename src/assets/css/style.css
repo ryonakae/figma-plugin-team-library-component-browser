@@ -1,0 +1,6 @@
+@import 'ress';
+@import 'custom-properties.css';
+
+body {
+  font-family: var(--fontFamily);
+}
