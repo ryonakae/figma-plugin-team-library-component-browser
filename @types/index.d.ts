@@ -2,22 +2,22 @@ type TabID = 'list' | 'setting'
 
 type MessageType = 'save' | 'clear' | 'update' | 'get'
 
-type Component = {
+type FigmaComponent = {
   name: string
   id: string
   key: string
 }
 
-type Page = {
+type FigmaPage = {
   name: string
   id: string
-  components: Component[]
+  components: FigmaComponent[]
 }
 
 type FigmaDocument = {
   name: string
   id: string
-  pages: Page[]
+  pages: FigmaPage[]
 }
 
 type Library = FigmaDocument[] | []

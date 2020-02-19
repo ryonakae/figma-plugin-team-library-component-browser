@@ -7,10 +7,10 @@ figma.showUI(__html__)
 
 async function saveLibrary(): Promise<void> {
   console.log('saveLibrary')
-  const pages: Page[] = []
+  const pages: FigmaPage[] = []
 
   figma.root.children.forEach(page => {
-    const components: Component[] = []
+    const components: FigmaComponent[] = []
 
     page.children.forEach(scene => {
       if (scene.type === 'COMPONENT') {
