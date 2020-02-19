@@ -2,6 +2,8 @@
   "name": "figma-plugin-team-library-component-browser",
   "version": "0.0.1",
   "dependencies": {
+    "mobx": "^5.15.4",
+    "mobx-react": "^6.1.8",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "ress": "^2.0.4",

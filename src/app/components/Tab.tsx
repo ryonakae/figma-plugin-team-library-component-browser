@@ -1,22 +1,23 @@
 import * as React from 'react'
+import { inject, observer } from 'mobx-react'
+import { StoreType } from '@/app/store'
 
-type MyProps = {}
+type MyProps = {
+  store?: StoreType
+}
 type MyState = {
   tabID: 'list' | 'setting'
 }
 
+@inject('store')
+@observer
 export default class Tab extends React.Component<MyProps, MyState> {
   constructor(props) {
     super(props)
-    this.state = {
-      tabID: 'list'
-    }
   }
 
-  handleClick(tabID: MyState['tabID']): void {
-    this.setState({
-      tabID
-    })
+  handleClick(tabID: StoreType['tabID']): void {
+    this.props.store!.updateTabID(tabID)
   }
 
   render(): JSX.Element {
@@ -24,13 +25,13 @@ export default class Tab extends React.Component<MyProps, MyState> {
       <nav>
         <ul>
           <li
-            className={this.state.tabID === 'list' ? 'is-active' : ''}
+            className={this.props.store!.tabID === 'list' ? 'is-active' : ''}
             onClick={() => this.handleClick('list')}
           >
             Library Components
           </li>
           <li
-            className={this.state.tabID === 'setting' ? 'is-active' : ''}
+            className={this.props.store!.tabID === 'setting' ? 'is-active' : ''}
             onClick={() => this.handleClick('setting')}
           >
             Setting
