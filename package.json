@@ -36,6 +36,11 @@
     "typescript": "^3.7.5",
     "url-loader": "^3.0.0"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc && lint-staged"
+    }
+  },
   "license": "MIT",
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
@@ -53,7 +58,6 @@
     ]
   },
   "scripts": {
-    "dev": "webpack -w",
-    "precommit": "lint-staged"
+    "dev": "webpack -w"
   }
 }

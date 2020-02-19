@@ -2,14 +2,14 @@ import * as React from 'react'
 
 type MyProps = {}
 type MyState = {
-  tabID: 'components' | 'setting'
+  tabID: 'list' | 'setting'
 }
 
 export default class Tab extends React.Component<MyProps, MyState> {
   constructor(props) {
     super(props)
     this.state = {
-      tabID: 'components'
+      tabID: 'list'
     }
   }
 
@@ -24,8 +24,8 @@ export default class Tab extends React.Component<MyProps, MyState> {
       <nav>
         <ul>
           <li
-            className={this.state.tabID === 'components' ? 'is-active' : ''}
-            onClick={() => this.handleClick('components')}
+            className={this.state.tabID === 'list' ? 'is-active' : ''}
+            onClick={() => this.handleClick('list')}
           >
             Library Components
           </li>
