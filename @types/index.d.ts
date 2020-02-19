@@ -1,6 +1,6 @@
 type TabID = 'list' | 'setting'
 
-type MessageType = 'save' | 'clear'
+type MessageType = 'save' | 'clear' | 'update' | 'get'
 
 type Component = {
   name: string
@@ -20,4 +20,10 @@ type FigmaDocument = {
   pages: Page[]
 }
 
-type Library = FigmaDocument[]
+type Library = FigmaDocument[] | []
+
+type StoreType = {
+  tabID: TabID
+  library: Library
+  updateTabID: (tabID: TabID) => void
+}

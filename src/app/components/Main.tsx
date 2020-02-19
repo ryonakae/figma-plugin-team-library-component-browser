@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import { StoreType } from '@/app/store'
 import List from '@/app/components/List'
 import Setting from '@/app/components/Setting'
 

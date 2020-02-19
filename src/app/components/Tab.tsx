@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import { StoreType } from '@/app/store'
 
 type Props = {
   store?: StoreType
