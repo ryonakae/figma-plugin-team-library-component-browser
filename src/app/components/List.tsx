@@ -37,6 +37,14 @@ export default class List extends React.Component<MyProps, MyState> {
     </ListItem>
   ))
 
+  componentDidMount(): void {
+    console.log('List did mount')
+  }
+
+  componentWillUnmount(): void {
+    console.log('List will unmount')
+  }
+
   render(): JSX.Element {
     return (
       <div>

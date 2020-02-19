@@ -5,9 +5,7 @@ import { StoreType } from '@/app/store'
 type MyProps = {
   store?: StoreType
 }
-type MyState = {
-  tabID: 'list' | 'setting'
-}
+type MyState = {}
 
 @inject('store')
 @observer
