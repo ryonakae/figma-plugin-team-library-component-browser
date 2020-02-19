@@ -4,14 +4,14 @@ import { StoreType } from '@/app/store'
 import List from '@/app/components/List'
 import Setting from '@/app/components/Setting'
 
-type MyProps = {
+type Props = {
   store?: StoreType
 }
-type MyState = {}
+type State = {}
 
 @inject('store')
 @observer
-export default class Content extends React.Component<MyProps, MyState> {
+export default class Content extends React.Component<Props, State> {
   constructor(props) {
     super(props)
   }

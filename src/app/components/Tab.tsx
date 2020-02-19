@@ -2,14 +2,14 @@ import * as React from 'react'
 import { inject, observer } from 'mobx-react'
 import { StoreType } from '@/app/store'
 
-type MyProps = {
+type Props = {
   store?: StoreType
 }
-type MyState = {}
+type State = {}
 
 @inject('store')
 @observer
-export default class Tab extends React.Component<MyProps, MyState> {
+export default class Tab extends React.Component<Props, State> {
   constructor(props) {
     super(props)
   }

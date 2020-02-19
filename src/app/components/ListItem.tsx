@@ -1,13 +1,13 @@
 import * as React from 'react'
 
-type MyProps = {
+type Props = {
   name: string
   key: string
   pageName: string
 }
-type MyState = {}
+type State = {}
 
-export default class ListItem extends React.Component<MyProps, MyState> {
+export default class ListItem extends React.Component<Props, State> {
   constructor(props) {
     super(props)
   }

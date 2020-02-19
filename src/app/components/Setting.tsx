@@ -1,11 +1,11 @@
 import * as React from 'react'
 
-type MyProps = {}
-type MyState = {
+type Props = {}
+type State = {
   isFetching: boolean
 }
 
-export default class Setting extends React.Component<MyProps, MyState> {
+export default class Setting extends React.Component<Props, State> {
   constructor(props) {
     super(props)
     this.state = {
@@ -13,12 +13,24 @@ export default class Setting extends React.Component<MyProps, MyState> {
     }
   }
 
-  async handleClick(): Promise<void> {
-    this.setState({ isFetching: true })
+  async onSaveClick(): Promise<void> {
+    // this.setState({ isFetching: true })
     parent.postMessage(
       {
         pluginMessage: {
           type: 'save'
+        }
+      },
+      '*'
+    )
+  }
+
+  async onClearClick(): Promise<void> {
+    // this.setState({ isFetching: true })
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'clear'
         }
       },
       '*'
@@ -47,9 +59,10 @@ export default class Setting extends React.Component<MyProps, MyState> {
             fox jumps over the lazy dog.
           </p>
         </div>
-        <div onClick={this.handleClick.bind(this)}>
+        <div onClick={this.onSaveClick.bind(this)}>
           Save or update this library data
         </div>
+        <div onClick={this.onClearClick.bind(this)}>Clear all library data</div>
       </div>
     )
   }

@@ -1,25 +1,11 @@
-export type MessageType = 'save'
-export type Component = {
-  name: string
-  id: string
-  key: string
-}
-export type Page = {
-  name: string
-  id: string
-  components: Component[]
-}
-export type Document = {
-  name: string
-  id: string
-  pages: Page[]
-}
-export type Library = Document[]
+import _ from 'lodash'
+
+const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
 
 figma.showUI(__html__)
 
-async function saveComponentsData(): Promise<void> {
-  console.log('saveComponentsData')
+async function saveLibraryData(): Promise<void> {
+  console.log('saveLibraryData')
   const pages: Page[] = []
 
   figma.root.children.forEach(page => {
@@ -42,9 +28,45 @@ async function saveComponentsData(): Promise<void> {
     })
   })
 
-  console.log(pages)
+  const document: FigmaDocument = {
+    name: figma.root.name,
+    id: figma.root.id,
+    pages
+  }
+
+  const currentLibrary:
+    | Library
+    | undefined = await figma.clientStorage.getAsync(CLIENT_STORAGE_KEY_NAME)
+
+  const newLibrary = currentLibrary
+    ? _.unionBy(currentLibrary, [document], 'name')
+    : [document]
+
+  await figma.clientStorage
+    .setAsync(CLIENT_STORAGE_KEY_NAME, newLibrary)
+    .then(() => {
+      console.log('saveLibraryData success', newLibrary)
+    })
+    .catch(err => {
+      console.error('saveLibraryData failed', err)
+    })
+}
+
+async function clearLibraryData(): Promise<void> {
+  console.log('clearLibraryData')
+  await figma.clientStorage
+    .setAsync(CLIENT_STORAGE_KEY_NAME, undefined)
+    .then(() => {
+      console.log('clearLibraryData success')
+    })
+    .catch(err => {
+      console.error('clearLibraryData failed', err)
+    })
 }
 
 figma.ui.onmessage = async (msg): Promise<void> => {
-  if (msg.type === 'save') await saveComponentsData()
+  const messageType: MessageType = msg.type
+
+  if (messageType === 'save') await saveLibraryData()
+  else if (messageType === 'clear') await clearLibraryData()
 }

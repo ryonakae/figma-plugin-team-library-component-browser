@@ -1,7 +1,5 @@
 import { observable, action } from 'mobx'
 
-type TabID = 'list' | 'setting'
-
 export type StoreType = {
   tabID: TabID
   updateTabID: (tabID: TabID) => void
