@@ -22,7 +22,7 @@ export default class List extends React.Component<Props, State> {
         pluginMessage: {
           type: 'get'
         }
-      },
+      } as Message,
       '*'
     )
   }

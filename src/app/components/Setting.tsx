@@ -20,7 +20,7 @@ export default class Setting extends React.Component<Props, State> {
         pluginMessage: {
           type: 'save'
         }
-      },
+      } as Message,
       '*'
     )
   }
@@ -32,7 +32,7 @@ export default class Setting extends React.Component<Props, State> {
         pluginMessage: {
           type: 'clear'
         }
-      },
+      } as Message,
       '*'
     )
   }

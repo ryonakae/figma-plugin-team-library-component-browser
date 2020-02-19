@@ -86,7 +86,7 @@ function updateLibrary(): void {
   figma.ui.postMessage({
     type: 'update',
     data: library
-  })
+  } as PluginMessage)
 }
 
 figma.ui.onmessage = async (msg): Promise<void> => {

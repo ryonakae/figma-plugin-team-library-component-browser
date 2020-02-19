@@ -27,3 +27,12 @@ type StoreType = {
   library: Library
   updateTabID: (tabID: TabID) => void
 }
+
+type PluginMessage = {
+  type: MessageType
+  data?: any
+}
+
+type Message = {
+  pluginMessage: PluginMessage
+}
