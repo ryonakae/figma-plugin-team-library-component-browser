@@ -1,14 +1,14 @@
 module.exports = {
   plugins: {
     'postcss-import': {
-      path: 'src/assets/css'
+      path: 'src/app/assets/css'
     },
     'postcss-preset-env': {
       stage: 2,
       features: {
         'nesting-rules': true
       },
-      importFrom: ['src/assets/css/custom-properties.css']
+      importFrom: ['src/app/assets/css/custom-properties.css']
     },
     cssnano:
       process.env.NODE_ENV === 'production'
