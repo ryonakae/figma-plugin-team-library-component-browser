@@ -44,17 +44,14 @@
   "license": "MIT",
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ],
     "**/*.json": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "**/*.css": [
       "prettier --write",
-      "stylelint --fix",
-      "git add"
+      "stylelint --fix"
     ]
   },
   "scripts": {
