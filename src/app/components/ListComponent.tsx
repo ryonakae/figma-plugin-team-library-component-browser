@@ -33,6 +33,17 @@ export default class ListComponent extends React.Component<Props, State> {
 
   onDoubleClick(): void {
     console.log('onDoubleClick', this.props)
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'createinstance',
+          data: {
+            key: this.props.componentKey
+          }
+        }
+      } as Message,
+      '*'
+    )
   }
 
   render(): JSX.Element {

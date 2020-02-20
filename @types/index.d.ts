@@ -5,12 +5,15 @@ type MessageType =
   | 'clear'
   | 'update'
   | 'get'
+  | 'createinstance'
   | 'savesuccess'
   | 'clearsuccess'
   | 'getsuccess'
+  | 'createinstancesuccess'
   | 'savefailed'
   | 'clearfailed'
   | 'getfailed'
+  | 'createinstancefailed'
 
 type FigmaComponent = {
   name: string

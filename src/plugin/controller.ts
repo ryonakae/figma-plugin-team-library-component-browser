@@ -106,17 +106,27 @@ function updateLibrary(): void {
   } as PluginMessage)
 }
 
-figma.ui.onmessage = async (msg): Promise<void> => {
-  const messageType: MessageType = msg.type
+async function createInstance(
+  key: FigmaComponent['componentKey']
+): Promise<void> {
+  console.log('createInstance', key)
 
-  if (messageType === 'save') {
+  await figma.importComponentByKeyAsync(key).then(component => {
+    console.log('import component success', component)
+  })
+}
+
+figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
+  if (msg.type === 'save') {
     await saveLibrary()
     updateLibrary()
-  } else if (messageType === 'clear') {
+  } else if (msg.type === 'clear') {
     await clearLibrary()
     updateLibrary()
-  } else if (messageType === 'get') {
+  } else if (msg.type === 'get') {
     await getLibrary()
     updateLibrary()
+  } else if (msg.type === 'createinstance') {
+    await createInstance(msg.data.key)
   }
 }
