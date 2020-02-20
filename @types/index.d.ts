@@ -1,6 +1,16 @@
 type TabID = 'list' | 'setting'
 
-type MessageType = 'save' | 'clear' | 'update' | 'get'
+type MessageType =
+  | 'save'
+  | 'clear'
+  | 'update'
+  | 'get'
+  | 'savesuccess'
+  | 'clearsuccess'
+  | 'getsuccess'
+  | 'savefailed'
+  | 'clearfailed'
+  | 'getfailed'
 
 type FigmaComponent = {
   name: string

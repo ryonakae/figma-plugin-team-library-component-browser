@@ -1,5 +1,4 @@
 import * as React from 'react'
-import Modal from 'react-modal'
 import { inject, observer } from 'mobx-react'
 import Store from '@/app/Store'
 import { Snackbar as ReactSnackbar } from '@material/react-snackbar'
@@ -23,7 +22,7 @@ export default class Snackbar extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
-    const { isSnackbarOpen, snackbarMessage, closeSnackbar } = this.props.store!
+    const { isSnackbarOpen, snackbarMessage } = this.props.store!
 
     return (
       <ReactSnackbar

@@ -15,19 +15,33 @@ export default class List extends React.Component<Props, State> {
     super(props)
   }
 
-  componentDidMount(): void {
-    console.log('List did mount')
+  getLibrary(): Promise<void> {
+    return new Promise(resolve => {
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: 'get'
+          }
+        } as Message,
+        '*'
+      )
 
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: 'get'
+      onmessage = (msg): void => {
+        const messageType: MessageType = msg.data.pluginMessage.type
+
+        if (messageType === 'getsuccess') {
+          resolve()
         }
-      } as Message,
-      '*'
-    )
+      }
+    })
+  }
 
-    this.props.store!.openSnackbar('list did mount')
+  async componentDidMount(): Promise<void> {
+    console.log('List did mount')
+    this.setState({ isLoading: true })
+    await this.getLibrary()
+    this.setState({ isLoading: false })
+    // console.log(this.props.store!.library[0].name)
   }
 
   componentWillUnmount(): void {
@@ -36,6 +50,8 @@ export default class List extends React.Component<Props, State> {
 
   render(): JSX.Element {
     const library = this.props.store!.library as Array<FigmaDocument>
+    console.log(library)
+
     return (
       <div>
         {library.map((document, index) => (

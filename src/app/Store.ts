@@ -1,5 +1,4 @@
 import { observable, action } from 'mobx'
-import Dialog from '@/app/components/Dialog'
 
 export default class Store {
   constructor() {
