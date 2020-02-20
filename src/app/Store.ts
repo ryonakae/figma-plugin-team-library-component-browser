@@ -27,6 +27,9 @@ export default class Store {
   @observable dialogConfirmText?: string
   @observable dialogOnConfirm?: () => void
 
+  @observable isSnackbarOpen = false
+  @observable snackbarMessage = ''
+
   @action updateTabID(tabID: TabID): void {
     this.tabID = tabID
   }
@@ -68,5 +71,17 @@ export default class Store {
     this.dialogMessage = undefined
     this.dialogConfirmText = undefined
     this.dialogOnConfirm = undefined
+  }
+
+  @action openSnackbar(snackbarMessage: Store['snackbarMessage']): void {
+    console.log('openSnackbar')
+    this.isSnackbarOpen = true
+    this.snackbarMessage = snackbarMessage
+  }
+
+  @action closeSnackbar(): void {
+    console.log('closeSnackbar', this.isSnackbarOpen)
+    this.isSnackbarOpen = false
+    this.snackbarMessage = ''
   }
 }

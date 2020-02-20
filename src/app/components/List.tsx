@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
 import ListItem from '~/app/components/ListItem'
-import Store from '../Store'
+import Store from '@/app/Store'
 
 type Props = {
   store?: Store
@@ -26,6 +26,8 @@ export default class List extends React.Component<Props, State> {
       } as Message,
       '*'
     )
+
+    this.props.store!.openSnackbar('list did mount')
   }
 
   componentWillUnmount(): void {

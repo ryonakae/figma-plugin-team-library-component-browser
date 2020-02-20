@@ -2,6 +2,7 @@
   "name": "figma-plugin-team-library-component-browser",
   "version": "0.0.1",
   "dependencies": {
+    "@material/react-snackbar": "^0.15.0",
     "lodash": "^4.17.15",
     "mobx": "^5.15.4",
     "mobx-react": "^6.1.8",
@@ -24,6 +25,7 @@
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.18.3",
     "html-webpack-inline-source-plugin": "^0.0.10",
     "html-webpack-plugin": "^3.2.0",
     "husky": "^4.2.3",

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Modal from 'react-modal'
 import { inject, observer } from 'mobx-react'
-import Store from '../Store'
+import Store from '@/app/Store'
 
 type Props = {
   store?: Store
@@ -38,11 +38,7 @@ export default class Dialog extends React.Component<Props, State> {
     } = this.props.store!
 
     return (
-      <Modal
-        isOpen={isDialogOpen}
-        className={`dialog-content is-${dialogType}`}
-        overlayClassName="dialog"
-      >
+      <Modal isOpen={isDialogOpen} className={`is-${dialogType}`}>
         <div>
           <div>{dialogTitle}</div>
           <div onClick={this.close.bind(this)}>Close</div>
