@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
 import Store from '@/app/Store'
-import Util from '@/app/modules/Util'
+import Util from '@/app/Util'
 import ListDocument from '@/app/components/ListDocument'
 
 type Props = {
