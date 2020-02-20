@@ -12,6 +12,10 @@ export default class Store {
       if (messageType === 'update') {
         this.updateLibrary(msg.data.pluginMessage.data)
         console.log('library update', this.library)
+      } else if (messageType === 'savesuccess') {
+        this.openSnackbar('Success to save library data')
+      } else if (messageType === 'clearsuccess') {
+        this.openSnackbar('Success to clear all library data')
       }
     }
   }

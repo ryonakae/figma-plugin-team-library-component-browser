@@ -5,9 +5,7 @@ import Store from '@/app/Store'
 type Props = {
   store?: Store
 }
-type State = {
-  isFetching: boolean
-}
+type State = {}
 
 @inject('store')
 @observer
@@ -20,7 +18,6 @@ export default class Setting extends React.Component<Props, State> {
   }
 
   async onSaveClick(): Promise<void> {
-    // this.setState({ isFetching: true })
     parent.postMessage(
       {
         pluginMessage: {
@@ -29,19 +26,9 @@ export default class Setting extends React.Component<Props, State> {
       } as Message,
       '*'
     )
-
-    onmessage = (msg): void => {
-      const messageType: MessageType = msg.data.pluginMessage.type
-
-      if (messageType === 'savesuccess') {
-        this.props.store!.openSnackbar('Success to save library data')
-      }
-    }
   }
 
   async onClearClick(): Promise<void> {
-    // this.setState({ isFetching: true })
-
     this.props.store!.openDialog({
       dialogType: 'alert',
       dialogTitle: 'Clear All Library Data',
@@ -57,14 +44,6 @@ export default class Setting extends React.Component<Props, State> {
           } as Message,
           '*'
         )
-
-        onmessage = (msg): void => {
-          const messageType: MessageType = msg.data.pluginMessage.type
-
-          if (messageType === 'clearsuccess') {
-            this.props.store!.openSnackbar('Success to clear all library data')
-          }
-        }
       }
     })
   }
