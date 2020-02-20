@@ -2,38 +2,36 @@ import * as React from 'react'
 import { inject, observer } from 'mobx-react'
 import ListItem from '~/app/components/ListItem'
 import Store from '@/app/Store'
+import Util from '@/app/modules/Util'
 
 type Props = {
   store?: Store
 }
-type State = {}
+type State = {
+  isLoading: boolean
+}
 
 @inject('store')
 @observer
 export default class List extends React.Component<Props, State> {
   constructor(props) {
     super(props)
+    this.state = {
+      isLoading: false
+    }
   }
 
-  getLibrary(): Promise<void> {
-    return new Promise(resolve => {
-      parent.postMessage(
-        {
-          pluginMessage: {
-            type: 'get'
-          }
-        } as Message,
-        '*'
-      )
-
-      onmessage = (msg): void => {
-        const messageType: MessageType = msg.data.pluginMessage.type
-
-        if (messageType === 'getsuccess') {
-          resolve()
+  async getLibrary(): Promise<void> {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'get'
         }
-      }
-    })
+      } as Message,
+      '*'
+    )
+
+    await Util.wait(500)
   }
 
   async componentDidMount(): Promise<void> {
@@ -41,7 +39,6 @@ export default class List extends React.Component<Props, State> {
     this.setState({ isLoading: true })
     await this.getLibrary()
     this.setState({ isLoading: false })
-    // console.log(this.props.store!.library[0].name)
   }
 
   componentWillUnmount(): void {
@@ -49,31 +46,38 @@ export default class List extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
-    const library = this.props.store!.library as Array<FigmaDocument>
-    console.log(library)
+    // const library = this.props.store!.library as Array<FigmaDocument>
+    const isLoading = this.state.isLoading
 
     return (
       <div>
-        {library.map((document, index) => (
-          <div className="document" key={index}>
-            <div>{document.name}</div>
-            {document.pages.map((page, index) => (
-              <div className="page" key={index}>
-                <div>{page.name}</div>
-                {page.components.map((component, index) => (
-                  <div className="component" key={index}>
-                    <div>{component.name}</div>
-                    <div>{component.id}</div>
-                    <div>{component.key}</div>
-                    <div>.....</div>
+        {isLoading && <div>Loading</div>}
+        {!isLoading &&
+          (this.props.store!.library as Array<FigmaDocument>).map(
+            (document, index) => (
+              <div className="document" key={index}>
+                <div>{document.name}</div>
+                {document.pages.map((page, index) => (
+                  <div className="page" key={index}>
+                    <div>{page.name}</div>
+                    {page.components.map((component, index) => (
+                      <div className="component" key={index}>
+                        <div>{component.name}</div>
+                        <div>{component.id}</div>
+                        <div>{component.key}</div>
+                        <div>.....</div>
+                      </div>
+                    ))}
+                    <div>-----</div>
                   </div>
                 ))}
-                <div>-----</div>
+                <div>=====</div>
               </div>
-            ))}
-            <div>=====</div>
-          </div>
-        ))}
+            )
+          )}
+        {!isLoading && this.props.store!.library.length === 0 && (
+          <div>No component</div>
+        )}
       </div>
     )
   }

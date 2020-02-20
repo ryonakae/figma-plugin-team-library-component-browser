@@ -99,6 +99,7 @@ async function getLibrary(): Promise<void> {
 }
 
 function updateLibrary(): void {
+  console.log('updateLibrary', library)
   figma.ui.postMessage({
     type: 'update',
     data: library
