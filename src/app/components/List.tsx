@@ -34,11 +34,15 @@ export default class List extends React.Component<Props, State> {
     await Util.wait(500)
   }
 
-  async componentDidMount(): Promise<void> {
-    console.log('List did mount')
+  async fetch(): Promise<void> {
     this.setState({ isLoading: true })
     await this.getLibrary()
     this.setState({ isLoading: false })
+  }
+
+  componentDidMount(): void {
+    console.log('List did mount')
+    this.fetch()
   }
 
   componentWillUnmount(): void {
@@ -51,6 +55,8 @@ export default class List extends React.Component<Props, State> {
 
     return (
       <div>
+        <div onClick={this.fetch.bind(this)}>Refresh</div>
+
         {isLoading && <div>Loading</div>}
         {!isLoading &&
           (this.props.store!.library as Array<FigmaDocument>).map(
