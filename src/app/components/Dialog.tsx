@@ -21,26 +21,37 @@ export default class Dialog extends React.Component<Props, State> {
   }
 
   onConfirm(): void {
-    if (this.props.store!.onDialogConfirm) {
-      this.props.store!.onDialogConfirm()
+    if (this.props.store!.dialogOnConfirm) {
+      this.props.store!.dialogOnConfirm()
     }
     this.close()
   }
 
   render(): JSX.Element {
-    const { isDialogOpen, onDialogConfirm } = this.props.store!
+    const {
+      isDialogOpen,
+      dialogType,
+      dialogTitle,
+      dialogMessage,
+      dialogConfirmText,
+      dialogOnConfirm
+    } = this.props.store!
 
     return (
       <Modal
         isOpen={isDialogOpen}
-        contentLabel="Example Modal"
-        // className="modal"
-        // overlayClassName="overlay"
+        className={`dialog-content is-${dialogType}`}
+        overlayClassName="dialog"
       >
-        <h2>ModalWindow</h2>
-        <div onClick={this.close.bind(this)}>Close</div>
-        {onDialogConfirm && (
-          <div onClick={this.onConfirm.bind(this)}>Confirm</div>
+        <div>
+          <div>{dialogTitle}</div>
+          <div onClick={this.close.bind(this)}>Close</div>
+        </div>
+
+        {dialogMessage && <div>{dialogMessage}</div>}
+
+        {dialogConfirmText && (
+          <div onClick={this.onConfirm.bind(this)}>{dialogConfirmText}</div>
         )}
       </Modal>
     )

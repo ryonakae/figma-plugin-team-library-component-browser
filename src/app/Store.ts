@@ -19,8 +19,13 @@ export default class Store {
 
   @observable tabID: TabID = 'list'
   @observable library: Library = []
+
   @observable isDialogOpen = false
-  @observable onDialogConfirm: (() => void) | undefined = undefined
+  @observable dialogType: 'prompt' | 'alert' = 'prompt'
+  @observable dialogTitle = ''
+  @observable dialogMessage?: string
+  @observable dialogConfirmText?: string
+  @observable dialogOnConfirm?: () => void
 
   @action updateTabID(tabID: TabID): void {
     this.tabID = tabID
@@ -31,16 +36,37 @@ export default class Store {
   }
 
   @action openDialog(options?: {
-    onDialogConfirm: Store['onDialogConfirm']
+    dialogType: Store['dialogType']
+    dialogTitle: Store['dialogTitle']
+    dialogMessage?: Store['dialogMessage']
+    dialogConfirmText?: Store['dialogConfirmText']
+    dialogOnConfirm?: Store['dialogOnConfirm']
   }): void {
     this.isDialogOpen = true
-    if (options && options.onDialogConfirm) {
-      this.onDialogConfirm = options.onDialogConfirm
+
+    if (options) {
+      this.dialogType = options.dialogType
+      this.dialogTitle = options.dialogTitle
+
+      if (options.dialogMessage) {
+        this.dialogMessage = options.dialogMessage
+      }
+
+      if (options.dialogConfirmText) {
+        this.dialogConfirmText = options.dialogConfirmText
+      }
+
+      if (options.dialogOnConfirm) {
+        this.dialogOnConfirm = options.dialogOnConfirm
+      }
     }
   }
 
   @action closeDialog(): void {
     this.isDialogOpen = false
-    this.onDialogConfirm = undefined
+
+    this.dialogMessage = undefined
+    this.dialogConfirmText = undefined
+    this.dialogOnConfirm = undefined
   }
 }

@@ -35,7 +35,12 @@ export default class Setting extends React.Component<Props, State> {
     // this.setState({ isFetching: true })
 
     this.props.store!.openDialog({
-      onDialogConfirm: () => {
+      dialogType: 'alert',
+      dialogTitle: 'Clear All Library Data',
+      dialogMessage:
+        'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. ',
+      dialogConfirmText: 'Clear all library data',
+      dialogOnConfirm: () => {
         parent.postMessage(
           {
             pluginMessage: {
