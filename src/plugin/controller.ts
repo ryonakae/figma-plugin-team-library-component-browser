@@ -17,7 +17,7 @@ async function saveLibrary(): Promise<void> {
         components.push({
           name: scene.name,
           id: scene.id,
-          key: scene.key
+          componentKey: scene.key
         })
       }
     })

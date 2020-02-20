@@ -15,7 +15,7 @@ type MessageType =
 type FigmaComponent = {
   name: string
   id: string
-  key: string
+  componentKey: string
 }
 
 type FigmaPage = {

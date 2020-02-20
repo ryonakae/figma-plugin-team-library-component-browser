@@ -23,6 +23,8 @@ export default class Store {
   @observable tabID: TabID = 'list'
   @observable library: Library = []
 
+  @observable currentSelectComponent: FigmaComponent | null = null
+
   @observable isDialogOpen = false
   @observable dialogType: 'prompt' | 'alert' = 'prompt'
   @observable dialogTitle = ''

@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import ListItem from '~/app/components/ListItem'
 import Store from '@/app/Store'
 import Util from '@/app/modules/Util'
+import ListDocument from '@/app/components/ListDocument'
 
 type Props = {
   store?: Store
@@ -58,29 +58,19 @@ export default class List extends React.Component<Props, State> {
         <div onClick={this.fetch.bind(this)}>Refresh</div>
 
         {isLoading && <div>Loading</div>}
+
         {!isLoading &&
-          (this.props.store!.library as Array<FigmaDocument>).map(
-            (document, index) => (
-              <div className="document" key={index}>
-                <div>{document.name}</div>
-                {document.pages.map((page, index) => (
-                  <div className="page" key={index}>
-                    <div>{page.name}</div>
-                    {page.components.map((component, index) => (
-                      <div className="component" key={index}>
-                        <div>{component.name}</div>
-                        <div>{component.id}</div>
-                        <div>{component.key}</div>
-                        <div>.....</div>
-                      </div>
-                    ))}
-                    <div>-----</div>
-                  </div>
-                ))}
-                <div>=====</div>
-              </div>
-            )
-          )}
+          (this.props.store!.library as Array<
+            FigmaDocument
+          >).map((document, index) => (
+            <ListDocument
+              key={index}
+              name={document.name}
+              id={document.id}
+              pages={document.pages}
+            />
+          ))}
+
         {!isLoading && this.props.store!.library.length === 0 && (
           <div>No component</div>
         )}
