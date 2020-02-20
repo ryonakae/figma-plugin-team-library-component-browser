@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Modal from 'react-modal'
 
 type Props = {}
 type State = {
@@ -63,6 +64,16 @@ export default class Setting extends React.Component<Props, State> {
           Save or update this library data
         </div>
         <div onClick={this.onClearClick.bind(this)}>Clear all library data</div>
+
+        <Modal
+          isOpen={true}
+          contentLabel="Example Modal"
+          className="modal"
+          overlayClassName="overlay"
+        >
+          <h2>ModalWindow</h2>
+          <div>test</div>
+        </Modal>
       </div>
     )
   }
