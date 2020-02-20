@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
+import Store from '../Store'
 
 type Props = {
-  store?: StoreType
+  store?: Store
 }
 type State = {}
 
@@ -13,7 +14,7 @@ export default class Tab extends React.Component<Props, State> {
     super(props)
   }
 
-  handleClick(tabID: StoreType['tabID']): void {
+  handleClick(tabID: Store['tabID']): void {
     this.props.store!.updateTabID(tabID)
   }
 

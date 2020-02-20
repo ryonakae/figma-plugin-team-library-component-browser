@@ -22,12 +22,6 @@ type FigmaDocument = {
 
 type Library = FigmaDocument[] | []
 
-type StoreType = {
-  tabID: TabID
-  library: Library
-  updateTabID: (tabID: TabID) => void
-}
-
 type PluginMessage = {
   type: MessageType
   data?: any

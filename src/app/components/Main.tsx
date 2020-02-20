@@ -2,9 +2,10 @@ import * as React from 'react'
 import { inject, observer } from 'mobx-react'
 import List from '@/app/components/List'
 import Setting from '@/app/components/Setting'
+import Store from '../Store'
 
 type Props = {
-  store?: StoreType
+  store?: Store
 }
 type State = {}
 
