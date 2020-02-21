@@ -61,9 +61,7 @@ export default class ListComponent extends React.Component<Props, State> {
       <div>
         {this.props.componentKey && (
           <div onClick={this.handleClick.bind(this)}>
-            <div>{this.props.name}</div>
-            <div>id: {this.props.id}</div>
-            <div>key: {this.props.componentKey}</div>
+            <div>・{this.props.name}</div>
           </div>
         )}
       </div>

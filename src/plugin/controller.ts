@@ -3,7 +3,7 @@ import _ from 'lodash'
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
 let library: Library = []
 
-figma.showUI(__html__)
+figma.showUI(__html__, { width: 250 })
 
 async function saveLibrary(): Promise<void> {
   console.log('saveLibrary')
@@ -186,6 +186,9 @@ async function createInstance(options: {
   }
 
   console.log('create instance success', instance)
+  figma.ui.postMessage({
+    type: 'createinstancesuccess'
+  } as PluginMessage)
 }
 
 figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {

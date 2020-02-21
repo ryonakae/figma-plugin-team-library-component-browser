@@ -16,6 +16,8 @@ export default class Store {
         this.openSnackbar('Success to save library data')
       } else if (messageType === 'clearsuccess') {
         this.openSnackbar('Success to clear all library data')
+      } else if (messageType === 'createinstancesuccess') {
+        this.openSnackbar('Success to create instance')
       }
     }
   }
