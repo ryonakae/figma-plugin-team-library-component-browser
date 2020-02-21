@@ -47,19 +47,18 @@ async function saveLibrary(): Promise<void> {
 
   await figma.clientStorage
     .setAsync(CLIENT_STORAGE_KEY_NAME, library)
-    .then(() => {
-      console.log('saveLibrary success', library)
-      figma.ui.postMessage({
-        type: 'savesuccess',
-        data: library
-      } as PluginMessage)
-    })
     .catch(err => {
-      console.error('saveLibrary failed', err)
       figma.ui.postMessage({
         type: 'savefailed'
       } as PluginMessage)
+      throw new Error(err)
     })
+
+  console.log('saveLibrary success', library)
+  figma.ui.postMessage({
+    type: 'savesuccess',
+    data: library
+  } as PluginMessage)
 }
 
 async function clearLibrary(): Promise<void> {
@@ -69,18 +68,17 @@ async function clearLibrary(): Promise<void> {
 
   await figma.clientStorage
     .setAsync(CLIENT_STORAGE_KEY_NAME, library)
-    .then(() => {
-      console.log('clearLibrary success')
-      figma.ui.postMessage({
-        type: 'clearsuccess'
-      } as PluginMessage)
-    })
     .catch(err => {
-      console.error('clearLibrary failed', err)
       figma.ui.postMessage({
         type: 'clearfailed'
       } as PluginMessage)
+      throw new Error(err)
     })
+
+  console.log('clearLibrary success')
+  figma.ui.postMessage({
+    type: 'clearsuccess'
+  } as PluginMessage)
 }
 
 async function getLibrary(): Promise<void> {
@@ -111,9 +109,34 @@ async function createInstance(
 ): Promise<void> {
   console.log('createInstance', key)
 
-  await figma.importComponentByKeyAsync(key).then(component => {
-    console.log('import component success', component)
+  const component = await figma.importComponentByKeyAsync(key).catch(err => {
+    throw new Error(err)
   })
+  console.log('import component success', component)
+
+  const selections = figma.currentPage.selection
+  console.log('selections', selections)
+
+  const instance = component.createInstance()
+  instance.resize(100, 100)
+
+  if (selections.length > 0) {
+    const selection = selections[0]
+
+    const selectionParent = selection.parent
+    console.log('selectionParent', selectionParent)
+
+    const selectionIndex = _.findIndex(
+      selectionParent!.children,
+      (child): boolean => {
+        return child.id === selection.id
+      }
+    )
+    console.log('selectionIndex', selectionIndex)
+
+    selectionParent!.insertChild(selectionIndex, instance)
+    selection.remove()
+  }
 }
 
 figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
