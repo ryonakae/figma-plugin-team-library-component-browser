@@ -24,6 +24,8 @@ export default class Store {
   @observable library: Library = []
 
   @observable currentSelectComponent: FigmaComponent | null = null
+  @observable isSwap = false
+  @observable isOriginalSize = false
 
   @observable isDialogOpen = false
   @observable dialogType: 'prompt' | 'alert' = 'prompt'
@@ -88,5 +90,13 @@ export default class Store {
     console.log('closeSnackbar', this.isSnackbarOpen)
     this.isSnackbarOpen = false
     this.snackbarMessage = ''
+  }
+
+  @action toggleIsSwap(): void {
+    this.isSwap = !this.isSwap
+  }
+
+  @action toggleIsOriginalSize(): void {
+    this.isOriginalSize = !this.isOriginalSize
   }
 }

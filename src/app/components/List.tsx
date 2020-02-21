@@ -3,6 +3,7 @@ import { inject, observer } from 'mobx-react'
 import Store from '@/app/Store'
 import Util from '@/app/Util'
 import ListDocument from '@/app/components/ListDocument'
+import Options from '@/app/components/Options'
 
 type Props = {
   store?: Store
@@ -74,6 +75,8 @@ export default class List extends React.Component<Props, State> {
         {!isLoading && this.props.store!.library.length === 0 && (
           <div>No component</div>
         )}
+
+        <Options />
       </div>
     )
   }

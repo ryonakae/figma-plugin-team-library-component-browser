@@ -1,9 +1,15 @@
 import * as React from 'react'
 import Util from '@/app/Util'
+import { inject, observer } from 'mobx-react'
+import Store from '@/app/Store'
 
-type Props = FigmaComponent
+type Props = FigmaComponent & {
+  store?: Store
+}
 type State = {}
 
+@inject('store')
+@observer
 export default class ListComponent extends React.Component<Props, State> {
   private clickCount: number
 
@@ -38,7 +44,11 @@ export default class ListComponent extends React.Component<Props, State> {
         pluginMessage: {
           type: 'createinstance',
           data: {
-            key: this.props.componentKey
+            key: this.props.componentKey,
+            options: {
+              isSwap: this.props.store!.isSwap,
+              isOriginalSize: this.props.store!.isOriginalSize
+            }
           }
         }
       } as Message,
