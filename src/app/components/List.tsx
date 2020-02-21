@@ -4,6 +4,7 @@ import Store from '@/app/Store'
 import Util from '@/app/Util'
 import ListDocument from '@/app/components/ListDocument'
 import Options from '@/app/components/Options'
+import Search from '@/app/components/Search'
 
 type Props = {
   store?: Store
@@ -56,6 +57,7 @@ export default class List extends React.Component<Props, State> {
 
     return (
       <div>
+        <Search />
         <div onClick={this.fetch.bind(this)}>Refresh</div>
 
         {isLoading && <div>Loading</div>}
