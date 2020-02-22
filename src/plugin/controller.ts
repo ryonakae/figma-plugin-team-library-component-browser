@@ -3,7 +3,7 @@ import _ from 'lodash'
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
 let library: Library = []
 
-figma.showUI(__html__, { width: 250, height: 500 })
+figma.showUI(__html__, { width: 250, height: 400 })
 
 async function saveLibrary(): Promise<void> {
   console.log('saveLibrary')

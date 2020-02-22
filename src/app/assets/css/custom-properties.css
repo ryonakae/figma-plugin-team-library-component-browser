@@ -1,3 +1,19 @@
 :root {
-  --fontFamily: Inter, system-ui, sans-serif;
+  --fontFamily: inter, system-ui, sans-serif;
+  --fontSize: 11px;
+  --color-bg: white;
+  --color-snackbarBg: #222;
+  --color-modalBg: rgba(0, 0, 0, 0.5);
+  --color-defaultText: #333;
+  --color-subText: #b3b3b3;
+  --color-alert: #f04629;
+  --color-active: #18a0fb;
+  --color-border: #e5e5e5;
+  --color-component: #7b61ff;
+  --radius-default: 2px;
+  --radius-snackbar: 5px;
+  --spacing-default: 16px;
+  --spacing-text: 8px;
+  --spacing-list: 6px;
+  --spacing-bottom: 12px;
 }
