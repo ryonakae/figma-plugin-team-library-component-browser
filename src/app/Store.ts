@@ -1,5 +1,4 @@
 import { observable, action } from 'mobx'
-import Fuse from 'fuse.js'
 
 export default class Store {
   constructor() {
@@ -27,7 +26,7 @@ export default class Store {
   @observable library: Library = []
   @observable filteredLibrary: Library = []
 
-  @observable currentSelectComponent: FigmaComponent | null = null
+  @observable currentSelectComponentKey = ''
   @observable isSwap = false
   @observable isOriginalSize = false
 
@@ -106,5 +105,10 @@ export default class Store {
 
   @action toggleIsOriginalSize(): void {
     this.isOriginalSize = !this.isOriginalSize
+  }
+
+  @action setCurrentSelectComponentKey(key: string): void {
+    console.log('setCurrentSelectComponentKey', key)
+    this.currentSelectComponentKey = key
   }
 }

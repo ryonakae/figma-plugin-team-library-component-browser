@@ -35,6 +35,7 @@ export default class ListComponent extends React.Component<Props, State> {
 
   onSingleClick(): void {
     console.log('onSingleClick', this.props)
+    this.props.store!.setCurrentSelectComponentKey(this.props.componentKey)
   }
 
   onDoubleClick(): void {
@@ -57,11 +58,19 @@ export default class ListComponent extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
+    const { name, id, componentKey, parentName } = this.props
+    const className =
+      this.props.store!.currentSelectComponentKey === this.props.componentKey
+        ? 'is-selected'
+        : ''
+
     return (
       <div>
-        {this.props.componentKey && (
-          <div onClick={this.handleClick.bind(this)}>
-            <div>・{this.props.name}</div>
+        {componentKey && (
+          <div onClick={this.handleClick.bind(this)} className={className}>
+            <div>
+              ・{parentName} / {name}
+            </div>
           </div>
         )}
       </div>
