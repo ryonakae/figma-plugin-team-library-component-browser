@@ -43,9 +43,10 @@ export default class List extends React.Component<Props, State> {
     this.setState({ isLoading: false })
   }
 
-  componentDidMount(): void {
+  async componentDidMount(): Promise<void> {
     console.log('List did mount')
-    this.fetch()
+    await this.fetch()
+    this.props.store!.updateFilteredLibrary(this.props.store!.library)
   }
 
   componentWillUnmount(): void {
@@ -67,17 +68,6 @@ export default class List extends React.Component<Props, State> {
         {/* {isLoading && <div>Loading</div>} */}
 
         {!isLoading &&
-          filteredLibrary.length === 0 &&
-          library.map((document, index) => (
-            <ListDocument
-              key={index}
-              name={document.name}
-              id={document.id}
-              pages={document.pages}
-            />
-          ))}
-
-        {!isLoading &&
           filteredLibrary.length > 0 &&
           filteredLibrary.map((document, index) => {
             return (
@@ -89,6 +79,10 @@ export default class List extends React.Component<Props, State> {
               />
             )
           })}
+
+        {!isLoading && filteredLibrary.length === 0 && (
+          <div>No search results</div>
+        )}
 
         {!isLoading && library.length === 0 && <div>No component</div>}
 
