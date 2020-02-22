@@ -1,4 +1,5 @@
 import { observable, action } from 'mobx'
+import Fuse from 'fuse.js'
 
 export default class Store {
   constructor() {
@@ -24,6 +25,7 @@ export default class Store {
 
   @observable tabID: TabID = 'list'
   @observable library: Library = []
+  @observable filteredLibrary: Fuse.FuseResultWithMatches<FigmaComponent>[] = []
 
   @observable currentSelectComponent: FigmaComponent | null = null
   @observable isSwap = false
@@ -45,6 +47,12 @@ export default class Store {
 
   @action private updateLibrary(library: Library): void {
     this.library = library
+  }
+
+  @action updateFilteredLibrary(
+    filteredLibrary: Store['filteredLibrary']
+  ): void {
+    this.filteredLibrary = filteredLibrary
   }
 
   @action openDialog(options?: {

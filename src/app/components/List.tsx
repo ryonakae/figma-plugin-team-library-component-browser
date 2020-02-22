@@ -5,6 +5,7 @@ import Util from '@/app/Util'
 import ListDocument from '@/app/components/ListDocument'
 import Options from '@/app/components/Options'
 import Search from '@/app/components/Search'
+import ListComponent from './ListComponent'
 
 type Props = {
   store?: Store
@@ -52,7 +53,8 @@ export default class List extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
-    // const library = this.props.store!.library as Array<FigmaDocument>
+    const library = this.props.store!.library as Array<FigmaDocument>
+    const filteredLibrary = this.props.store!.filteredLibrary
     const isLoading = this.state.isLoading
 
     return (
@@ -63,9 +65,8 @@ export default class List extends React.Component<Props, State> {
         {isLoading && <div>Loading</div>}
 
         {!isLoading &&
-          (this.props.store!.library as Array<
-            FigmaDocument
-          >).map((document, index) => (
+          filteredLibrary.length === 0 &&
+          library.map((document, index) => (
             <ListDocument
               key={index}
               name={document.name}
@@ -74,9 +75,18 @@ export default class List extends React.Component<Props, State> {
             />
           ))}
 
-        {!isLoading && this.props.store!.library.length === 0 && (
-          <div>No component</div>
-        )}
+        {!isLoading &&
+          filteredLibrary.length > 0 &&
+          filteredLibrary.map((component, index) => (
+            <ListComponent
+              key={index}
+              name={component['name']}
+              id={component['id']}
+              componentKey={component['componentKey']}
+            />
+          ))}
+
+        {!isLoading && library.length === 0 && <div>No component</div>}
 
         <Options />
       </div>
