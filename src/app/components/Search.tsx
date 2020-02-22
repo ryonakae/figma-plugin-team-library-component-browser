@@ -7,7 +7,7 @@ type Props = {
   store?: Store
 }
 type State = {
-  fuse: Fuse<FigmaDocument, Fuse.FuseOptions<FigmaDocument>>
+  // fuse: Fuse<FigmaDocument, Fuse.FuseOptions<FigmaDocument>>
   fuseOptions: Fuse.FuseOptions<FigmaDocument>
 }
 
@@ -16,9 +16,16 @@ type State = {
 export default class Search extends React.Component<Props, State> {
   constructor(props) {
     super(props)
+    console.log(this.props.store!.library)
+    console.log(this.props.store!.library.slice())
     this.state = {
-      fuse: new Fuse(this.props.store!.library.slice(), {}),
+      // fuse: new Fuse(this.props.store!.library.slice(), {}),
       fuseOptions: {
+        threshold: 0.6,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        minMatchCharLength: 1,
         keys: ['name', 'pages.name', 'pages.components.name']
       }
     }
@@ -26,8 +33,12 @@ export default class Search extends React.Component<Props, State> {
 
   filter(event: React.ChangeEvent<HTMLInputElement>): void {
     const value = event.target.value
-    const results = this.state.fuse.search(value)
-    console.log(results)
+    const fuse = new Fuse(
+      this.props.store!.library.slice(),
+      this.state.fuseOptions
+    )
+    const results = fuse.search(value)
+    console.log(fuse, value, results)
   }
 
   render(): JSX.Element {
