@@ -29,7 +29,7 @@ export default class Options extends React.Component<Props, State> {
       <div>
         <div onClick={this.onSwapClick.bind(this)}>Swap: {String(isSwap)}</div>
         <div onClick={this.onOriginalSizeClick.bind(this)}>
-          Original Size: {String(isOriginalSize)}
+          Original Size when Swap: {String(isOriginalSize)}
         </div>
       </div>
     )

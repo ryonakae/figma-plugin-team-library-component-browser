@@ -159,13 +159,16 @@ async function createInstance(options: {
       // ※配列的には後、Figmaの表示では上
       parent.insertChild(index, copiedInstance)
 
-      // isOriginalSizeがfalse→selectionのサイズをインスタンスのサイズにする
-      if (!options.options.isOriginalSize) {
-        copiedInstance.resize(selection.width, selection.height)
-      }
-
       // isSwapがtrue→selectionを削除
       if (options.options.isSwap) {
+        console.log('swap copied instance')
+
+        // isOriginalSizeがfalse→selectionのサイズをインスタンスのサイズにする
+        if (!options.options.isOriginalSize) {
+          console.log('resize copied instance')
+          copiedInstance.resize(selection.width, selection.height)
+        }
+
         // instanceの色んなプロパティを選択した要素と同じにする
         // Scene node properties
         copiedInstance.visible = selection.visible
