@@ -19,6 +19,7 @@ export default class ListPage extends React.Component<Props, State> {
             name={component.name}
             id={component.id}
             componentKey={component.componentKey}
+            parentName={component.parentName}
           />
         ))}
       </div>

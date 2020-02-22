@@ -19,12 +19,14 @@ type FigmaComponent = {
   name: string
   id: string
   componentKey: string
+  parentName: string
 }
 
 type FigmaPage = {
   name: string
   id: string
   components: FigmaComponent[]
+  parentName: string
 }
 
 type FigmaDocument = {

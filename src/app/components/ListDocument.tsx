@@ -21,6 +21,7 @@ export default class ListDocument extends React.Component<Props, State> {
                 name={page.name}
                 id={page.id}
                 components={page.components}
+                parentName={page.parentName}
               />
             )
         )}

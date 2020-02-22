@@ -25,7 +25,7 @@ export default class Search extends React.Component<Props, State> {
         distance: 100,
         maxPatternLength: 32,
         minMatchCharLength: 1,
-        keys: ['name']
+        keys: ['name', 'parentName']
       }
     }
   }

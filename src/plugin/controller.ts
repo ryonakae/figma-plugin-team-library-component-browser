@@ -12,20 +12,22 @@ async function saveLibrary(): Promise<void> {
   figma.root.children.forEach(page => {
     const components: FigmaComponent[] = []
 
+    pages.push({
+      name: page.name,
+      id: page.id,
+      components,
+      parentName: figma.root.name
+    })
+
     page.children.forEach(scene => {
       if (scene.type === 'COMPONENT') {
         components.push({
           name: scene.name,
           id: scene.id,
-          componentKey: scene.key
+          componentKey: scene.key,
+          parentName: page.name
         })
       }
-    })
-
-    pages.push({
-      name: page.name,
-      id: page.id,
-      components
     })
   })
 

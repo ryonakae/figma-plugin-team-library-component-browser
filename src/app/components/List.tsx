@@ -77,14 +77,18 @@ export default class List extends React.Component<Props, State> {
 
         {!isLoading &&
           filteredLibrary.length > 0 &&
-          filteredLibrary.map((component, index) => (
-            <ListComponent
-              key={index}
-              name={component['name']}
-              id={component['id']}
-              componentKey={component['componentKey']}
-            />
-          ))}
+          filteredLibrary.map((component, index) => {
+            const _component = (component as unknown) as FigmaComponent
+            return (
+              <ListComponent
+                key={index}
+                name={_component.name}
+                id={_component.id}
+                componentKey={_component.componentKey}
+                parentName={_component.parentName}
+              />
+            )
+          })}
 
         {!isLoading && library.length === 0 && <div>No component</div>}
 
