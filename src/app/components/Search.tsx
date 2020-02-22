@@ -48,19 +48,25 @@ export default class Search extends React.Component<Props, State> {
         id: document.id,
         pages: []
       }
+      let componentCount = 0
 
       document.pages.map((page, index) => {
         const fuse = new Fuse(page.components.slice(), this.state.fuseOptions)
-        const _components = fuse.search(value)
+        const _components = fuse.search(value) as FigmaComponent[]
+
         _document.pages.push({
           name: page.name,
           id: page.id,
-          components: _components as FigmaComponent[],
+          components: _components,
           parentName: _document.name
         })
 
-        filteredLibrary = _.unionBy(filteredLibrary, [_document], 'name')
+        componentCount += _components.length
       })
+
+      if (componentCount > 0) {
+        filteredLibrary = _.unionBy(filteredLibrary, [_document], 'name')
+      }
     })
 
     console.log(filteredLibrary)
