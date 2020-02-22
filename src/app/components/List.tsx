@@ -34,7 +34,7 @@ export default class List extends React.Component<Props, State> {
       '*'
     )
 
-    await Util.wait(500)
+    await Util.wait(100)
   }
 
   async fetch(): Promise<void> {
@@ -64,7 +64,7 @@ export default class List extends React.Component<Props, State> {
         <Search />
         <div onClick={this.fetch.bind(this)}>Refresh</div>
 
-        {isLoading && <div>Loading</div>}
+        {/* {isLoading && <div>Loading</div>} */}
 
         {!isLoading &&
           filteredLibrary.length === 0 &&
