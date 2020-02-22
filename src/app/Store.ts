@@ -25,7 +25,7 @@ export default class Store {
 
   @observable tabID: TabID = 'list'
   @observable library: Library = []
-  @observable filteredLibrary: Fuse.FuseResultWithMatches<FigmaComponent>[] = []
+  @observable filteredLibrary: Library = []
 
   @observable currentSelectComponent: FigmaComponent | null = null
   @observable isSwap = false
@@ -49,9 +49,7 @@ export default class Store {
     this.library = library
   }
 
-  @action updateFilteredLibrary(
-    filteredLibrary: Store['filteredLibrary']
-  ): void {
+  @action updateFilteredLibrary(filteredLibrary: Library): void {
     this.filteredLibrary = filteredLibrary
   }
 

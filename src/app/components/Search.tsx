@@ -32,28 +32,39 @@ export default class Search extends React.Component<Props, State> {
 
   filter(event: React.ChangeEvent<HTMLInputElement>): void {
     const value = event.target.value
-    let results: Fuse.FuseResultWithMatches<FigmaComponent>[] = []
+    const library = this.props.store!.library as Array<FigmaDocument>
+    let filteredLibrary: FigmaDocument[] = []
+
+    // inputに1文字も入力されていなかったら、libraryをそのまま表示して以下の処理を中断
+    if (value.length === 0) {
+      filteredLibrary = library
+      return this.props.store!.updateFilteredLibrary(filteredLibrary)
+    }
 
     // ライブラリの各ドキュメントの各ページごとにfuse.searchを実行
-    const library = this.props.store!.library as Array<FigmaDocument>
     library.map(document => {
-      document.pages.map(page => {
+      const _document: FigmaDocument = {
+        name: document.name,
+        id: document.id,
+        pages: []
+      }
+
+      document.pages.map((page, index) => {
         const fuse = new Fuse(page.components.slice(), this.state.fuseOptions)
-        const result = fuse.search(value) as any
-        if (result.length > 0) {
-          results = _.concat(results, result)
-        }
+        const _components = fuse.search(value)
+        _document.pages.push({
+          name: page.name,
+          id: page.id,
+          components: _components as FigmaComponent[],
+          parentName: _document.name
+        })
+
+        filteredLibrary = _.unionBy(filteredLibrary, [_document], 'name')
       })
     })
 
-    console.log(results)
-    this.props.store!.updateFilteredLibrary(results)
-
-    console.log(
-      this.props.store!.filteredLibrary.map(component => {
-        return component['name']
-      })
-    )
+    console.log(filteredLibrary)
+    this.props.store!.updateFilteredLibrary(filteredLibrary)
   }
 
   render(): JSX.Element {

@@ -54,7 +54,9 @@ export default class List extends React.Component<Props, State> {
 
   render(): JSX.Element {
     const library = this.props.store!.library as Array<FigmaDocument>
-    const filteredLibrary = this.props.store!.filteredLibrary
+    const filteredLibrary = this.props.store!.filteredLibrary as Array<
+      FigmaDocument
+    >
     const isLoading = this.state.isLoading
 
     return (
@@ -77,15 +79,13 @@ export default class List extends React.Component<Props, State> {
 
         {!isLoading &&
           filteredLibrary.length > 0 &&
-          filteredLibrary.map((component, index) => {
-            const _component = (component as unknown) as FigmaComponent
+          filteredLibrary.map((document, index) => {
             return (
-              <ListComponent
+              <ListDocument
                 key={index}
-                name={_component.name}
-                id={_component.id}
-                componentKey={_component.componentKey}
-                parentName={_component.parentName}
+                name={document.name}
+                id={document.id}
+                pages={document.pages}
               />
             )
           })}
