@@ -15,6 +15,8 @@ type State = {
 @inject('store')
 @observer
 export default class Search extends React.Component<Props, State> {
+  private inputRef: React.RefObject<HTMLInputElement>
+
   constructor(props) {
     super(props)
     this.state = {
@@ -28,15 +30,18 @@ export default class Search extends React.Component<Props, State> {
         keys: ['name', 'parentName']
       }
     }
+    this.inputRef = React.createRef()
   }
 
   filter(event: React.ChangeEvent<HTMLInputElement>): void {
-    this.setState({ searchWord: event.target.value })
+    const searchWord = event.target.value
+    this.setState({ searchWord })
+
     const library = this.props.store!.library as Array<FigmaDocument>
     let filteredLibrary: FigmaDocument[] = []
 
     // inputに1文字も入力されていなかったら、libraryをそのまま表示して以下の処理を中断
-    if (this.state.searchWord.length === 0) {
+    if (searchWord.length === 0) {
       filteredLibrary = library
       return this.props.store!.updateFilteredLibrary(filteredLibrary)
     }
@@ -52,9 +57,8 @@ export default class Search extends React.Component<Props, State> {
 
       document.pages.map((page, index) => {
         const fuse = new Fuse(page.components.slice(), this.state.fuseOptions)
-        const _components = fuse.search(
-          this.state.searchWord
-        ) as FigmaComponent[]
+        const _components = fuse.search(searchWord) as FigmaComponent[]
+        console.log('fuse.search', searchWord)
 
         _document.pages.push({
           name: page.name,
@@ -71,8 +75,12 @@ export default class Search extends React.Component<Props, State> {
       }
     })
 
-    console.log(filteredLibrary)
     this.props.store!.updateFilteredLibrary(filteredLibrary)
+  }
+
+  onClearClick(): void {
+    this.setState({ searchWord: '' })
+    return this.props.store!.updateFilteredLibrary(this.props.store!.library)
   }
 
   render(): JSX.Element {
@@ -85,12 +93,15 @@ export default class Search extends React.Component<Props, State> {
           className="search-input"
           type="text"
           placeholder="Search"
+          value={this.state.searchWord}
           onChange={this.filter.bind(this)}
+          ref={this.inputRef}
         />
         <div
           className={`search-clear ${
             searchWord.length > 0 ? 'is-visible' : ''
           }`}
+          onClick={this.onClearClick.bind(this)}
         >
           <span className="icon">X</span>
         </div>

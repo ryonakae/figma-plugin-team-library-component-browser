@@ -60,6 +60,47 @@ export default class List extends React.Component<Props, State> {
     >
     const isLoading = this.state.isLoading
 
+    const ListContent: React.FC = () => {
+      if (!isLoading) {
+        if (library.length === 0) {
+          return (
+            <div>
+              <div className="list-title">Components</div>
+              <div className="list-note">
+                The quick brown fox jumps over the lazy dog. The quick brown fox
+                jumps over the lazy dog. The quick brown fox jumps over the lazy
+                dog. The quick brown fox jumps over the lazy dog. The quick
+                brown fox jumps over the lazy dog.
+              </div>
+            </div>
+          )
+        } else if (library.length > 0 && filteredLibrary.length > 0) {
+          return (
+            <div>
+              {filteredLibrary.map((document, index) => {
+                return (
+                  <ListDocument
+                    key={index}
+                    name={document.name}
+                    id={document.id}
+                    pages={document.pages}
+                  />
+                )
+              })}
+            </div>
+          )
+        } else if (library.length > 0 && filteredLibrary.length === 0) {
+          return (
+            <div className="list-empty">
+              <span>No search results</span>
+            </div>
+          )
+        }
+      }
+
+      return <div></div>
+    }
+
     return (
       <div>
         <div className="searchAndRefresh">
@@ -70,36 +111,7 @@ export default class List extends React.Component<Props, State> {
         </div>
 
         <div className="list">
-          {/* {isLoading && <div>Loading</div>} */}
-
-          {!isLoading &&
-            filteredLibrary.length > 0 &&
-            filteredLibrary.map((document, index) => {
-              return (
-                <ListDocument
-                  key={index}
-                  name={document.name}
-                  id={document.id}
-                  pages={document.pages}
-                />
-              )
-            })}
-
-          {!isLoading && filteredLibrary.length === 0 && (
-            <div>No search results</div>
-          )}
-
-          {!isLoading && library.length === 0 && (
-            <div className="list-noComponent">
-              <div className="list-title">Components</div>
-              <div className="list-note">
-                The quick brown fox jumps over the lazy dog. The quick brown fox
-                jumps over the lazy dog. The quick brown fox jumps over the lazy
-                dog. The quick brown fox jumps over the lazy dog. The quick
-                brown fox jumps over the lazy dog.
-              </div>
-            </div>
-          )}
+          <ListContent />
         </div>
 
         <Options />
