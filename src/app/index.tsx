@@ -6,7 +6,7 @@ import Modal from 'react-modal'
 const app = document.getElementById('app') as HTMLElement
 
 Modal.setAppElement(app)
-// Modal.defaultStyles.content = undefined
-// Modal.defaultStyles.overlay = undefined
+Modal.defaultStyles.content = undefined
+Modal.defaultStyles.overlay = undefined
 
 ReactDOM.render(<App />, app)

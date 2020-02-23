@@ -254,9 +254,9 @@ body {
 }
 
 .component-icon {
-  width: 24px;
-  min-width: 24px;
-  height: 24px;
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
   background-color: gray;
 }
 
