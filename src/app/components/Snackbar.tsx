@@ -3,7 +3,7 @@ import { inject, observer } from 'mobx-react'
 import Store from '@/app/Store'
 import { Snackbar as ReactSnackbar } from '@material/react-snackbar'
 
-import '@material/react-snackbar/dist/snackbar.css'
+// import '@material/react-snackbar/dist/snackbar.css'
 
 type Props = {
   store?: Store

@@ -26,10 +26,47 @@ export default class Options extends React.Component<Props, State> {
     const { isSwap, isOriginalSize } = this.props.store!
 
     return (
-      <div>
-        <div onClick={this.onSwapClick.bind(this)}>Swap: {String(isSwap)}</div>
-        <div onClick={this.onOriginalSizeClick.bind(this)}>
-          Original Size when Swap: {String(isOriginalSize)}
+      <div className="options">
+        <div className="options-item" onClick={this.onSwapClick.bind(this)}>
+          <div>Swap</div>
+          <div className="segmentedControl">
+            <div
+              className={`segmentedControl-segment ${
+                !isSwap ? 'is-active' : ''
+              }`}
+            >
+              <span>off</span>
+            </div>
+            <div
+              className={`segmentedControl-segment ${
+                isSwap ? 'is-active' : ''
+              }`}
+            >
+              <span>on</span>
+            </div>
+          </div>
+        </div>
+        <div
+          className="options-item"
+          onClick={this.onOriginalSizeClick.bind(this)}
+        >
+          <div>Original Size when Swap</div>
+          <div className="segmentedControl">
+            <div
+              className={`segmentedControl-segment ${
+                !isOriginalSize ? 'is-active' : ''
+              }`}
+            >
+              <span>off</span>
+            </div>
+            <div
+              className={`segmentedControl-segment ${
+                isOriginalSize ? 'is-active' : ''
+              }`}
+            >
+              <span>on</span>
+            </div>
+          </div>
         </div>
       </div>
     )

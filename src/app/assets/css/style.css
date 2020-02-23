@@ -4,4 +4,88 @@
 
 body {
   font-family: var(--fontFamily);
+  font-size: var(--fontSize);
+  font-weight: var(--fontWeight-default);
+  line-height: var(--lineHeight);
+  color: var(--color-text);
+  cursor: default;
+  background: var(--color-bg);
+}
+
+/* tab */
+.tab {
+  height: var(--height-row-default);
+  padding: 0 var(--spacing-text);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tab-list {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  list-style-type: none;
+}
+
+.tab-item {
+  padding: 0 var(--spacing-text);
+  font-weight: var(--fontWeight-tab-inactive);
+  color: var(--color-inactive);
+
+  &.is-active,
+  &:hover {
+    font-weight: var(--fontWeight-tab-active);
+    color: inherit;
+  }
+}
+
+/* options */
+.options {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: var(--spacing-list) var(--spacing-text) var(--spacing-list)
+    var(--spacing-default);
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+.options-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--height-row-small);
+}
+
+/* segmented control */
+.segmentedControl {
+  position: relative;
+  display: flex;
+  padding-right: 1px;
+  padding-left: 1px;
+  border: 2px solid transparent;
+
+  &:hover {
+    &::before {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      content: '';
+      border: 1px solid var(--color-segmentedControlBg);
+      border-radius: var(--radius-default);
+    }
+  }
+}
+
+.segmentedControl-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-default);
+
+  &.is-active {
+    background-color: var(--color-segmentedControlBg);
+  }
 }

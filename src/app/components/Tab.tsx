@@ -20,19 +20,23 @@ export default class Tab extends React.Component<Props, State> {
 
   render(): JSX.Element {
     return (
-      <nav>
-        <ul>
+      <nav className="tab">
+        <ul className="tab-list">
           <li
-            className={this.props.store!.tabID === 'list' ? 'is-active' : ''}
+            className={`tab-item ${
+              this.props.store!.tabID === 'list' ? 'is-active' : ''
+            }`}
             onClick={() => this.handleClick('list')}
           >
-            Library Components
+            <span>Library Components</span>
           </li>
           <li
-            className={this.props.store!.tabID === 'setting' ? 'is-active' : ''}
+            className={`tab-item ${
+              this.props.store!.tabID === 'setting' ? 'is-active' : ''
+            }`}
             onClick={() => this.handleClick('setting')}
           >
-            Setting
+            <span>Setting</span>
           </li>
         </ul>
       </nav>
