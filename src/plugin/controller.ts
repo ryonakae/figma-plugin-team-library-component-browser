@@ -1,9 +1,12 @@
 import _ from 'lodash'
 
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
+const UI_WIDTH = 250
+const UI_MIN_HEIGHT = 250
+const UI_MAX_HEIGHT = 450
 let library: Library = []
 
-figma.showUI(__html__, { width: 250, height: 400 })
+figma.showUI(__html__, { width: UI_WIDTH, height: 400 })
 
 async function saveLibrary(): Promise<void> {
   console.log('saveLibrary')
@@ -196,6 +199,18 @@ async function createInstance(options: {
   } as PluginMessage)
 }
 
+function resizeUI(height: number): void {
+  let _height = height
+  if (height < UI_MIN_HEIGHT) {
+    _height = UI_MIN_HEIGHT
+  }
+  if (height > UI_MAX_HEIGHT) {
+    _height = UI_MAX_HEIGHT
+  }
+
+  figma.ui.resize(UI_WIDTH, _height)
+}
+
 figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
   if (msg.type === 'save') {
     await saveLibrary()
@@ -211,5 +226,7 @@ figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
       key: msg.data.key,
       options: msg.data.options
     })
+  } else if (msg.type === 'resize') {
+    resizeUI(msg.data.height)
   }
 }

@@ -50,6 +50,18 @@ export default class Setting extends React.Component<Props, State> {
 
   componentDidMount(): void {
     console.log('Setting did mount')
+
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'resize',
+          data: {
+            height: document.getElementById('app')!.clientHeight
+          }
+        }
+      } as Message,
+      '*'
+    )
   }
 
   componentWillUnmount(): void {
@@ -58,7 +70,7 @@ export default class Setting extends React.Component<Props, State> {
 
   render(): JSX.Element {
     return (
-      <div className="setting">
+      <div className="content">
         <div className="content-title is-large">Save Team Library Data</div>
         <div className="content-note">
           <p>

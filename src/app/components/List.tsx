@@ -34,7 +34,7 @@ export default class List extends React.Component<Props, State> {
       '*'
     )
 
-    await Util.wait(100)
+    await Util.wait(200)
   }
 
   async fetch(): Promise<void> {
@@ -43,10 +43,36 @@ export default class List extends React.Component<Props, State> {
     this.setState({ isLoading: false })
   }
 
+  resize(): void {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'resize',
+          data: {
+            height: document.getElementById('app')!.clientHeight
+          }
+        }
+      } as Message,
+      '*'
+    )
+  }
+
+  async onRefreshClick(): Promise<void> {
+    await this.fetch()
+    this.props.store!.updateSearchWord('')
+    this.props.store!.updateFilteredLibrary(this.props.store!.library)
+  }
+
   async componentDidMount(): Promise<void> {
     console.log('List did mount')
     await this.fetch()
     this.props.store!.updateFilteredLibrary(this.props.store!.library)
+    this.resize()
+  }
+
+  componentDidUpdate(): void {
+    // console.log('List update')
+    this.resize()
   }
 
   componentWillUnmount(): void {
@@ -107,19 +133,23 @@ export default class List extends React.Component<Props, State> {
         }
       }
 
-      return <div></div>
+      return (
+        <div className="content-loading">
+          <span>Loading</span>
+        </div>
+      )
     }
 
     return (
       <div>
         <div className="searchAndRefresh">
           <Search />
-          <div className="iconButton" onClick={this.fetch.bind(this)}>
+          <div className="iconButton" onClick={this.onRefreshClick.bind(this)}>
             R
           </div>
         </div>
 
-        <div className="list">
+        <div className="content">
           <ListContent />
         </div>
 

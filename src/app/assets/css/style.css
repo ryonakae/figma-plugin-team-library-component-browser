@@ -98,6 +98,10 @@ body {
 }
 
 /* content */
+.content {
+  padding-bottom: var(--spacing-bottom);
+}
+
 .content-title {
   display: flex;
   align-items: center;
@@ -118,8 +122,14 @@ body {
   padding: var(--spacing-text) var(--spacing-default);
 }
 
-.content-empty {
+.content-empt,
+.content-loading {
   padding: var(--height-row-small) var(--spacing-default);
+}
+
+.content-loading {
+  color: var(--color-inactive);
+  text-align: center;
 }
 
 .content-button {
@@ -129,11 +139,6 @@ body {
     padding-top: 0;
     padding-bottom: 0;
   }
-}
-
-/* setting */
-.setting {
-  padding-bottom: var(--spacing-bottom);
 }
 
 /* button */

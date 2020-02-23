@@ -75,7 +75,7 @@ export default class Search extends React.Component<Props, State> {
 
   onClearClick(): void {
     this.props.store!.updateSearchWord('')
-    return this.props.store!.updateFilteredLibrary(this.props.store!.library)
+    this.props.store!.updateFilteredLibrary(this.props.store!.library)
   }
 
   render(): JSX.Element {

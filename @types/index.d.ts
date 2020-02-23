@@ -6,6 +6,7 @@ type MessageType =
   | 'update'
   | 'get'
   | 'createinstance'
+  | 'resize'
   | 'savesuccess'
   | 'clearsuccess'
   | 'getsuccess'
