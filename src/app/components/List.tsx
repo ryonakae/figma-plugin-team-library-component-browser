@@ -69,26 +69,38 @@ export default class List extends React.Component<Props, State> {
           </div>
         </div>
 
-        {/* {isLoading && <div>Loading</div>} */}
+        <div className="list">
+          {/* {isLoading && <div>Loading</div>} */}
 
-        {!isLoading &&
-          filteredLibrary.length > 0 &&
-          filteredLibrary.map((document, index) => {
-            return (
-              <ListDocument
-                key={index}
-                name={document.name}
-                id={document.id}
-                pages={document.pages}
-              />
-            )
-          })}
+          {!isLoading &&
+            filteredLibrary.length > 0 &&
+            filteredLibrary.map((document, index) => {
+              return (
+                <ListDocument
+                  key={index}
+                  name={document.name}
+                  id={document.id}
+                  pages={document.pages}
+                />
+              )
+            })}
 
-        {!isLoading && filteredLibrary.length === 0 && (
-          <div>No search results</div>
-        )}
+          {!isLoading && filteredLibrary.length === 0 && (
+            <div>No search results</div>
+          )}
 
-        {!isLoading && library.length === 0 && <div>No component</div>}
+          {!isLoading && library.length === 0 && (
+            <div className="list-noComponent">
+              <div className="list-title">Components</div>
+              <div className="list-note">
+                The quick brown fox jumps over the lazy dog. The quick brown fox
+                jumps over the lazy dog. The quick brown fox jumps over the lazy
+                dog. The quick brown fox jumps over the lazy dog. The quick
+                brown fox jumps over the lazy dog.
+              </div>
+            </div>
+          )}
+        </div>
 
         <Options />
       </div>
