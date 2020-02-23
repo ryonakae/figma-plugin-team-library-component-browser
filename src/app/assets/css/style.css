@@ -15,7 +15,7 @@ body {
 /* tab */
 .tab {
   height: var(--height-row-default);
-  padding: 0 var(--spacing-text);
+  padding: 0 calc(var(--spacing-default) / 2);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -27,7 +27,10 @@ body {
 }
 
 .tab-item {
-  padding: 0 var(--spacing-text);
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 calc(var(--spacing-default) / 2);
   font-weight: var(--fontWeight-tab-inactive);
   color: var(--color-inactive);
 
@@ -38,14 +41,70 @@ body {
   }
 }
 
+/* search & refresh */
+.searchAndRefresh {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--height-row-default);
+  padding: var(--spacing-list) calc(var(--spacing-default) / 2)
+    var(--spacing-list) var(--spacing-default);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.search-icon {
+  width: 16px;
+  height: 16px;
+  cursor: auto;
+  user-select: none;
+  background-color: gray;
+}
+
+.search-input {
+  margin-left: 8px;
+  line-height: var(--height-row-small);
+  outline: none;
+}
+
+.search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+  visibility: hidden;
+
+  &.is-visible {
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  & .icon {
+    opacity: 0.5;
+  }
+
+  &:hover {
+    & .icon {
+      opacity: 1;
+    }
+  }
+}
+
 /* options */
 .options {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: var(--spacing-list) var(--spacing-text) var(--spacing-list)
-    var(--spacing-default);
+  padding: var(--spacing-list) calc(var(--spacing-default) / 2)
+    var(--spacing-list) var(--spacing-default);
   background: var(--color-bg);
   border-top: 1px solid var(--color-border);
 }
@@ -57,12 +116,25 @@ body {
   height: var(--height-row-small);
 }
 
+/* iconButton */
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-default);
+
+  &:hover {
+    background-color: var(--color-iconButtonBg);
+  }
+}
+
 /* segmented control */
 .segmentedControl {
   position: relative;
   display: flex;
-  padding-right: 1px;
-  padding-left: 1px;
+  margin: 0 2px;
   border: 2px solid transparent;
 
   &:hover {

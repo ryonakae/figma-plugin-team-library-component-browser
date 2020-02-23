@@ -8,7 +8,7 @@ type Props = {
   store?: Store
 }
 type State = {
-  // fuse: Fuse<FigmaDocument, Fuse.FuseOptions<FigmaDocument>>
+  searchWord: string
   fuseOptions: Fuse.FuseOptions<FigmaComponent>
 }
 
@@ -18,7 +18,7 @@ export default class Search extends React.Component<Props, State> {
   constructor(props) {
     super(props)
     this.state = {
-      // fuse: new Fuse(this.props.store!.library.slice(), {}),
+      searchWord: '',
       fuseOptions: {
         threshold: 0.1,
         location: 0,
@@ -31,12 +31,12 @@ export default class Search extends React.Component<Props, State> {
   }
 
   filter(event: React.ChangeEvent<HTMLInputElement>): void {
-    const value = event.target.value
+    this.setState({ searchWord: event.target.value })
     const library = this.props.store!.library as Array<FigmaDocument>
     let filteredLibrary: FigmaDocument[] = []
 
     // inputに1文字も入力されていなかったら、libraryをそのまま表示して以下の処理を中断
-    if (value.length === 0) {
+    if (this.state.searchWord.length === 0) {
       filteredLibrary = library
       return this.props.store!.updateFilteredLibrary(filteredLibrary)
     }
@@ -52,7 +52,9 @@ export default class Search extends React.Component<Props, State> {
 
       document.pages.map((page, index) => {
         const fuse = new Fuse(page.components.slice(), this.state.fuseOptions)
-        const _components = fuse.search(value) as FigmaComponent[]
+        const _components = fuse.search(
+          this.state.searchWord
+        ) as FigmaComponent[]
 
         _document.pages.push({
           name: page.name,
@@ -74,15 +76,24 @@ export default class Search extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
-    const { library } = this.props.store!
+    const { searchWord } = this.state
 
     return (
-      <div>
+      <div className="search">
+        <span className="search-icon">S</span>
         <input
+          className="search-input"
           type="text"
           placeholder="Search"
           onChange={this.filter.bind(this)}
         />
+        <div
+          className={`search-clear ${
+            searchWord.length > 0 ? 'is-visible' : ''
+          }`}
+        >
+          <span className="icon">X</span>
+        </div>
       </div>
     )
   }

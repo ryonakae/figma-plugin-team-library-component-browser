@@ -62,8 +62,12 @@ export default class List extends React.Component<Props, State> {
 
     return (
       <div>
-        <Search />
-        <div onClick={this.fetch.bind(this)}>Refresh</div>
+        <div className="searchAndRefresh">
+          <Search />
+          <div className="iconButton" onClick={this.fetch.bind(this)}>
+            R
+          </div>
+        </div>
 
         {/* {isLoading && <div>Loading</div>} */}
 
