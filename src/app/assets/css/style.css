@@ -231,3 +231,38 @@ body {
     background-color: var(--color-segmentedControlBg);
   }
 }
+
+/* component */
+.component {
+  display: flex;
+  align-items: center;
+  height: var(--height-row-small);
+  padding: 0 var(--spacing-default);
+  border: 1px solid transparent;
+
+  &:hover {
+    border-color: var(--color-component);
+  }
+
+  &.is-selected {
+    &:hover {
+      border-color: transparent;
+    }
+
+    background-color: var(--color-rowBg);
+  }
+}
+
+.component-icon {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  background-color: gray;
+}
+
+.component-title {
+  margin-left: var(--spacing-default);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -59,7 +59,7 @@ export default class ListComponent extends React.Component<Props, State> {
 
   render(): JSX.Element {
     const { name, id, componentKey, parentName } = this.props
-    const className =
+    const componentClassName =
       this.props.store!.currentSelectComponentKey === this.props.componentKey
         ? 'is-selected'
         : ''
@@ -67,9 +67,17 @@ export default class ListComponent extends React.Component<Props, State> {
     return (
       <div>
         {componentKey && (
-          <div onClick={this.handleClick.bind(this)} className={className}>
-            <div>
-              ・{parentName} / {name}
+          <div
+            onClick={this.handleClick.bind(this)}
+            className={`component ${componentClassName}`}
+          >
+            <div className="component-icon">
+              <span>C</span>
+            </div>
+            <div className="component-title">
+              <span>
+                {parentName} / {name}
+              </span>
             </div>
           </div>
         )}
