@@ -54,6 +54,7 @@ export default class List extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
+    const { searchWord } = this.props.store!
     const library = this.props.store!.library as Array<FigmaDocument>
     const filteredLibrary = this.props.store!.filteredLibrary as Array<
       FigmaDocument
@@ -65,18 +66,26 @@ export default class List extends React.Component<Props, State> {
         if (library.length === 0) {
           return (
             <div>
-              <div className="list-title">Components</div>
-              <div className="list-note">
-                The quick brown fox jumps over the lazy dog. The quick brown fox
-                jumps over the lazy dog. The quick brown fox jumps over the lazy
-                dog. The quick brown fox jumps over the lazy dog. The quick
-                brown fox jumps over the lazy dog.
+              <div className="content-title">Components</div>
+              <div className="content-note">
+                <p>
+                  The quick brown fox jumps over the lazy dog. The quick brown
+                  fox jumps over the lazy dog. The quick brown fox jumps over
+                  the lazy dog. The quick brown fox jumps over the lazy dog. The
+                  quick brown fox jumps over the lazy dog.
+                </p>
               </div>
             </div>
           )
         } else if (library.length > 0 && filteredLibrary.length > 0) {
           return (
             <div>
+              {searchWord.length > 0 && (
+                <div className="content-title is-normal">
+                  Showing results from all libraries
+                </div>
+              )}
+
               {filteredLibrary.map((document, index) => {
                 return (
                   <ListDocument
@@ -91,7 +100,7 @@ export default class List extends React.Component<Props, State> {
           )
         } else if (library.length > 0 && filteredLibrary.length === 0) {
           return (
-            <div className="list-empty">
+            <div className="content-empty">
               <span>No search results</span>
             </div>
           )

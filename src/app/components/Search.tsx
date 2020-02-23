@@ -8,19 +8,15 @@ type Props = {
   store?: Store
 }
 type State = {
-  searchWord: string
   fuseOptions: Fuse.FuseOptions<FigmaComponent>
 }
 
 @inject('store')
 @observer
 export default class Search extends React.Component<Props, State> {
-  private inputRef: React.RefObject<HTMLInputElement>
-
   constructor(props) {
     super(props)
     this.state = {
-      searchWord: '',
       fuseOptions: {
         threshold: 0.1,
         location: 0,
@@ -30,12 +26,11 @@ export default class Search extends React.Component<Props, State> {
         keys: ['name', 'parentName']
       }
     }
-    this.inputRef = React.createRef()
   }
 
   filter(event: React.ChangeEvent<HTMLInputElement>): void {
     const searchWord = event.target.value
-    this.setState({ searchWord })
+    this.props.store!.updateSearchWord(searchWord)
 
     const library = this.props.store!.library as Array<FigmaDocument>
     let filteredLibrary: FigmaDocument[] = []
@@ -79,12 +74,12 @@ export default class Search extends React.Component<Props, State> {
   }
 
   onClearClick(): void {
-    this.setState({ searchWord: '' })
+    this.props.store!.updateSearchWord('')
     return this.props.store!.updateFilteredLibrary(this.props.store!.library)
   }
 
   render(): JSX.Element {
-    const { searchWord } = this.state
+    const { searchWord } = this.props.store!
 
     return (
       <div className="search">
@@ -93,9 +88,8 @@ export default class Search extends React.Component<Props, State> {
           className="search-input"
           type="text"
           placeholder="Search"
-          value={this.state.searchWord}
+          value={searchWord}
           onChange={this.filter.bind(this)}
-          ref={this.inputRef}
         />
         <div
           className={`search-clear ${

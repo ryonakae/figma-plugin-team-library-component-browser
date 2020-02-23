@@ -58,11 +58,9 @@ export default class Setting extends React.Component<Props, State> {
 
   render(): JSX.Element {
     return (
-      <div>
-        <div>
-          <span>Save Team Library Data</span>
-        </div>
-        <div>
+      <div className="setting">
+        <div className="content-title is-large">Save Team Library Data</div>
+        <div className="content-note">
           <p>
             The quick brown fox jumps over the lazy dog. The quick brown fox
             jumps over the lazy dog. The quick brown fox jumps over the lazy
@@ -70,10 +68,24 @@ export default class Setting extends React.Component<Props, State> {
             fox jumps over the lazy dog.
           </p>
         </div>
-        <div onClick={this.onSaveClick.bind(this)}>
-          Save or update this library data
+
+        <div className="content-button">
+          <div
+            className="button is-active"
+            onClick={this.onSaveClick.bind(this)}
+          >
+            Save or update this library data
+          </div>
         </div>
-        <div onClick={this.onClearClick.bind(this)}>Clear all library data</div>
+
+        <div className="content-button is-zeroPadding">
+          <div
+            className="button is-alert-text"
+            onClick={this.onClearClick.bind(this)}
+          >
+            Clear all library data
+          </div>
+        </div>
       </div>
     )
   }

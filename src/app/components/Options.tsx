@@ -23,10 +23,21 @@ export default class Options extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
-    const { isSwap, isOriginalSize } = this.props.store!
+    const {
+      isSwap,
+      isOriginalSize,
+      library,
+      filteredLibrary
+    } = this.props.store!
 
     return (
-      <div className="options">
+      <div
+        className={`options ${
+          library.length === 0 || filteredLibrary.length === 0
+            ? 'is-hidden'
+            : ''
+        }`}
+      >
         <div className="options-item" onClick={this.onSwapClick.bind(this)}>
           <div>Swap</div>
           <div className="segmentedControl">

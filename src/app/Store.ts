@@ -25,6 +25,7 @@ export default class Store {
   @observable tabID: TabID = 'list'
   @observable library: Library = []
   @observable filteredLibrary: Library = []
+  @observable searchWord = ''
 
   @observable currentSelectComponentKey = ''
   @observable isSwap = false
@@ -50,6 +51,10 @@ export default class Store {
 
   @action updateFilteredLibrary(filteredLibrary: Library): void {
     this.filteredLibrary = filteredLibrary
+  }
+
+  @action updateSearchWord(word: string): void {
+    this.searchWord = word
   }
 
   @action openDialog(options?: {
