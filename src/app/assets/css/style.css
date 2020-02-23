@@ -67,6 +67,7 @@ body {
 }
 
 .search-input {
+  flex: 1;
   margin-left: 8px;
   line-height: var(--height-row-small);
   outline: none;
@@ -165,10 +166,8 @@ body {
 
 /* options */
 .options {
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 0;
-  width: 100%;
   padding: var(--spacing-list) calc(var(--spacing-default) / 2)
     var(--spacing-list) var(--spacing-default);
   background: var(--color-bg);
