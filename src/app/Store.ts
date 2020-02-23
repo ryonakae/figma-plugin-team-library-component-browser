@@ -24,7 +24,7 @@ export default class Store {
 
   @observable tabID: TabID = 'list'
   @observable library: Library = []
-  @observable filteredLibrary: Library = []
+  @observable searchResults: FigmaComponent[] = []
   @observable searchWord = ''
 
   @observable currentSelectComponentKey = ''
@@ -49,8 +49,8 @@ export default class Store {
     this.library = library
   }
 
-  @action updateFilteredLibrary(filteredLibrary: Library): void {
-    this.filteredLibrary = filteredLibrary
+  @action updateSearchResults(results: FigmaComponent[]): void {
+    this.searchResults = results
   }
 
   @action updateSearchWord(word: string): void {

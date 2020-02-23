@@ -27,17 +27,37 @@ export default class Options extends React.Component<Props, State> {
       isSwap,
       isOriginalSize,
       library,
-      filteredLibrary
+      searchResults,
+      searchWord
     } = this.props.store!
 
+    let optionsClassName = ''
+
+    // ライブラリが空→empty表示
+    if (library.length === 0) {
+      optionsClassName = ''
+    }
+    // ライブラリがあるとき
+    else {
+      // 検索中のとき
+      if (searchWord.length > 0) {
+        // searchResultsがある→検索結果を表示
+        if (searchResults.length > 0) {
+          optionsClassName = 'is-visible'
+        }
+        // searchResultsがない→empty表示
+        else {
+          optionsClassName = ''
+        }
+      }
+      // 検索中ではない→ライブラリを表示
+      else {
+        optionsClassName = 'is-visible'
+      }
+    }
+
     return (
-      <div
-        className={`options ${
-          library.length === 0 || filteredLibrary.length === 0
-            ? 'is-hidden'
-            : ''
-        }`}
-      >
+      <div className={`options ${optionsClassName}`}>
         <div className="options-item" onClick={this.onSwapClick.bind(this)}>
           <div>Swap</div>
           <div className="segmentedControl">

@@ -123,7 +123,7 @@ body {
   padding: var(--spacing-text) var(--spacing-default);
 }
 
-.content-empt,
+.content-empty,
 .content-loading {
   padding: var(--height-row-small) var(--spacing-default);
 }
@@ -168,13 +168,14 @@ body {
 .options {
   position: sticky;
   bottom: 0;
+  display: none;
   padding: var(--spacing-list) calc(var(--spacing-default) / 2)
     var(--spacing-list) var(--spacing-default);
   background: var(--color-bg);
   border-top: 1px solid var(--color-border);
 
-  &.is-hidden {
-    display: none;
+  &.is-visible {
+    display: block;
   }
 }
 

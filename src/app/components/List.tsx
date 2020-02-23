@@ -57,16 +57,20 @@ export default class List extends React.Component<Props, State> {
     )
   }
 
+  refresh(): void {
+    this.props.store!.updateSearchWord('')
+    this.props.store!.updateSearchResults([])
+  }
+
   async onRefreshClick(): Promise<void> {
     await this.fetch()
-    this.props.store!.updateSearchWord('')
-    this.props.store!.updateFilteredLibrary(this.props.store!.library)
+    this.refresh()
   }
 
   async componentDidMount(): Promise<void> {
     console.log('List did mount')
     await this.fetch()
-    this.props.store!.updateFilteredLibrary(this.props.store!.library)
+    this.refresh()
     this.resize()
   }
 
@@ -82,13 +86,15 @@ export default class List extends React.Component<Props, State> {
   render(): JSX.Element {
     const { searchWord } = this.props.store!
     const library = this.props.store!.library as Array<FigmaDocument>
-    const filteredLibrary = this.props.store!.filteredLibrary as Array<
-      FigmaDocument
+    const searchResults = this.props.store!.searchResults as Array<
+      FigmaComponent
     >
     const isLoading = this.state.isLoading
 
     const ListContent: React.FC = () => {
+      // ロード中ではないとき
       if (!isLoading) {
+        // ライブラリが空→empty表示
         if (library.length === 0) {
           return (
             <div>
@@ -103,36 +109,63 @@ export default class List extends React.Component<Props, State> {
               </div>
             </div>
           )
-        } else if (library.length > 0 && filteredLibrary.length > 0) {
-          return (
-            <div>
-              {searchWord.length > 0 && (
-                <div className="content-title is-normal">
-                  Showing results from all libraries
-                </div>
-              )}
+        }
+        // ライブラリがあるとき
+        else {
+          // 検索中のとき
+          if (searchWord.length > 0) {
+            // searchResultsがある→検索結果を表示
+            if (searchResults.length > 0) {
+              return (
+                <div>
+                  <div className="content-title is-normal">
+                    Showing results from all libraries
+                  </div>
 
-              {filteredLibrary.map((document, index) => {
-                return (
-                  <ListDocument
-                    key={index}
-                    name={document.name}
-                    id={document.id}
-                    pages={document.pages}
-                  />
-                )
-              })}
-            </div>
-          )
-        } else if (library.length > 0 && filteredLibrary.length === 0) {
-          return (
-            <div className="content-empty">
-              <span>No search results</span>
-            </div>
-          )
+                  {searchResults.map((component, index) => {
+                    return (
+                      <ListComponent
+                        key={index}
+                        name={component.name}
+                        id={component.id}
+                        componentKey={component.componentKey}
+                        parentName={component.parentName}
+                      />
+                    )
+                  })}
+                </div>
+              )
+            }
+            // searchResultsがない→empty表示
+            else {
+              return (
+                <div className="content-empty">
+                  <span>No search results</span>
+                </div>
+              )
+            }
+          }
+          // 検索中ではない→ライブラリを表示
+          else {
+            return (
+              <div>
+                {library.map((document, index) => {
+                  return (
+                    <ListDocument
+                      key={index}
+                      name={document.name}
+                      id={document.id}
+                      pages={document.pages}
+                    />
+                  )
+                })}
+              </div>
+            )
+          }
         }
       }
 
+      // ロード中のとき
       return (
         <div className="content-loading">
           <span>Loading</span>

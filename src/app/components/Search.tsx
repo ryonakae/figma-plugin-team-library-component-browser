@@ -33,49 +33,33 @@ export default class Search extends React.Component<Props, State> {
     this.props.store!.updateSearchWord(searchWord)
 
     const library = this.props.store!.library as Array<FigmaDocument>
-    let filteredLibrary: FigmaDocument[] = []
+    let results: FigmaComponent[] = []
 
-    // inputに1文字も入力されていなかったら、libraryをそのまま表示して以下の処理を中断
+    // inputに1文字も入力されていなかったら、空の結果を返して以下の処理を中断
     if (searchWord.length === 0) {
-      filteredLibrary = library
-      return this.props.store!.updateFilteredLibrary(filteredLibrary)
+      results = []
+      return this.props.store!.updateSearchResults(results)
     }
 
     // ライブラリの各ドキュメントの各ページごとにfuse.searchを実行
     library.map(document => {
-      const _document: FigmaDocument = {
-        name: document.name,
-        id: document.id,
-        pages: []
-      }
-      let componentCount = 0
-
       document.pages.map((page, index) => {
         const fuse = new Fuse(page.components.slice(), this.state.fuseOptions)
-        const _components = fuse.search(searchWord) as FigmaComponent[]
+        const components = fuse.search(searchWord) as FigmaComponent[]
         console.log('fuse.search', searchWord)
 
-        _document.pages.push({
-          name: page.name,
-          id: page.id,
-          components: _components,
-          parentName: _document.name
-        })
-
-        componentCount += _components.length
+        if (components.length > 0) {
+          results = _.union(results, components)
+        }
       })
-
-      if (componentCount > 0) {
-        filteredLibrary = _.unionBy(filteredLibrary, [_document], 'name')
-      }
     })
 
-    this.props.store!.updateFilteredLibrary(filteredLibrary)
+    this.props.store!.updateSearchResults(results)
   }
 
   onClearClick(): void {
     this.props.store!.updateSearchWord('')
-    this.props.store!.updateFilteredLibrary(this.props.store!.library)
+    this.props.store!.updateSearchResults([])
   }
 
   render(): JSX.Element {
