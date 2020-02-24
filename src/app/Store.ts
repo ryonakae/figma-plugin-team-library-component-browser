@@ -1,4 +1,5 @@
 import { observable, action } from 'mobx'
+import Util from '@/app/Util'
 
 export default class Store {
   constructor() {
@@ -98,9 +99,10 @@ export default class Store {
     this.snackbarMessage = snackbarMessage
   }
 
-  @action closeSnackbar(): void {
+  @action async closeSnackbar(): Promise<void> {
     console.log('closeSnackbar', this.isSnackbarOpen)
     this.isSnackbarOpen = false
+    await Util.wait(300)
     this.snackbarMessage = ''
   }
 

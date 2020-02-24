@@ -66,14 +66,20 @@ export default class Options extends React.Component<Props, State> {
                 !isSwap ? 'is-active' : ''
               }`}
             >
-              <span>off</span>
+              <img
+                src={require('@/app/assets/img/icon-hyphen.svg').default}
+                alt=""
+              />
             </div>
             <div
               className={`segmentedControl-segment ${
                 isSwap ? 'is-active' : ''
               }`}
             >
-              <span>on</span>
+              <img
+                src={require('@/app/assets/img/icon-check.svg').default}
+                alt=""
+              />
             </div>
           </div>
         </div>
@@ -88,14 +94,20 @@ export default class Options extends React.Component<Props, State> {
                 !isOriginalSize ? 'is-active' : ''
               }`}
             >
-              <span>off</span>
+              <img
+                src={require('@/app/assets/img/icon-hyphen.svg').default}
+                alt=""
+              />
             </div>
             <div
               className={`segmentedControl-segment ${
                 isOriginalSize ? 'is-active' : ''
               }`}
             >
-              <span>on</span>
+              <img
+                src={require('@/app/assets/img/icon-check.svg').default}
+                alt=""
+              />
             </div>
           </div>
         </div>

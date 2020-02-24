@@ -33,6 +33,9 @@
   /* shadow */
   --shadow: 0 0 0.5px rgba(0, 0, 0, 0.2), 0 2px 14px rgba(0, 0, 0, 0.15);
 
+  /* transition */
+  --transition: all 300ms ease-out;
+
   /* spacing */
   --spacing-default: 16px;
   --spacing-text: 8px;
@@ -42,4 +45,10 @@
   /* size */
   --height-row-default: 40px;
   --height-row-small: 32px;
+
+  /* z-index */
+  --zIndex-search: 1;
+  --zIndex-options: 1;
+  --zIndex-dialog: 100;
+  --zIndex-snackbar: 101;
 }

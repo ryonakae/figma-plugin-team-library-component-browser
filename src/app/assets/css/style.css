@@ -43,12 +43,16 @@ body {
 
 /* search & refresh */
 .searchAndRefresh {
+  position: sticky;
+  top: 0;
+  z-index: var(--zIndex-search);
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: var(--height-row-default);
   padding: var(--spacing-list) calc(var(--spacing-default) / 2)
     var(--spacing-list) var(--spacing-default);
+  background-color: white;
 }
 
 .search {
@@ -175,6 +179,7 @@ body {
   position: fixed;
   bottom: 0;
   left: 0;
+  z-index: var(--zIndex-options);
   display: none;
   width: 100%;
   padding: var(--spacing-list) calc(var(--spacing-default) / 2)
@@ -227,7 +232,6 @@ body {
 .segmentedControl {
   position: relative;
   display: flex;
-  margin: 0 2px;
   border: 2px solid transparent;
 
   &:hover {
@@ -249,6 +253,11 @@ body {
   width: 24px;
   height: 24px;
   border-radius: var(--radius-default);
+
+  & img {
+    width: 16px;
+    height: 16px;
+  }
 
   &.is-active {
     background-color: var(--color-segmentedControlBg);
@@ -273,6 +282,7 @@ body {
   display: flex;
   align-items: center;
   height: var(--height-row-small);
+  padding-right: var(--spacing-default);
   margin-bottom: var(--spacing-list);
 
   &:hover {
@@ -285,6 +295,7 @@ body {
   align-items: center;
   justify-content: center;
   width: var(--spacing-default);
+  min-width: var(--spacing-default);
   height: 100%;
   opacity: 0.7;
   transform-origin: 50% 50%;
@@ -321,6 +332,10 @@ body {
   }
 }
 
+.document-empty {
+  padding: var(--spacing-default);
+}
+
 /* page */
 .page {
   &:last-child {
@@ -332,7 +347,7 @@ body {
   display: flex;
   align-items: center;
   height: var(--height-row-small);
-  padding: 0 var(--spacing-default);
+  padding: 0 var(--spacing-default) 0 calc(var(--spacing-default) - 6px);
 
   &:hover {
     background-color: var(--color-selectBg);
@@ -344,6 +359,7 @@ body {
   align-items: center;
   justify-content: center;
   width: var(--spacing-default);
+  min-width: var(--spacing-default);
   height: 100%;
 
   & > img {
@@ -427,6 +443,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: var(--zIndex-dialog);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -483,4 +500,47 @@ body {
 
 .dialog-button {
   padding: 0 var(--spacing-default) var(--spacing-default);
+}
+
+/* snackbar */
+.mdc-snackbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--zIndex-snackbar);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--spacing-default);
+  pointer-events: none;
+
+  /* &.mdc-snackbar--open {
+    display: flex;
+  } */
+}
+
+.mdc-snackbar__surface {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-snackbarBg);
+  border-radius: var(--radius-snackbar);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transition: var(--transition);
+  transform: translate3d(0, 3px, 0);
+
+  @nest .mdc-snackbar.mdc-snackbar--open & {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.mdc-snackbar__label {
+  padding: var(--spacing-text);
+  color: white;
+  text-align: center;
 }
