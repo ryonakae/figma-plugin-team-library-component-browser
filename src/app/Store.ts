@@ -10,6 +10,14 @@ export default class Store {
     onmessage = (msg): void => {
       const messageType: MessageType = msg.data.pluginMessage.type
 
+      const openErrorDialog = (msg: MessageEvent) => {
+        this.openDialog({
+          dialogType: 'alert',
+          dialogTitle: 'An Error Occurred!',
+          dialogMessage: msg.data.pluginMessage.data.errorMessage
+        })
+      }
+
       if (messageType === 'update') {
         this.updateLibrary(msg.data.pluginMessage.data)
         console.log('library update', this.library)
@@ -19,6 +27,14 @@ export default class Store {
         this.openSnackbar('Success to clear all library data')
       } else if (messageType === 'createinstancesuccess') {
         this.openSnackbar('Success to create instance')
+      } else if (messageType === 'savefailed') {
+        openErrorDialog(msg)
+      } else if (messageType === 'clearfailed') {
+        openErrorDialog(msg)
+      } else if (messageType === 'getfailed') {
+        openErrorDialog(msg)
+      } else if (messageType === 'createinstancefailed') {
+        openErrorDialog(msg)
       }
     }
   }

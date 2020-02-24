@@ -57,7 +57,10 @@ async function saveLibrary(): Promise<void> {
     .setAsync(CLIENT_STORAGE_KEY_NAME, library)
     .catch(err => {
       figma.ui.postMessage({
-        type: 'savefailed'
+        type: 'savefailed',
+        data: {
+          errorMessage: 'Failed to save library.'
+        }
       } as PluginMessage)
       throw new Error(err)
     })
@@ -78,7 +81,10 @@ async function clearLibrary(): Promise<void> {
     .setAsync(CLIENT_STORAGE_KEY_NAME, library)
     .catch(err => {
       figma.ui.postMessage({
-        type: 'clearfailed'
+        type: 'clearfailed',
+        data: {
+          errorMessage: 'Failed to clear library.'
+        }
       } as PluginMessage)
       throw new Error(err)
     })
@@ -94,7 +100,17 @@ async function getLibrary(): Promise<void> {
 
   const currentLibrary:
     | Library
-    | undefined = await figma.clientStorage.getAsync(CLIENT_STORAGE_KEY_NAME)
+    | undefined = await figma.clientStorage
+    .getAsync(CLIENT_STORAGE_KEY_NAME)
+    .catch(err => {
+      figma.ui.postMessage({
+        type: 'getfailed',
+        data: {
+          errorMessage: 'Failed to get library.'
+        }
+      } as PluginMessage)
+      throw new Error(err)
+    })
 
   library = currentLibrary ? currentLibrary : []
 
@@ -125,8 +141,15 @@ async function createInstance(options: {
   const component = await figma
     .importComponentByKeyAsync(options.key)
     .catch(err => {
+      figma.ui.postMessage({
+        type: 'createinstancefailed',
+        data: {
+          errorMessage: 'Failed to create instance.'
+        }
+      } as PluginMessage)
       throw new Error(err)
     })
+
   console.log('import component success', component)
 
   // create instance from component
