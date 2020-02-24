@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+const path = require('path')
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const path = require('path')
+const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = (env, argv) => ({
   mode: argv.mode === 'production' ? 'production' : 'development',
@@ -52,6 +53,23 @@ module.exports = (env, argv) => ({
       '@': path.resolve(__dirname, 'src'),
       '~': path.resolve(__dirname, 'src')
     }
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+        sourceMap: false,
+        terserOptions: {
+          warnings: false,
+          compress: {
+            drop_console: true
+          },
+          output: {
+            comments: /@license/i
+          }
+        }
+      })
+    ]
   },
   output: {
     filename: '[name].js',
