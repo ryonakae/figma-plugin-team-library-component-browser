@@ -27,6 +27,7 @@ module.exports = {
     camelcase: 'warn',
     'no-console': 'off',
     'no-unused-vars': 'off',
-    '@typescript-eslint/camelcase': 'warn'
+    '@typescript-eslint/camelcase': 'warn',
+    'react/no-unescaped-entities': 'warn'
   }
 }

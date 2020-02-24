@@ -51,28 +51,14 @@ export default class List extends React.Component<Props, State> {
 
   async onRefreshClick(): Promise<void> {
     await this.fetch()
-
-    onmessage = (msg): void => {
-      const messageType: MessageType = msg.data.pluginMessage.type
-
-      if (messageType === 'getsuccess') {
-        this.refresh()
-      }
-    }
+    this.refresh()
   }
 
   async componentDidMount(): Promise<void> {
     console.log('List did mount')
     await this.fetch()
-
-    onmessage = (msg): void => {
-      const messageType: MessageType = msg.data.pluginMessage.type
-
-      if (messageType === 'getsuccess') {
-        this.refresh()
-        this.props.store!.resizeUI()
-      }
-    }
+    this.refresh()
+    this.props.store!.resizeUI()
   }
 
   onSettingLinkClick(event: React.MouseEvent<HTMLAnchorElement>): void {

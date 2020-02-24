@@ -74,10 +74,16 @@ export default class Setting extends React.Component<Props, State> {
         <div className="content-title is-large">Save Team Library Data</div>
         <div className="content-note">
           <p>
-            The quick brown fox jumps over the lazy dog. The quick brown fox
-            jumps over the lazy dog. The quick brown fox jumps over the lazy
-            dog. The quick brown fox jumps over the lazy dog. The quick brown
-            fox jumps over the lazy dog.
+            Because of the specifications of Figma's API, we can't get team
+            library data automatically.
+          </p>
+          <p>
+            So this plugin uses the figma.clientStorage API to store the library
+            data on your machine.
+          </p>
+          <p>
+            To store library data in clientStorage, you need to run this plugin
+            in your library.
           </p>
         </div>
 
