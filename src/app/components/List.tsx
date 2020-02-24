@@ -43,20 +43,6 @@ export default class List extends React.Component<Props, State> {
     this.setState({ isLoading: false })
   }
 
-  resize(): void {
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: 'resize',
-          data: {
-            height: document.getElementById('app')!.clientHeight
-          }
-        }
-      } as Message,
-      '*'
-    )
-  }
-
   refresh(): void {
     this.props.store!.updateSearchWord('')
     this.props.store!.updateSearchResults([])
@@ -72,12 +58,12 @@ export default class List extends React.Component<Props, State> {
     console.log('List did mount')
     await this.fetch()
     this.refresh()
-    this.resize()
+    this.props.store!.resizeUI()
   }
 
   componentDidUpdate(): void {
     // console.log('List update')
-    this.resize()
+    this.props.store!.resizeUI()
   }
 
   componentWillUnmount(): void {
@@ -130,7 +116,8 @@ export default class List extends React.Component<Props, State> {
                         name={component.name}
                         id={component.id}
                         componentKey={component.componentKey}
-                        parentName={component.parentName}
+                        pageName={component.pageName}
+                        documentName={component.documentName}
                       />
                     )
                   })}

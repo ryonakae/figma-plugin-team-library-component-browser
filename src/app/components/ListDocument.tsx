@@ -6,25 +6,46 @@ import Store from '@/app/Store'
 type Props = FigmaDocument & {
   store?: Store
 }
-type State = {}
+type State = {
+  isCollapsed: boolean
+}
 
 @inject('store')
 @observer
 export default class ListDocument extends React.Component<Props, State> {
   constructor(props) {
     super(props)
+    this.state = {
+      isCollapsed: this.props.isCollapsed
+    }
   }
 
-  onClick(): void {
+  clearComponentSelection(): void {
     if (this.props.store!.currentSelectComponentKey.length > 0) {
       this.props.store!.setCurrentSelectComponentKey('')
     }
   }
 
+  toggleCollapse(): void {
+    this.setState({ isCollapsed: !this.state.isCollapsed })
+  }
+
+  componentDidUpdate(): void {
+    this.props.store!.resizeUI()
+  }
+
   render(): JSX.Element {
+    const { isCollapsed } = this.state
+
     return (
-      <div className="document" onClick={this.onClick.bind(this)}>
-        <div className="document-title">
+      <div
+        className="document"
+        onClick={this.clearComponentSelection.bind(this)}
+      >
+        <div
+          className={`document-title ${isCollapsed ? 'is-collapsed' : ''}`}
+          onClick={this.toggleCollapse.bind(this)}
+        >
           <div className="document-title-icon">
             <span>.</span>
           </div>
@@ -39,7 +60,7 @@ export default class ListDocument extends React.Component<Props, State> {
                   name={page.name}
                   id={page.id}
                   components={page.components}
-                  parentName={page.parentName}
+                  documentName={page.documentName}
                   isCollapsed={page.isCollapsed}
                 />
               )

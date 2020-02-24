@@ -59,7 +59,7 @@ export default class ListComponent extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
-    const { name, id, componentKey, parentName } = this.props
+    const { name, id, componentKey, pageName } = this.props
     const componentClassName =
       this.props.store!.currentSelectComponentKey === this.props.componentKey
         ? 'is-selected'
@@ -77,7 +77,7 @@ export default class ListComponent extends React.Component<Props, State> {
             </div>
             <div className="component-title">
               <span>
-                {parentName} / {name}
+                {pageName} / {name}
               </span>
             </div>
           </div>

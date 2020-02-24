@@ -1,18 +1,42 @@
 import * as React from 'react'
 import ListComponent from '@/app/components/ListComponent'
+import { inject, observer } from 'mobx-react'
+import Store from '@/app/Store'
 
-type Props = FigmaPage
-type State = {}
+type Props = FigmaPage & {
+  store?: Store
+}
+type State = {
+  isCollapsed: boolean
+}
 
+@inject('store')
+@observer
 export default class ListPage extends React.Component<Props, State> {
   constructor(props) {
     super(props)
+    this.state = {
+      isCollapsed: this.props.isCollapsed
+    }
+  }
+
+  toggleCollapse(): void {
+    this.setState({ isCollapsed: !this.state.isCollapsed })
+  }
+
+  componentDidUpdate(): void {
+    this.props.store!.resizeUI()
   }
 
   render(): JSX.Element {
+    const { isCollapsed } = this.state
+
     return (
       <div className="page">
-        <div className="page-title">
+        <div
+          className={`page-title ${isCollapsed ? 'is-collapsed' : ''}`}
+          onClick={this.toggleCollapse.bind(this)}
+        >
           <div className="page-title-icon">
             <span>.</span>
           </div>
@@ -25,7 +49,8 @@ export default class ListPage extends React.Component<Props, State> {
               name={component.name}
               id={component.id}
               componentKey={component.componentKey}
-              parentName={component.parentName}
+              documentName={component.documentName}
+              pageName={component.pageName}
             />
           ))}
         </div>

@@ -116,4 +116,18 @@ export default class Store {
     console.log('setCurrentSelectComponentKey', key)
     this.currentSelectComponentKey = key
   }
+
+  @action resizeUI(): void {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'resize',
+          data: {
+            height: document.getElementById('app')!.clientHeight
+          }
+        }
+      } as Message,
+      '*'
+    )
+  }
 }

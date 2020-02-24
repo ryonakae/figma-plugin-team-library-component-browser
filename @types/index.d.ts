@@ -20,22 +20,23 @@ type FigmaComponent = {
   name: string
   id: string
   componentKey: string
-  parentName: string
+  documentName: string
+  pageName: string
 }
 
 type FigmaPage = {
   name: string
   id: string
   components: FigmaComponent[]
-  parentName: string
-  isCollapsed: false
+  documentName: string
+  isCollapsed: boolean
 }
 
 type FigmaDocument = {
   name: string
   id: string
   pages: FigmaPage[]
-  isCollapsed: false
+  isCollapsed: boolean
 }
 
 type Library = FigmaDocument[] | []

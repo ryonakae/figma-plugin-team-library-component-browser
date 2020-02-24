@@ -272,6 +272,12 @@ body {
   white-space: nowrap;
 }
 
+.document-pages {
+  @nest .document-title.is-collapsed + & {
+    display: none;
+  }
+}
+
 /* page */
 .page {
   &:last-child {
@@ -307,6 +313,10 @@ body {
 .page-components {
   margin-top: var(--spacing-list);
   margin-bottom: var(--spacing-list);
+
+  @nest .page-title.is-collapsed + & {
+    display: none;
+  }
 
   @nest .page:last-child & {
     margin-bottom: 0;
