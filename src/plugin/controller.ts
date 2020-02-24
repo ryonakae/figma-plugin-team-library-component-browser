@@ -9,31 +9,37 @@ let library: Library = []
 figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
 
 async function saveLibrary(): Promise<void> {
-  console.log('saveLibrary')
+  console.log('saveLibrary', figma.root)
   const pages: FigmaPage[] = []
 
   figma.root.children.forEach(page => {
     const components: FigmaComponent[] = []
 
-    pages.push({
-      name: page.name,
-      id: page.id,
-      components,
-      documentName: figma.root.name,
-      isCollapsed: true
+    const foundComponents = page.findAll(node => {
+      return node.type === 'COMPONENT' && node.key.length > 0
     })
 
-    page.children.forEach(scene => {
-      if (scene.type === 'COMPONENT') {
+    if (foundComponents.length > 0) {
+      console.log('found library components', foundComponents)
+
+      foundComponents.forEach(component => {
         components.push({
-          name: scene.name,
-          id: scene.id,
-          componentKey: scene.key,
+          name: component.name,
+          id: component.id,
+          componentKey: (component as ComponentNode).key,
           pageName: page.name,
           documentName: figma.root.name
         })
-      }
-    })
+      })
+
+      pages.push({
+        name: page.name,
+        id: page.id,
+        components,
+        documentName: figma.root.name,
+        isCollapsed: true
+      })
+    }
   })
 
   const document: FigmaDocument = {
@@ -144,7 +150,8 @@ async function createInstance(options: {
       figma.ui.postMessage({
         type: 'createinstancefailed',
         data: {
-          errorMessage: 'Failed to create instance.'
+          errorMessage:
+            'Failed to create instance. If not, you need to enable the library you want to use.'
         }
       } as PluginMessage)
       throw new Error(err)
