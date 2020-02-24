@@ -42,6 +42,8 @@ export default class Store {
   @observable isSnackbarOpen = false
   @observable snackbarMessage = ''
 
+  @observable transitionDurationMS = 150
+
   @action updateTabID(tabID: TabID): void {
     this.tabID = tabID
   }
@@ -85,9 +87,9 @@ export default class Store {
     }
   }
 
-  @action closeDialog(): void {
+  @action async closeDialog(): Promise<void> {
     this.isDialogOpen = false
-
+    await Util.wait(this.transitionDurationMS)
     this.dialogMessage = undefined
     this.dialogConfirmText = undefined
     this.dialogOnConfirm = undefined
@@ -102,7 +104,7 @@ export default class Store {
   @action async closeSnackbar(): Promise<void> {
     console.log('closeSnackbar', this.isSnackbarOpen)
     this.isSnackbarOpen = false
-    await Util.wait(300)
+    await Util.wait(this.transitionDurationMS)
     this.snackbarMessage = ''
   }
 

@@ -16,7 +16,6 @@ export default class Dialog extends React.Component<Props, State> {
   }
 
   close(): void {
-    // this.props.store!.isDialogOpen = false
     this.props.store!.closeDialog()
   }
 
@@ -34,7 +33,7 @@ export default class Dialog extends React.Component<Props, State> {
       dialogTitle,
       dialogMessage,
       dialogConfirmText,
-      dialogOnConfirm
+      transitionDurationMS
     } = this.props.store!
 
     let confirmClassName = 'is-active'
@@ -49,6 +48,7 @@ export default class Dialog extends React.Component<Props, State> {
         overlayClassName="dialog-overlay"
         shouldCloseOnOverlayClick={true}
         onRequestClose={this.close.bind(this)}
+        closeTimeoutMS={transitionDurationMS}
       >
         <div className="dialog-header">
           <div className="dialog-title">{dialogTitle}</div>
