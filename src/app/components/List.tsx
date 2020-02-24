@@ -192,7 +192,11 @@ export default class List extends React.Component<Props, State> {
         <div className="searchAndRefresh">
           <Search />
           <div className="iconButton" onClick={this.onRefreshClick.bind(this)}>
-            R
+            <img
+              className="iconButton-icon is-refresh"
+              src={require('@/app/assets/img/icon_refresh.svg').default}
+              alt=""
+            />
           </div>
         </div>
 

@@ -14,6 +14,8 @@ type State = {
 @inject('store')
 @observer
 export default class Search extends React.Component<Props, State> {
+  private inputRef!: React.RefObject<HTMLInputElement>
+
   constructor(props) {
     super(props)
     this.state = {
@@ -23,9 +25,10 @@ export default class Search extends React.Component<Props, State> {
         distance: 100,
         maxPatternLength: 32,
         minMatchCharLength: 1,
-        keys: ['name', 'parentName']
+        keys: ['documentName', 'pageName', 'name']
       }
     }
+    this.inputRef = React.createRef()
   }
 
   filter(event: React.ChangeEvent<HTMLInputElement>): void {
@@ -62,6 +65,10 @@ export default class Search extends React.Component<Props, State> {
     this.props.store!.updateSearchResults([])
   }
 
+  componentDidMount(): void {
+    this.inputRef.current!.focus()
+  }
+
   render(): JSX.Element {
     const { searchWord } = this.props.store!
 
@@ -78,6 +85,7 @@ export default class Search extends React.Component<Props, State> {
           placeholder="Search"
           value={searchWord}
           onChange={this.filter.bind(this)}
+          ref={this.inputRef}
         />
         <div
           className={`search-clear ${
@@ -85,7 +93,10 @@ export default class Search extends React.Component<Props, State> {
           }`}
           onClick={this.onClearClick.bind(this)}
         >
-          <span className="icon">X</span>
+          <img
+            src={require('@/app/assets/img/icon_close.svg').default}
+            alt=""
+          />
         </div>
       </div>
     )

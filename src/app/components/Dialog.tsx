@@ -37,17 +37,40 @@ export default class Dialog extends React.Component<Props, State> {
       dialogOnConfirm
     } = this.props.store!
 
+    let confirmClassName = 'is-active'
+    if (dialogType === 'alert') {
+      confirmClassName = 'is-alert'
+    }
+
     return (
-      <Modal isOpen={isDialogOpen} className={`is-${dialogType}`}>
-        <div>
-          <div>{dialogTitle}</div>
-          <div onClick={this.close.bind(this)}>Close</div>
+      <Modal
+        isOpen={isDialogOpen}
+        className={`dialog is-${dialogType}`}
+        overlayClassName="dialog-overlay"
+        shouldCloseOnOverlayClick={true}
+        onRequestClose={this.close.bind(this)}
+      >
+        <div className="dialog-header">
+          <div className="dialog-title">{dialogTitle}</div>
+          <div className="dialog-close" onClick={this.close.bind(this)}>
+            <img
+              src={require('@/app/assets/img/icon_close.svg').default}
+              alt=""
+            />
+          </div>
         </div>
 
-        {dialogMessage && <div>{dialogMessage}</div>}
+        {dialogMessage && <div className="dialog-message">{dialogMessage}</div>}
 
         {dialogConfirmText && (
-          <div onClick={this.onConfirm.bind(this)}>{dialogConfirmText}</div>
+          <div className="dialog-button">
+            <div
+              className={`button ${confirmClassName}`}
+              onClick={this.onConfirm.bind(this)}
+            >
+              {dialogConfirmText}
+            </div>
+          </div>
         )}
       </Modal>
     )
