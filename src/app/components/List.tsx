@@ -75,6 +75,23 @@ export default class List extends React.Component<Props, State> {
     }
   }
 
+  onSettingLinkClick(event: React.MouseEvent<HTMLAnchorElement>): void {
+    event.preventDefault()
+    this.props.store!.updateTabID('setting')
+  }
+
+  onSaveLinkClick(event: React.MouseEvent<HTMLAnchorElement>): void {
+    event.preventDefault()
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'save'
+        }
+      } as Message,
+      '*'
+    )
+  }
+
   componentDidUpdate(): void {
     // console.log('List update')
     this.props.store!.resizeUI()
@@ -101,12 +118,27 @@ export default class List extends React.Component<Props, State> {
             <div>
               <div className="content-title">Components</div>
               <div className="content-note">
-                <p>
-                  The quick brown fox jumps over the lazy dog. The quick brown
-                  fox jumps over the lazy dog. The quick brown fox jumps over
-                  the lazy dog. The quick brown fox jumps over the lazy dog. The
-                  quick brown fox jumps over the lazy dog.
-                </p>
+                <p>To list team library component,</p>
+                <ol>
+                  <li>Open this plugin in library what you want to list.</li>
+                  <li>
+                    Go to{' '}
+                    <a href="" onClick={this.onSettingLinkClick.bind(this)}>
+                      Setting
+                    </a>{' '}
+                    tab in this plugin.
+                  </li>
+                  <li>
+                    Press “
+                    <a href="" onClick={this.onSaveLinkClick.bind(this)}>
+                      Save or update this library data
+                    </a>
+                    ” button to save all components data in library to this
+                    plugin.
+                  </li>
+                  <li>Go back to your document and open this plugin.</li>
+                  <li>Enjoy!</li>
+                </ol>
               </div>
             </div>
           )

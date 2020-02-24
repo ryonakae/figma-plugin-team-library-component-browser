@@ -41,7 +41,7 @@ module.exports = (env, argv) => ({
         test: /\.(jpe?g|png|bmp|gif|webp|svg)$/,
         loader: 'url-loader',
         options: {
-          limit: false
+          limit: undefined
         }
       }
     ]

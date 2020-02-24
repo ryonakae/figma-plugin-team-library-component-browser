@@ -10,7 +10,7 @@ export default class Store {
     onmessage = (msg): void => {
       const messageType: MessageType = msg.data.pluginMessage.type
 
-      const openErrorDialog = (msg: MessageEvent) => {
+      const openErrorDialog = (msg: MessageEvent): void => {
         this.openDialog({
           dialogType: 'alert',
           dialogTitle: 'An Error Occurred!',

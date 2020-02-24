@@ -13,6 +13,12 @@ body {
   background: var(--color-bg);
 }
 
+:any-link {
+  color: var(--color-active);
+  text-decoration: none;
+  cursor: default;
+}
+
 /* tab */
 .tab {
   height: var(--height-row-default);
@@ -131,6 +137,24 @@ body {
 
 .content-note {
   padding: var(--spacing-text) var(--spacing-default);
+
+  & > * {
+    margin-top: var(--spacing-text);
+    margin-bottom: var(--spacing-text);
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  & ul,
+  & ol {
+    padding-left: 1.2em;
+  }
 }
 
 .content-empty,

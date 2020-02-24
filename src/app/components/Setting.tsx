@@ -33,7 +33,7 @@ export default class Setting extends React.Component<Props, State> {
       dialogType: 'alert',
       dialogTitle: 'Clear All Library Data',
       dialogMessage:
-        'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. ',
+        'If you want to list team library components again, you need to press the "Save or update this library data" button again.',
       dialogConfirmText: 'Clear all library data',
       dialogOnConfirm: () => {
         parent.postMessage(
