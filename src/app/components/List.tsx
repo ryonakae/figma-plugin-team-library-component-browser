@@ -162,6 +162,31 @@ export default class List extends React.Component<Props, State> {
       )
     }
 
+    let contentClassName = ''
+
+    // ライブラリが空→empty表示
+    if (library.length === 0) {
+      contentClassName = ''
+    }
+    // ライブラリがあるとき
+    else {
+      // 検索中のとき
+      if (searchWord.length > 0) {
+        // searchResultsがある→検索結果を表示
+        if (searchResults.length > 0) {
+          contentClassName = 'has-options'
+        }
+        // searchResultsがない→empty表示
+        else {
+          contentClassName = ''
+        }
+      }
+      // 検索中ではない→ライブラリを表示
+      else {
+        contentClassName = 'has-options'
+      }
+    }
+
     return (
       <div>
         <div className="searchAndRefresh">
@@ -171,7 +196,7 @@ export default class List extends React.Component<Props, State> {
           </div>
         </div>
 
-        <div className="content">
+        <div className={`content ${contentClassName}`}>
           <ListContent />
         </div>
 

@@ -39,7 +39,10 @@ module.exports = (env, argv) => ({
       },
       {
         test: /\.(jpe?g|png|bmp|gif|webp|svg)$/,
-        loader: 'url-loader'
+        loader: 'url-loader',
+        options: {
+          limit: false
+        }
       }
     ]
   },

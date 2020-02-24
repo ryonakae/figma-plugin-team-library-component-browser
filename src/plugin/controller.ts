@@ -2,11 +2,11 @@ import _ from 'lodash'
 
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
 const UI_WIDTH = 250
-const UI_MIN_HEIGHT = 250
+const UI_MIN_HEIGHT = 200
 const UI_MAX_HEIGHT = 450
 let library: Library = []
 
-figma.showUI(__html__, { width: UI_WIDTH, height: 400 })
+figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
 
 async function saveLibrary(): Promise<void> {
   console.log('saveLibrary')

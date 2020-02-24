@@ -67,7 +67,11 @@ export default class Search extends React.Component<Props, State> {
 
     return (
       <div className="search">
-        <span className="search-icon">S</span>
+        <img
+          className="search-icon"
+          src={require('@/app/assets/img/icon_search.svg').default}
+          alt=""
+        />
         <input
           className="search-input"
           type="text"

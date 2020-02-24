@@ -38,7 +38,10 @@ export default class ListPage extends React.Component<Props, State> {
           onClick={this.toggleCollapse.bind(this)}
         >
           <div className="page-title-icon">
-            <span>.</span>
+            <img
+              src={require('@/app/assets/img/icon_arrow_down.svg').default}
+              alt=""
+            />
           </div>
           <div className="page-title-text">{this.props.name}</div>
         </div>

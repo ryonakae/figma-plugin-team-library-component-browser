@@ -73,7 +73,10 @@ export default class ListComponent extends React.Component<Props, State> {
             className={`component ${componentClassName}`}
           >
             <div className="component-icon">
-              <span>C</span>
+              <img
+                src={require('@/app/assets/img/icon_component.svg').default}
+                alt=""
+              />
             </div>
             <div className="component-title">
               <span>

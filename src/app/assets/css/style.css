@@ -2,7 +2,7 @@
 @import 'ress';
 @import 'custom-properties.css';
 
-body {
+#app {
   font-family: var(--fontFamily);
   font-size: var(--fontSize);
   font-weight: var(--fontWeight-default);
@@ -59,11 +59,8 @@ body {
 }
 
 .search-icon {
-  width: 16px;
-  height: 16px;
-  cursor: auto;
-  user-select: none;
-  background-color: gray;
+  width: 11px;
+  height: 11px;
 }
 
 .search-input {
@@ -71,6 +68,10 @@ body {
   margin-left: 8px;
   line-height: var(--height-row-small);
   outline: none;
+
+  &::placeholder {
+    color: var(--color-inactive);
+  }
 }
 
 .search-clear {
@@ -101,6 +102,10 @@ body {
 /* content */
 .content {
   padding-bottom: var(--spacing-bottom);
+
+  &.has-options {
+    padding-bottom: calc(var(--spacing-bottom) + 77px);
+  }
 }
 
 .content-title {
@@ -166,9 +171,12 @@ body {
 
 /* options */
 .options {
-  position: sticky;
+  /* position: sticky; */
+  position: fixed;
   bottom: 0;
+  left: 0;
   display: none;
+  width: 100%;
   padding: var(--spacing-list) calc(var(--spacing-default) / 2)
     var(--spacing-list) var(--spacing-default);
   background: var(--color-bg);
@@ -263,6 +271,26 @@ body {
   justify-content: center;
   width: var(--spacing-default);
   height: 100%;
+  opacity: 0.7;
+  transform-origin: 50% 50%;
+
+  & > img {
+    width: 6px;
+    height: auto;
+  }
+
+  @nest .document-title:hover & {
+    opacity: 0.7;
+  }
+
+  @nest .document-title.is-collapsed & {
+    opacity: 0.3;
+    transform: rotate(-90deg);
+  }
+
+  @nest .document-title.is-collapsed:hover & {
+    opacity: 0.7;
+  }
 }
 
 .document-title-text {
@@ -302,6 +330,24 @@ body {
   justify-content: center;
   width: var(--spacing-default);
   height: 100%;
+
+  & > img {
+    width: 6px;
+    height: auto;
+  }
+
+  @nest .page-title:hover & {
+    opacity: 0.7;
+  }
+
+  @nest .page-title.is-collapsed & {
+    opacity: 0.3;
+    transform: rotate(-90deg);
+  }
+
+  @nest .page-title.is-collapsed:hover & {
+    opacity: 0.7;
+  }
 }
 
 .page-title-text {
@@ -348,7 +394,6 @@ body {
   width: 18px;
   min-width: 18px;
   height: 18px;
-  background-color: gray;
 }
 
 .component-title {
