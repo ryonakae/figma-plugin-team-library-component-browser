@@ -51,14 +51,28 @@ export default class List extends React.Component<Props, State> {
 
   async onRefreshClick(): Promise<void> {
     await this.fetch()
-    this.refresh()
+
+    onmessage = (msg): void => {
+      const messageType: MessageType = msg.data.pluginMessage.type
+
+      if (messageType === 'getsuccess') {
+        this.refresh()
+      }
+    }
   }
 
   async componentDidMount(): Promise<void> {
     console.log('List did mount')
     await this.fetch()
-    this.refresh()
-    this.props.store!.resizeUI()
+
+    onmessage = (msg): void => {
+      const messageType: MessageType = msg.data.pluginMessage.type
+
+      if (messageType === 'getsuccess') {
+        this.refresh()
+        this.props.store!.resizeUI()
+      }
+    }
   }
 
   componentDidUpdate(): void {
