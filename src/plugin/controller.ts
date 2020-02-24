@@ -49,9 +49,31 @@ async function saveLibrary(): Promise<void> {
     isCollapsed: false
   }
 
+  // ページが1つもない→エラーで処理中断
+  if (document.pages.length === 0) {
+    figma.ui.postMessage({
+      type: 'savefailed',
+      data: {
+        errorMessage: 'Failed to save library. No library components available.'
+      }
+    } as PluginMessage)
+    throw new Error('')
+  }
+
   const currentLibrary:
     | Library
-    | undefined = await figma.clientStorage.getAsync(CLIENT_STORAGE_KEY_NAME)
+    | undefined = await figma.clientStorage
+    .getAsync(CLIENT_STORAGE_KEY_NAME)
+    .catch(err => {
+      console.error(err)
+      figma.ui.postMessage({
+        type: 'savefailed',
+        data: {
+          errorMessage: 'Failed to save library.'
+        }
+      } as PluginMessage)
+      throw new Error(err)
+    })
 
   const newLibrary = currentLibrary
     ? _.unionBy(currentLibrary, [document], 'name')
@@ -62,6 +84,7 @@ async function saveLibrary(): Promise<void> {
   await figma.clientStorage
     .setAsync(CLIENT_STORAGE_KEY_NAME, library)
     .catch(err => {
+      console.error(err)
       figma.ui.postMessage({
         type: 'savefailed',
         data: {
@@ -109,6 +132,7 @@ async function getLibrary(): Promise<void> {
     | undefined = await figma.clientStorage
     .getAsync(CLIENT_STORAGE_KEY_NAME)
     .catch(err => {
+      console.error(err)
       figma.ui.postMessage({
         type: 'getfailed',
         data: {
