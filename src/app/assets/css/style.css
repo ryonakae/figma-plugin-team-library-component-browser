@@ -232,6 +232,41 @@ body {
   }
 }
 
+/* document */
+.document {
+  margin-bottom: var(--spacing-list);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.document-title {
+  display: flex;
+  align-items: center;
+  height: var(--height-row-small);
+  margin-bottom: var(--spacing-list);
+
+  &:hover {
+    background-color: var(--color-selectBg);
+  }
+}
+
+.document-title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-default);
+  height: 100%;
+}
+
+.document-title-text {
+  overflow: hidden;
+  font-weight: var(--fontWeight-title);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* component */
 .component {
   display: flex;
@@ -249,7 +284,7 @@ body {
       border-color: transparent;
     }
 
-    background-color: var(--color-rowBg);
+    background-color: var(--color-selectBg-component);
   }
 }
 

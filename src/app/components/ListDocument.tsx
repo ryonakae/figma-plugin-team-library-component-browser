@@ -11,8 +11,13 @@ export default class ListDocument extends React.Component<Props, State> {
 
   render(): JSX.Element {
     return (
-      <div>
-        <div>{this.props.name}</div>
+      <div className="document">
+        <div className="document-title">
+          <div className="document-title-icon">
+            <span>.</span>
+          </div>
+          <div className="document-title-text">{this.props.name}</div>
+        </div>
         {this.props.pages.map(
           (page, index) =>
             page.components.length > 0 && (
