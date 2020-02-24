@@ -28,12 +28,14 @@ type FigmaPage = {
   id: string
   components: FigmaComponent[]
   parentName: string
+  isCollapsed: false
 }
 
 type FigmaDocument = {
   name: string
   id: string
   pages: FigmaPage[]
+  isCollapsed: false
 }
 
 type Library = FigmaDocument[] | []

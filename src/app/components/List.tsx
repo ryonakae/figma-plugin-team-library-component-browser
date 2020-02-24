@@ -60,6 +60,7 @@ export default class List extends React.Component<Props, State> {
   refresh(): void {
     this.props.store!.updateSearchWord('')
     this.props.store!.updateSearchResults([])
+    this.props.store!.setCurrentSelectComponentKey('')
   }
 
   async onRefreshClick(): Promise<void> {
@@ -156,6 +157,7 @@ export default class List extends React.Component<Props, State> {
                       name={document.name}
                       id={document.id}
                       pages={document.pages}
+                      isCollapsed={document.isCollapsed}
                     />
                   )
                 })}

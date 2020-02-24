@@ -19,7 +19,8 @@ async function saveLibrary(): Promise<void> {
       name: page.name,
       id: page.id,
       components,
-      parentName: figma.root.name
+      parentName: figma.root.name,
+      isCollapsed: false
     })
 
     page.children.forEach(scene => {
@@ -37,7 +38,8 @@ async function saveLibrary(): Promise<void> {
   const document: FigmaDocument = {
     name: figma.root.name,
     id: figma.root.id,
-    pages
+    pages,
+    isCollapsed: false
   }
 
   const currentLibrary:

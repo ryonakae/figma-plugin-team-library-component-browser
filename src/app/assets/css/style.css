@@ -234,7 +234,12 @@ body {
 
 /* document */
 .document {
+  margin-top: var(--spacing-list);
   margin-bottom: var(--spacing-list);
+
+  &:first-child {
+    margin-top: 0;
+  }
 
   &:last-child {
     margin-bottom: 0;
@@ -265,6 +270,47 @@ body {
   font-weight: var(--fontWeight-title);
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* page */
+.page {
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  height: var(--height-row-small);
+  padding: 0 var(--spacing-default);
+
+  &:hover {
+    background-color: var(--color-selectBg);
+  }
+}
+
+.page-title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-default);
+  height: 100%;
+}
+
+.page-title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-components {
+  margin-top: var(--spacing-list);
+  margin-bottom: var(--spacing-list);
+
+  @nest .page:last-child & {
+    margin-bottom: 0;
+  }
 }
 
 /* component */

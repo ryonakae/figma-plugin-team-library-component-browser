@@ -18,11 +18,11 @@ export default class ListComponent extends React.Component<Props, State> {
     this.clickCount = 0
   }
 
-  async handleClick(): Promise<void> {
+  async handleClick(event: React.MouseEvent<HTMLElement>): Promise<void> {
     this.clickCount++
 
     if (this.clickCount < 2) {
-      this.onSingleClick()
+      this.onSingleClick(event)
 
       await Util.wait(250)
 
@@ -33,7 +33,8 @@ export default class ListComponent extends React.Component<Props, State> {
     }
   }
 
-  onSingleClick(): void {
+  onSingleClick(event: React.MouseEvent<HTMLElement>): void {
+    event.stopPropagation()
     console.log('onSingleClick', this.props)
     this.props.store!.setCurrentSelectComponentKey(this.props.componentKey)
   }

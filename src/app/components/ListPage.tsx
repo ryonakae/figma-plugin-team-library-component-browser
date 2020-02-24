@@ -11,17 +11,24 @@ export default class ListPage extends React.Component<Props, State> {
 
   render(): JSX.Element {
     return (
-      <div>
-        <div>{this.props.name}</div>
-        {this.props.components.map((component, index) => (
-          <ListComponent
-            key={index}
-            name={component.name}
-            id={component.id}
-            componentKey={component.componentKey}
-            parentName={component.parentName}
-          />
-        ))}
+      <div className="page">
+        <div className="page-title">
+          <div className="page-title-icon">
+            <span>.</span>
+          </div>
+          <div className="page-title-text">{this.props.name}</div>
+        </div>
+        <div className="page-components">
+          {this.props.components.map((component, index) => (
+            <ListComponent
+              key={index}
+              name={component.name}
+              id={component.id}
+              componentKey={component.componentKey}
+              parentName={component.parentName}
+            />
+          ))}
+        </div>
       </div>
     )
   }
