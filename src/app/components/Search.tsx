@@ -20,12 +20,15 @@ export default class Search extends React.Component<Props, State> {
     super(props)
     this.state = {
       fuseOptions: {
-        threshold: 0.1,
-        location: 0,
-        distance: 100,
+        tokenize: true,
+        matchAllTokens: true,
+        findAllMatches: true,
+        // threshold: 0.1,
+        // location: 0,
+        // distance: 100,
         maxPatternLength: 32,
         minMatchCharLength: 1,
-        keys: ['documentName', 'pageName', 'name']
+        keys: ['name', 'pageName', 'documentName']
       }
     }
     this.inputRef = React.createRef()
