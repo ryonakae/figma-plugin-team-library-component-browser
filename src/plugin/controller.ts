@@ -209,40 +209,50 @@ async function createInstance(options: {
       // インスタンスを複製
       const copiedInstance = instance.clone()
 
-      // 選択した要素のインデックスを取得
-      const index = _.findIndex(parent.children, (child): boolean => {
-        return child.id === selection.id
-      })
-      console.log('index', index)
+      // 選択した要素がインスタンスで、親もインスタンスの場合
+      // →要素の削除や追加はできないので、選択した要素のmaster componentを変更する
+      // つまり、強制的にswap
+      if (parent.type === 'INSTANCE' && selection.type === 'INSTANCE') {
+        console.log('both selection and parent node is instance.')
+        selection.masterComponent = component
+      }
+      // それ以外の場合
+      else {
+        // 選択した要素のインデックスを取得
+        const index = _.findIndex(parent.children, (child): boolean => {
+          return child.id === selection.id
+        })
+        console.log('index', index)
 
-      // 取得したインデックスを元に、選択した要素の後にインスタンスを移動
-      // ※配列的には後、Figmaの表示では上
-      parent.insertChild(index, copiedInstance)
+        // 取得したインデックスを元に、選択した要素の後にインスタンスを移動
+        // ※配列的には後、Figmaの表示では上
+        parent.insertChild(index, copiedInstance)
 
-      // isSwapがtrue→selectionを削除
-      if (options.options.isSwap) {
-        console.log('swap copied instance')
+        // isSwapがtrue→selectionを削除
+        if (options.options.isSwap) {
+          console.log('swap copied instance')
 
-        // isOriginalSizeがfalse→selectionのサイズをインスタンスのサイズにする
-        if (!options.options.isOriginalSize) {
-          console.log('resize copied instance')
-          copiedInstance.resize(selection.width, selection.height)
+          // isOriginalSizeがfalse→selectionのサイズをインスタンスのサイズにする
+          if (!options.options.isOriginalSize) {
+            console.log('resize copied instance')
+            copiedInstance.resize(selection.width, selection.height)
+          }
+
+          // instanceの色んなプロパティを選択した要素と同じにする
+          // Scene node properties
+          copiedInstance.visible = selection.visible
+          copiedInstance.locked = selection.locked
+          // Layout-related properties
+          copiedInstance.relativeTransform = selection.relativeTransform
+          copiedInstance.x = selection.x
+          copiedInstance.y = selection.y
+          copiedInstance.rotation = selection.rotation
+          copiedInstance.layoutAlign = selection.layoutAlign
+          // Export-related properties
+          copiedInstance.exportSettings = selection.exportSettings
+
+          selection.remove()
         }
-
-        // instanceの色んなプロパティを選択した要素と同じにする
-        // Scene node properties
-        copiedInstance.visible = selection.visible
-        copiedInstance.locked = selection.locked
-        // Layout-related properties
-        copiedInstance.relativeTransform = selection.relativeTransform
-        copiedInstance.x = selection.x
-        copiedInstance.y = selection.y
-        copiedInstance.rotation = selection.rotation
-        copiedInstance.layoutAlign = selection.layoutAlign
-        // Export-related properties
-        copiedInstance.exportSettings = selection.exportSettings
-
-        selection.remove()
       }
     })
 
