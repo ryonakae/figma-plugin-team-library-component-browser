@@ -10,17 +10,24 @@ figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
 
 async function saveLibrary(): Promise<void> {
   console.log('saveLibrary', figma.root)
-  const pages: FigmaPage[] = []
 
+  const document: FigmaDocument = {
+    name: figma.root.name,
+    id: figma.root.id,
+    pages: [],
+    isCollapsed: false
+  }
+
+  // 各ページごとに処理
   figma.root.children.forEach(page => {
-    const components: FigmaComponent[] = []
-
+    // ページ以下にある、keyがあるコンポーネントをすべて返す
     const foundComponents = page.findAll(node => {
       return node.type === 'COMPONENT' && node.key.length > 0
     })
 
     if (foundComponents.length > 0) {
       console.log('found library components', foundComponents)
+      const components: FigmaComponent[] = []
 
       foundComponents.forEach(component => {
         components.push({
@@ -32,7 +39,7 @@ async function saveLibrary(): Promise<void> {
         })
       })
 
-      pages.push({
+      document.pages.push({
         name: page.name,
         id: page.id,
         components,
@@ -42,12 +49,7 @@ async function saveLibrary(): Promise<void> {
     }
   })
 
-  const document: FigmaDocument = {
-    name: figma.root.name,
-    id: figma.root.id,
-    pages,
-    isCollapsed: false
-  }
+  console.log('document', document)
 
   // ページが1つもない→エラーで処理中断
   if (document.pages.length === 0) {
@@ -60,9 +62,8 @@ async function saveLibrary(): Promise<void> {
     throw new Error('')
   }
 
-  const currentLibrary:
-    | Library
-    | undefined = await figma.clientStorage
+  // 現在保存されているライブラリを取得
+  let currentLibrary: Library | undefined = await figma.clientStorage
     .getAsync(CLIENT_STORAGE_KEY_NAME)
     .catch(err => {
       console.error(err)
@@ -74,13 +75,38 @@ async function saveLibrary(): Promise<void> {
       } as PluginMessage)
       throw new Error(err)
     })
+  console.log('currentLibrary', currentLibrary)
 
-  const newLibrary = currentLibrary
-    ? _.unionBy(currentLibrary, [document], 'name')
+  // もしライブラリがすでにある場合、
+  // 現在のライブラリから、documentと同じ名前のものを削除
+  if (currentLibrary) {
+    currentLibrary = _.remove(currentLibrary, currentDocument => {
+      console.log(
+        currentDocument.name,
+        document.name,
+        currentDocument.name === document.name
+      )
+      return currentDocument.name !== document.name
+    })
+    console.log(
+      'same name documents are deleted from currentLibrary',
+      currentLibrary
+    )
+  }
+
+  // 現在のライブラリにdocumentをマージしたものを新しいライブラリとして返す
+  let newLibrary = currentLibrary
+    ? _.union(currentLibrary, [document])
     : [document]
+
+  // 新しいライブラリをドキュメント名でソートする
+  newLibrary = _.orderBy(newLibrary, ['name'], ['asc'])
+
+  console.log('sorted newLibrary', newLibrary)
 
   library = newLibrary
 
+  // clientStorageに更新したライブラリを保存
   await figma.clientStorage
     .setAsync(CLIENT_STORAGE_KEY_NAME, library)
     .catch(err => {
