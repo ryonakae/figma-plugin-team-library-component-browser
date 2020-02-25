@@ -21,8 +21,8 @@ List, browse, and create instance your team library components.
 
 ## 🖌 Notes:
 
-Because of the specifications of Figma's API, we can't get team library data automatically.
-So this plugin uses the figma.clientStorage API to store the library data on your machine.
+Because of the specifications of Figma's API, we can't get team library data automatically.  
+So this plugin uses the figma.clientStorage API to store the library data on your machine.  
 To store library data in clientStorage, you need to run this plugin in your library.
 
 ## 📮 Support:
@@ -33,6 +33,7 @@ https://github.com/ryonakae/figma-plugin-team-library-component-browser/issues
 ---
 
 This plugin is made by Ryo Nakae 🙎‍♂️.
-https://brdr.jp
-https://twitter.com/ryo_dg
-https://github.com/ryonakae
+
+- https://brdr.jp
+- https://twitter.com/ryo_dg
+- https://github.com/ryonakae
