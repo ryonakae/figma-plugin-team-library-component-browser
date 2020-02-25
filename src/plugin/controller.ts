@@ -206,9 +206,6 @@ async function createInstance(options: {
       // 親がない→処理を中断
       if (!parent) return
 
-      // インスタンスを複製
-      const copiedInstance = instance.clone()
-
       // 選択した要素がインスタンスで、親もインスタンスの場合
       // →要素の削除や追加はできないので、選択した要素のmaster componentを変更する
       // つまり、強制的にswap
@@ -218,6 +215,9 @@ async function createInstance(options: {
       }
       // それ以外の場合
       else {
+        // インスタンスを複製
+        const copiedInstance = instance.clone()
+
         // 選択した要素のインデックスを取得
         const index = _.findIndex(parent.children, (child): boolean => {
           return child.id === selection.id
