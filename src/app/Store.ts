@@ -27,6 +27,7 @@ export default class Store {
         this.openSnackbar('Success to clear all library data')
       } else if (messageType === 'createinstancesuccess') {
         this.openSnackbar('Success to create instance')
+        this.setCurrentSelectComponentKey('')
       } else if (messageType === 'savefailed') {
         openErrorDialog(msg)
       } else if (messageType === 'clearfailed') {
@@ -35,6 +36,7 @@ export default class Store {
         openErrorDialog(msg)
       } else if (messageType === 'createinstancefailed') {
         openErrorDialog(msg)
+        this.setCurrentSelectComponentKey('')
       }
     }
   }
