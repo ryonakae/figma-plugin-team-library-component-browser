@@ -21,9 +21,7 @@ export default class ListDocument extends React.Component<Props, State> {
   }
 
   clearComponentSelection(): void {
-    if (this.props.store!.currentSelectComponentKey.length > 0) {
-      this.props.store!.setCurrentSelectComponentKey('')
-    }
+    this.props.store!.setCurrentSelectComponent({ name: '', key: '' })
   }
 
   toggleCollapse(): void {

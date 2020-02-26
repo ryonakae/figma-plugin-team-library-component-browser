@@ -27,7 +27,7 @@ export default class Store {
         this.openSnackbar('Success to clear all library data')
       } else if (messageType === 'createinstancesuccess') {
         this.openSnackbar('Success to create instance')
-        this.setCurrentSelectComponentKey('')
+        this.setCurrentSelectComponent({ name: '', key: '' })
       } else if (messageType === 'savefailed') {
         openErrorDialog(msg)
       } else if (messageType === 'clearfailed') {
@@ -36,7 +36,7 @@ export default class Store {
         openErrorDialog(msg)
       } else if (messageType === 'createinstancefailed') {
         openErrorDialog(msg)
-        this.setCurrentSelectComponentKey('')
+        this.setCurrentSelectComponent({ name: '', key: '' })
       }
     }
   }
@@ -46,6 +46,7 @@ export default class Store {
   @observable searchResults: FigmaComponent[] = []
   @observable searchWord = ''
 
+  @observable currentSelectComponentName = ''
   @observable currentSelectComponentKey = ''
   @observable isSwap = false
   @observable isOriginalSize = false
@@ -134,9 +135,13 @@ export default class Store {
     this.isOriginalSize = !this.isOriginalSize
   }
 
-  @action setCurrentSelectComponentKey(key: string): void {
-    console.log('setCurrentSelectComponentKey', key)
-    this.currentSelectComponentKey = key
+  @action setCurrentSelectComponent(options: {
+    name: string
+    key: string
+  }): void {
+    console.log('setCurrentSelectComponent', options.name, options.key)
+    this.currentSelectComponentName = options.name
+    this.currentSelectComponentKey = options.key
   }
 
   @action resizeUI(): void {

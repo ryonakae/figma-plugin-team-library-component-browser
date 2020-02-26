@@ -46,7 +46,7 @@ export default class List extends React.Component<Props, State> {
   refresh(): void {
     this.props.store!.updateSearchWord('')
     this.props.store!.updateSearchResults([])
-    this.props.store!.setCurrentSelectComponentKey('')
+    this.props.store!.setCurrentSelectComponent({ name: '', key: '' })
   }
 
   async onRefreshClick(): Promise<void> {

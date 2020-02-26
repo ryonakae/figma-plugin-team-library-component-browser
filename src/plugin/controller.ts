@@ -14,7 +14,7 @@ async function saveLibrary(): Promise<void> {
   let pages: FigmaPage[] = []
 
   // 各ページごとに処理
-  figma.root.children.forEach(page => {
+  _.map(figma.root.children, page => {
     // ページ以下にある、keyがあるコンポーネントをすべて返す
     const foundComponents = page.findAll(node => {
       return node.type === 'COMPONENT' && node.key.length > 0
@@ -24,7 +24,7 @@ async function saveLibrary(): Promise<void> {
       console.log('found library components', foundComponents)
       let components: FigmaComponent[] = []
 
-      foundComponents.forEach(component => {
+      _.map(foundComponents, component => {
         components.push({
           name: component.name,
           id: component.id,
@@ -162,6 +162,7 @@ async function clearLibrary(): Promise<void> {
 async function getLibrary(): Promise<void> {
   console.log('getLibrary')
 
+  // 現在のライブラリを取得
   const currentLibrary:
     | Library
     | undefined = await figma.clientStorage
@@ -177,9 +178,10 @@ async function getLibrary(): Promise<void> {
       throw new Error(err)
     })
 
+  // ローカルのコンポーネント一覧を取得
   let localPages: FigmaPage[] = []
 
-  figma.root.children.map(page => {
+  _.map(figma.root.children, page => {
     const foundLocalComponents = page.findAll(node => {
       return node.type === 'COMPONENT'
     })
@@ -188,7 +190,7 @@ async function getLibrary(): Promise<void> {
       console.log('found local components', foundLocalComponents)
       let localComponents: FigmaComponent[] = []
 
-      foundLocalComponents.map(component => {
+      _.map(foundLocalComponents, component => {
         localComponents.push({
           name: component.name,
           id: component.id,
@@ -226,7 +228,7 @@ async function getLibrary(): Promise<void> {
   // clientStorageに保存されているライブラリと、現在開いているドキュメントをマージする
   // localDocumentは必ずリストの先頭にする
   library = currentLibrary
-    ? [localDocument, ...currentLibrary]
+    ? _.union([localDocument], currentLibrary)
     : [localDocument]
 
   console.log('getLibrary success', library)
@@ -245,6 +247,8 @@ function updateLibrary(): void {
 
 async function createInstance(options: {
   key: FigmaComponent['componentKey']
+  name: FigmaComponent['name']
+  id: FigmaComponent['id']
   options: {
     isSwap: boolean
     isOriginalSize: boolean
@@ -252,24 +256,56 @@ async function createInstance(options: {
 }): Promise<void> {
   console.log('createInstance', options)
 
-  // load component
-  const component = await figma
-    .importComponentByKeyAsync(options.key)
-    .catch(err => {
+  let component!: ComponentNode
+
+  // keyがある場合
+  // →ライブラリのコンポーネントなので、そのkeyを元にコンポーネントをload
+  if (options.key.length > 0) {
+    component = await figma
+      .importComponentByKeyAsync(options.key)
+      .catch(err => {
+        figma.ui.postMessage({
+          type: 'createinstancefailed',
+          data: {
+            errorMessage:
+              'Failed to create instance. If not, you need to enable the library you want to use.'
+          }
+        } as PluginMessage)
+        throw new Error(err)
+      })
+
+    console.log('import component success', component)
+  }
+  // keyがない場合
+  // ローカルのコンポーネントなので、現在のドキュメントから同じ名前とidのものを取得してcomponent変数に入れる
+  else {
+    const localComponent = figma.root.findOne(node => {
+      return (
+        node.type === 'COMPONENT' &&
+        node.name === options.name &&
+        node.id === options.id
+      )
+    })
+
+    // コンポーネントが見つからなかったらエラーをthrow
+    if (!localComponent) {
       figma.ui.postMessage({
         type: 'createinstancefailed',
         data: {
-          errorMessage:
-            'Failed to create instance. If not, you need to enable the library you want to use.'
+          errorMessage: 'Failed to create instance. No local components.'
         }
       } as PluginMessage)
-      throw new Error(err)
-    })
+      throw new Error('Failed to create instance. No local components.')
+    }
 
-  console.log('import component success', component)
+    component = localComponent as ComponentNode
+
+    console.log('found localComponent', component)
+  }
 
   // create instance from component
   const instance = component.createInstance()
+  console.log('instance', instance)
 
   // get selections
   const selections = figma.currentPage.selection
@@ -278,10 +314,16 @@ async function createInstance(options: {
   // なにも選択してない→ドキュメントのルートに挿入
   if (selections.length === 0) {
     // なにもしない
+    console.log('no selection, so instance is inserted to document root')
+
+    // 現在のselectionをインスタンスにする
+    figma.currentPage.selection = [instance]
   }
   // 1つ以上選択している→selectionごとに処理を実行
   else {
-    selections.map(selection => {
+    const newSelections: SceneNode[] = []
+
+    _.map(selections, selection => {
       console.log('selection', selection)
 
       // 選択した要素の親を取得
@@ -297,6 +339,9 @@ async function createInstance(options: {
       if (parent.type === 'INSTANCE' && selection.type === 'INSTANCE') {
         console.log('both selection and parent node is instance.')
         selection.masterComponent = component
+
+        // 現在のselectionをそのままnewSelectionに入れる
+        newSelections.push(selection)
       }
       // それ以外の場合
       else {
@@ -338,11 +383,17 @@ async function createInstance(options: {
 
           selection.remove()
         }
+
+        // copiedInstanceをnewSelectionに入れる
+        newSelections.push(copiedInstance)
       }
     })
 
     // map関数内で複製した元のインスタンスを削除
     instance.remove()
+
+    // 現在のselectionをnewSelectionsにする
+    figma.currentPage.selection = newSelections
   }
 
   console.log('create instance success', instance)
@@ -376,6 +427,8 @@ figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
   } else if (msg.type === 'createinstance') {
     await createInstance({
       key: msg.data.key,
+      name: msg.data.name,
+      id: msg.data.id,
       options: msg.data.options
     })
   } else if (msg.type === 'resize') {

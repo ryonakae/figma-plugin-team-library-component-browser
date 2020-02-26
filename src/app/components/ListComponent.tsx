@@ -36,7 +36,10 @@ export default class ListComponent extends React.Component<Props, State> {
   onSingleClick(event: React.MouseEvent<HTMLElement>): void {
     event.stopPropagation()
     console.log('onSingleClick', this.props)
-    this.props.store!.setCurrentSelectComponentKey(this.props.componentKey)
+    this.props.store!.setCurrentSelectComponent({
+      name: this.props.name,
+      key: this.props.componentKey
+    })
   }
 
   onDoubleClick(): void {
@@ -47,6 +50,8 @@ export default class ListComponent extends React.Component<Props, State> {
           type: 'createinstance',
           data: {
             key: this.props.componentKey,
+            name: this.props.name,
+            id: this.props.id,
             options: {
               isSwap: this.props.store!.isSwap,
               isOriginalSize: this.props.store!.isOriginalSize
@@ -60,8 +65,14 @@ export default class ListComponent extends React.Component<Props, State> {
 
   render(): JSX.Element {
     const { name, id, componentKey, pageName } = this.props
+    const {
+      currentSelectComponentName,
+      currentSelectComponentKey
+    } = this.props.store!
+
     const componentClassName =
-      this.props.store!.currentSelectComponentKey === this.props.componentKey
+      currentSelectComponentName === name &&
+      currentSelectComponentKey === componentKey
         ? 'is-selected'
         : ''
 
