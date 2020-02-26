@@ -54,6 +54,7 @@ export default class ListPage extends React.Component<Props, State> {
               componentKey={component.componentKey}
               documentName={component.documentName}
               pageName={component.pageName}
+              combinedName={component.combinedName}
             />
           ))}
         </div>

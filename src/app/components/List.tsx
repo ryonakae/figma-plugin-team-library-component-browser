@@ -150,6 +150,7 @@ export default class List extends React.Component<Props, State> {
                         componentKey={component.componentKey}
                         pageName={component.pageName}
                         documentName={component.documentName}
+                        combinedName={component.combinedName}
                       />
                     )
                   })}

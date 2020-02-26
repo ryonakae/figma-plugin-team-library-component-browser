@@ -22,6 +22,7 @@ type FigmaComponent = {
   componentKey: string
   documentName: string
   pageName: string
+  combinedName: string
 }
 
 type FigmaPage = {

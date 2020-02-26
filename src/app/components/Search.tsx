@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as mobx from 'mobx'
 import { inject, observer } from 'mobx-react'
 import Store from '@/app/Store'
 import Fuse from 'fuse.js'
@@ -20,15 +21,30 @@ export default class Search extends React.Component<Props, State> {
     super(props)
     this.state = {
       fuseOptions: {
+        shouldSort: false,
         tokenize: true,
         matchAllTokens: true,
         findAllMatches: true,
-        // threshold: 0.1,
-        // location: 0,
-        // distance: 100,
+        threshold: 0.0,
+        location: 0,
+        distance: 100,
         maxPatternLength: 32,
         minMatchCharLength: 1,
-        keys: ['name', 'pageName', 'documentName']
+        // keys: [
+        //   {
+        //     name: 'name',
+        //     weight: 0.6
+        //   },
+        //   {
+        //     name: 'pageName',
+        //     weight: 0.3
+        //   },
+        //   {
+        //     name: 'documentName',
+        //     weight: 0.1
+        //   }
+        // ]
+        keys: ['combinedName']
       }
     }
     this.inputRef = React.createRef()
@@ -50,15 +66,18 @@ export default class Search extends React.Component<Props, State> {
     // ライブラリの各ドキュメントの各ページごとにfuse.searchを実行
     library.map(document => {
       document.pages.map((page, index) => {
-        const fuse = new Fuse(page.components.slice(), this.state.fuseOptions)
+        const fuse = new Fuse(
+          mobx.toJS(page.components),
+          this.state.fuseOptions
+        )
         const components = fuse.search(searchWord) as FigmaComponent[]
-        console.log('fuse.search', searchWord)
 
         if (components.length > 0) {
           results = _.union(results, components)
         }
       })
     })
+    console.log('fuse.search', searchWord, results)
 
     this.props.store!.updateSearchResults(results)
   }
