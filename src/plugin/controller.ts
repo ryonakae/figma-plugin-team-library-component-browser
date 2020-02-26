@@ -177,9 +177,59 @@ async function getLibrary(): Promise<void> {
       throw new Error(err)
     })
 
-  library = currentLibrary ? currentLibrary : []
+  let localPages: FigmaPage[] = []
 
-  console.log('getLibrary success', currentLibrary)
+  figma.root.children.map(page => {
+    const foundLocalComponents = page.findAll(node => {
+      return node.type === 'COMPONENT'
+    })
+
+    if (foundLocalComponents.length > 0) {
+      console.log('found local components', foundLocalComponents)
+      let localComponents: FigmaComponent[] = []
+
+      foundLocalComponents.map(component => {
+        localComponents.push({
+          name: component.name,
+          id: component.id,
+          componentKey: (component as ComponentNode).key,
+          pageName: page.name,
+          documentName: figma.root.name,
+          combinedName: `${figma.root.name} / ${page.name} / ${component.name}`
+        })
+      })
+
+      // コンポーネントをアルファベット順にソート
+      localComponents = _.orderBy(localComponents, 'name', 'asc')
+
+      localPages.push({
+        name: page.name,
+        id: page.id,
+        components: localComponents,
+        documentName: figma.root.name,
+        isCollapsed: true
+      })
+    }
+  })
+
+  // ページをアルファベット順にソート
+  localPages = _.orderBy(localPages, 'name', 'asc')
+
+  // 現在のページの情報をlocalDocumentというオブジェクトに
+  const localDocument: FigmaDocument = {
+    name: 'Local components',
+    id: figma.root.id,
+    pages: localPages,
+    isCollapsed: false
+  }
+
+  // clientStorageに保存されているライブラリと、現在開いているドキュメントをマージする
+  // localDocumentは必ずリストの先頭にする
+  library = currentLibrary
+    ? [localDocument, ...currentLibrary]
+    : [localDocument]
+
+  console.log('getLibrary success', library)
   figma.ui.postMessage({
     type: 'getsuccess'
   } as PluginMessage)

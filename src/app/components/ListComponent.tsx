@@ -67,24 +67,22 @@ export default class ListComponent extends React.Component<Props, State> {
 
     return (
       <div>
-        {componentKey && (
-          <div
-            onClick={this.handleClick.bind(this)}
-            className={`component ${componentClassName}`}
-          >
-            <div className="component-icon">
-              <img
-                src={require('@/app/assets/img/icon_component.svg').default}
-                alt=""
-              />
-            </div>
-            <div className="component-title">
-              <span>
-                {pageName} / {name}
-              </span>
-            </div>
+        <div
+          onClick={this.handleClick.bind(this)}
+          className={`component ${componentClassName}`}
+        >
+          <div className="component-icon">
+            <img
+              src={require('@/app/assets/img/icon_component.svg').default}
+              alt=""
+            />
           </div>
-        )}
+          <div className="component-title">
+            <span>
+              {pageName} / {name}
+            </span>
+          </div>
+        </div>
       </div>
     )
   }
