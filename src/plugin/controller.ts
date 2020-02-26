@@ -11,12 +11,7 @@ figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
 async function saveLibrary(): Promise<void> {
   console.log('saveLibrary', figma.root)
 
-  const document: FigmaDocument = {
-    name: figma.root.name,
-    id: figma.root.id,
-    pages: [],
-    isCollapsed: false
-  }
+  let pages: FigmaPage[] = []
 
   // 各ページごとに処理
   figma.root.children.forEach(page => {
@@ -27,7 +22,7 @@ async function saveLibrary(): Promise<void> {
 
     if (foundComponents.length > 0) {
       console.log('found library components', foundComponents)
-      const components: FigmaComponent[] = []
+      let components: FigmaComponent[] = []
 
       foundComponents.forEach(component => {
         components.push({
@@ -35,11 +30,15 @@ async function saveLibrary(): Promise<void> {
           id: component.id,
           componentKey: (component as ComponentNode).key,
           pageName: page.name,
-          documentName: figma.root.name
+          documentName: figma.root.name,
+          combinedName: `${figma.root.name} / ${page.name} / ${component.name}`
         })
       })
 
-      document.pages.push({
+      // コンポーネントをアルファベット順にソート
+      components = _.orderBy(components, 'name', 'asc')
+
+      pages.push({
         name: page.name,
         id: page.id,
         components,
@@ -48,6 +47,16 @@ async function saveLibrary(): Promise<void> {
       })
     }
   })
+
+  // ページをアルファベット順にソート
+  pages = _.orderBy(pages, 'name', 'asc')
+
+  const document: FigmaDocument = {
+    name: figma.root.name,
+    id: figma.root.id,
+    pages,
+    isCollapsed: false
+  }
 
   console.log('document', document)
 
