@@ -77,7 +77,12 @@ export default class Search extends React.Component<Props, State> {
         }
       })
     })
-    console.log('fuse.search', searchWord, results)
+    console.log('fuse search', searchWord, results)
+
+    // ローカルコンポーネントとライブラリコンポーネントが重複する場合があるので、
+    // lodashで雑にマージする
+    results = _.uniqWith(results, _.isEqual)
+    console.log('duplicate free results', results)
 
     this.props.store!.updateSearchResults(results)
   }
