@@ -358,7 +358,7 @@ async function createInstance(options: {
 
         // 取得したインデックスを元に、選択した要素の後にインスタンスを移動
         // ※配列的には後、Figmaの表示では上
-        parent.insertChild(index, copiedInstance)
+        parent.insertChild(index + 1, copiedInstance)
 
         // isSwapがtrue→selectionを削除
         if (options.options.isSwap) {
