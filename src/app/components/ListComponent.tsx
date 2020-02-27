@@ -24,7 +24,8 @@ export default class ListComponent extends React.Component<Props, State> {
     if (this.clickCount < 2) {
       this.onSingleClick(event)
 
-      await Util.wait(250)
+      // ダブルクリックの間隔
+      await Util.wait(350)
 
       if (this.clickCount > 1) {
         this.onDoubleClick()
