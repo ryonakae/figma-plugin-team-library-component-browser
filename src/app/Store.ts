@@ -3,10 +3,10 @@ import Util from '@/app/Util'
 
 export default class Store {
   constructor() {
-    this.listenMessage()
+    this.listenPluginMessage()
   }
 
-  private listenMessage(): void {
+  private listenPluginMessage(): void {
     onmessage = (msg): void => {
       const messageType: MessageType = msg.data.pluginMessage.type
 
@@ -26,8 +26,14 @@ export default class Store {
       } else if (messageType === 'clearsuccess') {
         this.openSnackbar('Success to clear all library data')
       } else if (messageType === 'createinstancesuccess') {
+        this.updateIsHold(false)
         this.openSnackbar('Success to create instance')
         this.setCurrentSelectComponent({ name: '', key: '' })
+      } else if (messageType === 'getoptionssuccess') {
+        this.updateOptions({
+          isSwap: msg.data.pluginMessage.data.isSwap,
+          isOriginalSize: msg.data.pluginMessage.data.isOriginalSize
+        })
       } else if (messageType === 'savefailed') {
         openErrorDialog(msg)
       } else if (messageType === 'clearfailed') {
@@ -35,13 +41,9 @@ export default class Store {
       } else if (messageType === 'getfailed') {
         openErrorDialog(msg)
       } else if (messageType === 'createinstancefailed') {
+        this.updateIsHold(false)
         openErrorDialog(msg)
         this.setCurrentSelectComponent({ name: '', key: '' })
-      } else if (messageType === 'getoptionssuccess') {
-        this.updateOptions({
-          isSwap: msg.data.pluginMessage.data.isSwap,
-          isOriginalSize: msg.data.pluginMessage.data.isOriginalSize
-        })
       }
     }
   }
@@ -67,6 +69,7 @@ export default class Store {
   @observable snackbarMessage = ''
 
   @observable transitionDurationMS = 150
+  @observable isHold = false
 
   @action updateTabID(tabID: TabID): void {
     this.tabID = tabID
@@ -120,7 +123,7 @@ export default class Store {
   }
 
   @action openSnackbar(snackbarMessage: Store['snackbarMessage']): void {
-    console.log('openSnackbar')
+    console.log('openSnackbar', snackbarMessage)
     this.isSnackbarOpen = true
     this.snackbarMessage = snackbarMessage
   }
@@ -170,5 +173,9 @@ export default class Store {
       } as Message,
       '*'
     )
+  }
+
+  @action updateIsHold(bool: boolean): void {
+    this.isHold = bool
   }
 }

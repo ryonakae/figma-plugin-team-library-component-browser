@@ -24,6 +24,15 @@ body {
   height: var(--height-row-default);
   padding: 0 calc(var(--spacing-default) / 2);
   border-bottom: 1px solid var(--color-border);
+
+  &.is-hold {
+    pointer-events: none;
+    opacity: 0.5;
+
+    & * {
+      pointer-events: none !important;
+    }
+  }
 }
 
 .tab-list {
@@ -45,6 +54,18 @@ body {
   &:hover {
     font-weight: var(--fontWeight-tab-active);
     color: inherit;
+  }
+}
+
+/* main */
+.main {
+  &.is-hold {
+    pointer-events: none;
+    opacity: 0.5;
+
+    & * {
+      pointer-events: none !important;
+    }
   }
 }
 

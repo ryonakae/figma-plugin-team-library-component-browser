@@ -19,8 +19,10 @@ export default class Tab extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
+    const { isHold } = this.props.store!
+
     return (
-      <nav className="tab">
+      <nav className={`tab ${isHold ? 'is-hold' : ''}`}>
         <ul className="tab-list">
           <li
             className={`tab-item ${

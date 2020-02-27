@@ -17,8 +17,10 @@ export default class Content extends React.Component<Props, State> {
   }
 
   render(): JSX.Element {
+    const { isHold } = this.props.store!
+
     return (
-      <div>
+      <div className={`main ${isHold ? 'is-hold' : ''}`}>
         {this.props.store!.tabID === 'list' && <List />}
         {this.props.store!.tabID === 'setting' && <Setting />}
       </div>

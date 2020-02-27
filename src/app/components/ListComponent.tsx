@@ -44,6 +44,8 @@ export default class ListComponent extends React.Component<Props, State> {
 
   onDoubleClick(): void {
     console.log('onDoubleClick', this.props)
+    this.props.store!.updateIsHold(true)
+    this.props.store!.openSnackbar('Now creating an instance...')
     parent.postMessage(
       {
         pluginMessage: {
