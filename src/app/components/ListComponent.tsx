@@ -47,6 +47,7 @@ export default class ListComponent extends React.Component<Props, State> {
     console.log('onDoubleClick', this.props)
     this.props.store!.updateIsHold(true)
     this.props.store!.openSnackbar('Now creating an instance...')
+
     parent.postMessage(
       {
         pluginMessage: {
@@ -64,6 +65,21 @@ export default class ListComponent extends React.Component<Props, State> {
       } as Message,
       '*'
     )
+
+    // インスタンスのmasterComponentを変更する場合、なぜかエラーで処理が中断するコンポーネントがある
+    // 仕方ないので、一定時間後にisHoldがまだ有効ならエラー表示にする
+    const TIMEOUT_DURATION_MS = 5000
+    setTimeout(() => {
+      if (this.props.store!.isHold) {
+        this.props.store!.updateIsHold(false)
+        this.props.store!.openDialog({
+          dialogType: 'alert',
+          dialogTitle: 'An Error Occurred',
+          dialogMessage: 'Error creating or swapping instance.'
+        })
+        this.props.store!.setCurrentSelectComponent({ name: '', key: '' })
+      }
+    }, TIMEOUT_DURATION_MS)
   }
 
   render(): JSX.Element {
