@@ -37,6 +37,11 @@ export default class Store {
       } else if (messageType === 'createinstancefailed') {
         openErrorDialog(msg)
         this.setCurrentSelectComponent({ name: '', key: '' })
+      } else if (messageType === 'getoptionssuccess') {
+        this.updateOptions({
+          isSwap: msg.data.pluginMessage.data.isSwap,
+          isOriginalSize: msg.data.pluginMessage.data.isOriginalSize
+        })
       }
     }
   }
@@ -133,6 +138,15 @@ export default class Store {
 
   @action toggleIsOriginalSize(): void {
     this.isOriginalSize = !this.isOriginalSize
+  }
+
+  @action updateOptions(options: {
+    isSwap: Store['isSwap']
+    isOriginalSize: Store['isOriginalSize']
+  }): void {
+    console.log('updateOptions', options)
+    this.isSwap = options.isSwap
+    this.isOriginalSize = options.isOriginalSize
   }
 
   @action setCurrentSelectComponent(options: {

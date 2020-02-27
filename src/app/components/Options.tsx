@@ -16,10 +16,39 @@ export default class Options extends React.Component<Props, State> {
 
   onSwapClick(): void {
     this.props.store!.toggleIsSwap()
+    this.setCurrentOptions()
   }
 
   onOriginalSizeClick(): void {
     this.props.store!.toggleIsOriginalSize()
+    this.setCurrentOptions()
+  }
+
+  setCurrentOptions(): void {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'setoptions',
+          data: {
+            isSwap: this.props.store!.isSwap,
+            isOriginalSize: this.props.store!.isOriginalSize
+          }
+        }
+      } as Message,
+      '*'
+    )
+  }
+
+  componentDidMount(): void {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'getoptions'
+        }
+      } as Message,
+      '*'
+    )
+    console.log(this.props.store!.isSwap, this.props.store!.isOriginalSize)
   }
 
   render(): JSX.Element {
@@ -60,22 +89,14 @@ export default class Options extends React.Component<Props, State> {
       <div className={`options ${optionsClassName}`}>
         <div className="options-item" onClick={this.onSwapClick.bind(this)}>
           <div>Swap</div>
-          <div className="segmentedControl">
-            <div
-              className={`segmentedControl-segment ${
-                !isSwap ? 'is-active' : ''
-              }`}
-            >
+          <div className={`segmentedControl is-${String(isSwap)}`}>
+            <div className="segmentedControl-segment">
               <img
                 src={require('@/app/assets/img/icon-hyphen.svg').default}
                 alt=""
               />
             </div>
-            <div
-              className={`segmentedControl-segment ${
-                isSwap ? 'is-active' : ''
-              }`}
-            >
+            <div className="segmentedControl-segment">
               <img
                 src={require('@/app/assets/img/icon-check.svg').default}
                 alt=""
@@ -88,22 +109,14 @@ export default class Options extends React.Component<Props, State> {
           onClick={this.onOriginalSizeClick.bind(this)}
         >
           <div>Original Size when Swap</div>
-          <div className="segmentedControl">
-            <div
-              className={`segmentedControl-segment ${
-                !isOriginalSize ? 'is-active' : ''
-              }`}
-            >
+          <div className={`segmentedControl is-${String(isOriginalSize)}`}>
+            <div className="segmentedControl-segment">
               <img
                 src={require('@/app/assets/img/icon-hyphen.svg').default}
                 alt=""
               />
             </div>
-            <div
-              className={`segmentedControl-segment ${
-                isOriginalSize ? 'is-active' : ''
-              }`}
-            >
+            <div className="segmentedControl-segment">
               <img
                 src={require('@/app/assets/img/icon-check.svg').default}
                 alt=""

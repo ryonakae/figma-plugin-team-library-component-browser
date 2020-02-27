@@ -63,6 +63,10 @@ class Util {
     }
     return min
   }
+
+  public toBoolean(str: string): boolean {
+    return str.toLowerCase() === 'true'
+  }
 }
 
 export default new Util()

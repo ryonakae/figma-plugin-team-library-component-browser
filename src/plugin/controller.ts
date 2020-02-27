@@ -1,4 +1,6 @@
 import _ from 'lodash'
+import Store from '@/app/Store'
+import Util from '@/app/Util'
 
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
 const UI_WIDTH = 250
@@ -414,6 +416,41 @@ function resizeUI(height: number): void {
   figma.ui.resize(UI_WIDTH, _height)
 }
 
+function setOptions(options: {
+  isSwap: Store['isSwap']
+  isOriginalSize: Store['isOriginalSize']
+}): void {
+  figma.root.setPluginData('isSwap', String(options.isSwap))
+  figma.root.setPluginData('isOriginalSize', String(options.isOriginalSize))
+
+  figma.ui.postMessage({
+    type: 'setoptionssuccess'
+  } as PluginMessage)
+
+  console.log(
+    'setOptions success',
+    figma.root.getPluginData('isSwap'),
+    figma.root.getPluginData('isOriginalSize')
+  )
+}
+
+function getOptions(): void {
+  const isSwap = Util.toBoolean(figma.root.getPluginData('isSwap'))
+  const isOriginalSize = Util.toBoolean(
+    figma.root.getPluginData('isOriginalSize')
+  )
+
+  figma.ui.postMessage({
+    type: 'getoptionssuccess',
+    data: {
+      isSwap,
+      isOriginalSize
+    }
+  } as PluginMessage)
+
+  console.log('getOptions success', isSwap, isOriginalSize)
+}
+
 figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
   if (msg.type === 'save') {
     await saveLibrary()
@@ -433,5 +470,12 @@ figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
     })
   } else if (msg.type === 'resize') {
     resizeUI(msg.data.height)
+  } else if (msg.type === 'getoptions') {
+    getOptions()
+  } else if (msg.type === 'setoptions') {
+    setOptions({
+      isSwap: msg.data.isSwap,
+      isOriginalSize: msg.data.isOriginalSize
+    })
   }
 }
