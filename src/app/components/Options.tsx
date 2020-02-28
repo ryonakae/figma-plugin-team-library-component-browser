@@ -92,13 +92,13 @@ export default class Options extends React.Component<Props, State> {
           <div className={`segmentedControl is-${String(isSwap)}`}>
             <div className="segmentedControl-segment">
               <img
-                src={require('@/app/assets/img/icon-hyphen.svg').default}
+                src={require('@/app/assets/img/icon_hyphen.svg').default}
                 alt=""
               />
             </div>
             <div className="segmentedControl-segment">
               <img
-                src={require('@/app/assets/img/icon-check.svg').default}
+                src={require('@/app/assets/img/icon_check.svg').default}
                 alt=""
               />
             </div>
@@ -112,13 +112,13 @@ export default class Options extends React.Component<Props, State> {
           <div className={`segmentedControl is-${String(isOriginalSize)}`}>
             <div className="segmentedControl-segment">
               <img
-                src={require('@/app/assets/img/icon-hyphen.svg').default}
+                src={require('@/app/assets/img/icon_hyphen.svg').default}
                 alt=""
               />
             </div>
             <div className="segmentedControl-segment">
               <img
-                src={require('@/app/assets/img/icon-check.svg').default}
+                src={require('@/app/assets/img/icon_check.svg').default}
                 alt=""
               />
             </div>

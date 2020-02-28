@@ -24,6 +24,7 @@
   --color-inactive: #b3b3b3;
   --color-border: #e5e5e5;
   --color-component: #7b61ff;
+  --color-buttonBorder: rgba(0, 0, 0, 0.8);
 
   /* radius */
   --radius-default: 2px;
