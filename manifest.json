@@ -1,0 +1,7 @@
+{
+  "name": "Team Library Component Browser",
+  "id": "813970431341620710",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html"
+}

@@ -1,0 +1,68 @@
+{
+  "name": "figma-plugin-team-library-component-browser",
+  "version": "0.0.4",
+  "dependencies": {
+    "@material/react-snackbar": "^0.15.0",
+    "fuse.js": "^3.4.6",
+    "lodash": "^4.17.15",
+    "mobx": "^5.15.4",
+    "mobx-react": "^6.1.8",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-modal": "^3.11.1",
+    "ress": "^2.0.4",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  },
+  "devDependencies": {
+    "@types/figma": "^1.0.2",
+    "@types/lodash": "^4.14.149",
+    "@types/react": "^16.9.20",
+    "@types/react-dom": "^16.9.5",
+    "@types/react-modal": "^3.10.5",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "css-loader": "^3.4.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.18.3",
+    "html-webpack-inline-source-plugin": "^0.0.10",
+    "html-webpack-plugin": "^3.2.0",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.7",
+    "postcss": "^7.0.27",
+    "postcss-import": "^12.0.1",
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "prettier": "^1.19.1",
+    "style-loader": "^1.1.3",
+    "stylelint": "^13.2.0",
+    "stylelint-config-recess-order": "^2.0.3",
+    "stylelint-config-standard": "^20.0.0",
+    "stylelint-use-nesting": "^2.0.0",
+    "terser-webpack-plugin": "^2.3.5",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.5",
+    "url-loader": "^3.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc && lint-staged"
+    }
+  },
+  "license": "MIT",
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
+    ],
+    "**/*.css": [
+      "prettier --write",
+      "stylelint --fix"
+    ]
+  },
+  "scripts": {
+    "dev": "webpack -w",
+    "build": "webpack --mode production"
+  }
+}
