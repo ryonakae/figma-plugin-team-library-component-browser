@@ -19,6 +19,7 @@ export default class ListComponent extends React.Component<Props, State> {
   }
 
   async handleClick(event: React.MouseEvent<HTMLElement>): Promise<void> {
+    event.persist()
     this.clickCount++
 
     if (this.clickCount < 2) {
