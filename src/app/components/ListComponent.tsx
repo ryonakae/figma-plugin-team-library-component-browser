@@ -19,6 +19,7 @@ export default class ListComponent extends React.Component<Props, State> {
   }
 
   async handleClick(event: React.MouseEvent<HTMLElement>): Promise<void> {
+    event.persist()
     this.clickCount++
 
     if (this.clickCount < 2) {
@@ -28,7 +29,7 @@ export default class ListComponent extends React.Component<Props, State> {
       await Util.wait(350)
 
       if (this.clickCount > 1) {
-        this.onDoubleClick()
+        this.onDoubleClick(event)
       }
       this.clickCount = 0
     }
@@ -43,8 +44,13 @@ export default class ListComponent extends React.Component<Props, State> {
     })
   }
 
-  onDoubleClick(): void {
+  onDoubleClick(event: React.MouseEvent<HTMLElement>): void {
+    event.stopPropagation()
     console.log('onDoubleClick', this.props)
+    this.createInstance()
+  }
+
+  createInstance(): void {
     this.props.store!.updateIsHold(true)
     this.props.store!.openSnackbar('Now creating an instance...')
 
@@ -111,6 +117,17 @@ export default class ListComponent extends React.Component<Props, State> {
             <span>
               {pageName} / {name}
             </span>
+          </div>
+          <div
+            className="component-button button is-border is-small"
+            onClick={this.onDoubleClick.bind(this)}
+          >
+            <img
+              src={require('@/app/assets/img/icon_instance.svg').default}
+              alt=""
+              className="button-icon"
+            />
+            Create
           </div>
         </div>
       </div>

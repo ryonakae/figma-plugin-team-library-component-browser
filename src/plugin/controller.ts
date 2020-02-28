@@ -374,12 +374,129 @@ async function createInstance(options: {
           // Scene node properties
           copiedInstance.visible = selection.visible
           copiedInstance.locked = selection.locked
+          // // Frame properties
+          // if (
+          //   selection.type === 'GROUP' ||
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE'
+          // ) {
+          //   copiedInstance.clipsContent = selection.clipsContent
+          //   copiedInstance.guides = selection.guides
+          //   copiedInstance.layoutGrids = selection.layoutGrids
+          //   copiedInstance.gridStyleId = selection.gridStyleId
+          // }
+          // if (
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE'
+          // ) {
+          //   copiedInstance.layoutMode = selection.layoutMode
+          //   copiedInstance.counterAxisSizingMode =
+          //     selection.counterAxisSizingMode
+          //   copiedInstance.horizontalPadding = selection.horizontalPadding
+          //   copiedInstance.verticalPadding = selection.verticalPadding
+          //   copiedInstance.itemSpacing = selection.itemSpacing
+          // }
+          // // Container-related properties
+          // if (
+          //   selection.type === 'GROUP' ||
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE'
+          // ) {
+          //   copiedInstance.backgrounds = selection.backgrounds
+          //   copiedInstance.backgroundStyleId = selection.backgroundStyleId
+          // }
+          // // Geometry-related properties
+          // if (
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE' ||
+          //   selection.type === 'RECTANGLE' ||
+          //   selection.type === 'LINE' ||
+          //   selection.type === 'ELLIPSE' ||
+          //   selection.type === 'POLYGON' ||
+          //   selection.type === 'STAR' ||
+          //   selection.type === 'VECTOR' ||
+          //   selection.type === 'TEXT'
+          // ) {
+          //   copiedInstance.fills = selection.fills
+          //   copiedInstance.strokes = selection.strokes
+          //   copiedInstance.strokeWeight = selection.strokeWeight
+          //   // copiedInstance.strokeMiterLimit = selection.strokeMiterLimit
+          //   copiedInstance.strokeAlign = selection.strokeAlign
+          //   copiedInstance.strokeCap = selection.strokeCap
+          //   copiedInstance.strokeJoin = selection.strokeJoin
+          //   copiedInstance.dashPattern = selection.dashPattern
+          //   copiedInstance.fillStyleId = selection.fillStyleId
+          //   copiedInstance.strokeStyleId = selection.strokeStyleId
+          // }
+          // // Corner-related properties
+          // if (
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE' ||
+          //   selection.type === 'RECTANGLE' ||
+          //   selection.type === 'ELLIPSE' ||
+          //   selection.type === 'POLYGON' ||
+          //   selection.type === 'STAR' ||
+          //   selection.type === 'VECTOR'
+          // ) {
+          //   copiedInstance.cornerRadius = selection.cornerRadius
+          //   copiedInstance.cornerSmoothing = selection.cornerSmoothing
+          // }
+          // if (
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE' ||
+          //   selection.type === 'RECTANGLE'
+          // ) {
+          //   copiedInstance.topLeftRadius = selection.topLeftRadius
+          //   copiedInstance.topRightRadius = selection.topRightRadius
+          //   copiedInstance.bottomLeftRadius = selection.bottomLeftRadius
+          //   copiedInstance.bottomRightRadius = selection.bottomRightRadius
+          // }
+          // // Blend-related properties
+          // if (
+          //   selection.type === 'GROUP' ||
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE' ||
+          //   selection.type === 'RECTANGLE' ||
+          //   selection.type === 'LINE' ||
+          //   selection.type === 'ELLIPSE' ||
+          //   selection.type === 'POLYGON' ||
+          //   selection.type === 'STAR' ||
+          //   selection.type === 'VECTOR' ||
+          //   selection.type === 'TEXT'
+          // ) {
+          //   copiedInstance.opacity = selection.opacity
+          //   copiedInstance.blendMode = selection.blendMode
+          //   copiedInstance.isMask = selection.isMask
+          //   copiedInstance.effects = selection.effects
+          //   copiedInstance.effectStyleId = selection.effectStyleId
+          // }
           // Layout-related properties
           copiedInstance.relativeTransform = selection.relativeTransform
           copiedInstance.x = selection.x
           copiedInstance.y = selection.y
           copiedInstance.rotation = selection.rotation
           copiedInstance.layoutAlign = selection.layoutAlign
+          if (
+            selection.type === 'FRAME' ||
+            selection.type === 'COMPONENT' ||
+            selection.type === 'INSTANCE' ||
+            selection.type === 'RECTANGLE' ||
+            selection.type === 'LINE' ||
+            selection.type === 'ELLIPSE' ||
+            selection.type === 'POLYGON' ||
+            selection.type === 'STAR' ||
+            selection.type === 'VECTOR' ||
+            selection.type === 'TEXT'
+          ) {
+            copiedInstance.constraints = selection.constraints
+          }
           // Export-related properties
           copiedInstance.exportSettings = selection.exportSettings
 

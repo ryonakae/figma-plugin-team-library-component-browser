@@ -199,6 +199,9 @@ body {
 
 /* button */
 .button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--spacing-text);
   color: white;
   text-align: center;
@@ -216,6 +219,24 @@ body {
     padding-top: 0;
     padding-bottom: 0;
     color: var(--color-alert);
+  }
+
+  &.is-border {
+    color: inherit;
+    border: 1px solid var(--color-buttonBorder);
+  }
+
+  &.is-small {
+    padding: calc(var(--spacing-text) / 4) calc(var(--spacing-text) / 2);
+    border-radius: calc(var(--radius-button) / 2);
+  }
+}
+
+.button-icon {
+  margin-right: var(--spacing-text);
+
+  @nest .button.is-small & {
+    margin-right: calc(var(--spacing-text) / 2);
   }
 }
 
@@ -464,10 +485,11 @@ body {
 
 /* component */
 .component {
+  position: relative;
   display: flex;
   align-items: center;
   height: var(--height-row-small);
-  padding: 0 var(--spacing-default);
+  padding: 0 calc(var(--spacing-default) / 2) 0 var(--spacing-default);
   border: 1px solid transparent;
 
   &:hover {
@@ -494,10 +516,20 @@ body {
 }
 
 .component-title {
+  padding-right: calc(var(--spacing-default) / 2);
   margin-left: var(--spacing-default);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.component-button {
+  display: none;
+  margin-left: auto;
+
+  @nest .component.is-selected & {
+    display: flex;
+  }
 }
 
 /* dialog */
