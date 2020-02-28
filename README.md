@@ -2,7 +2,7 @@
 
 ![](./cover.png)
 
-List, browse, and create instance your team library components.
+List, browse, and create instance your team library (and local) components.
 
 ## 🔥 What you can:
 
@@ -17,7 +17,8 @@ List, browse, and create instance your team library components.
 2. Go to Setting tab in this plugin.
 3. Click ‘Save or update this library data’ button to save all components data in library to this plugin.
 4. Go back to your document and open this plugin.
-5. Enjoy!
+5. Find components by searching or scrolling, then double-click or click "Create" button to insert instance into document.
+6. Enjoy🏖
 
 ## 🖌 Notes:
 
