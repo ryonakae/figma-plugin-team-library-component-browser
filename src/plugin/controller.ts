@@ -247,6 +247,20 @@ function updateLibrary(): void {
   } as PluginMessage)
 }
 
+// nodeの親がインスタンスかどうかを返す再帰関数
+// 親がpage or documentまで遡り、typeがINSTANCEならtrueを返す
+function getIsParentInstance(node: SceneNode): boolean {
+  if (!node.parent) return false
+
+  if (node.parent.type === 'INSTANCE') {
+    return true
+  } else if (node.parent.type === 'PAGE' || node.parent.type === 'DOCUMENT') {
+    return false
+  } else {
+    return getIsParentInstance(node.parent)
+  }
+}
+
 async function createInstance(options: {
   key: FigmaComponent['componentKey']
   name: FigmaComponent['name']
@@ -338,9 +352,9 @@ async function createInstance(options: {
       // 選択した要素がインスタンスで、親もインスタンスの場合
       // →要素の削除や追加はできないので、選択した要素のmaster componentを変更する
       // つまり、強制的にswap
-      if (parent.type === 'INSTANCE' && selection.type === 'INSTANCE') {
+      if (getIsParentInstance(selection)) {
         console.log('both selection and parent node is instance.')
-        selection.masterComponent = component
+        ;(selection as InstanceNode).masterComponent = component
 
         // 現在のselectionをそのままnewSelectionに入れる
         newSelections.push(selection)
