@@ -74,7 +74,7 @@ export default class ListComponent extends React.Component<Props, State> {
 
     // インスタンスのmasterComponentを変更する場合、なぜかエラーで処理が中断するコンポーネントがある
     // 仕方ないので、一定時間後にisHoldがまだ有効ならエラー表示にする
-    const TIMEOUT_DURATION_MS = 5000
+    const TIMEOUT_DURATION_MS = 10000
     setTimeout(() => {
       if (this.props.store!.isHold) {
         this.props.store!.updateIsHold(false)

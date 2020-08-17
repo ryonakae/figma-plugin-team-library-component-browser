@@ -312,49 +312,60 @@ class Controller {
 
     let component!: ComponentNode
 
-    // keyがある場合
-    // →ライブラリのコンポーネントなので、そのkeyを元にコンポーネントをload
-    if (options.key.length > 0) {
-      component = await figma
-        .importComponentByKeyAsync(options.key)
-        .catch(err => {
-          figma.ui.postMessage({
-            type: 'createinstancefailed',
-            data: {
-              errorMessage:
-                'Failed to create instance. If not, you need to enable the library you want to use.'
-            }
-          } as PluginMessage)
-          throw new Error(err)
-        })
+    // まずローカルコンポーネントを検索する
+    // デカいドキュメントの場合、時間がかかりすぎるからなんとかしたい
+    // 先にimportComponentByKeyAsync()して、エラーならfigma.root.findOne()して、
+    // それでもエラーな場合に初めてエラーを投げる、とか
+    console.log('find localComponent')
+    const localComponent = figma.root.findOne(node => {
+      return (
+        node.type === 'COMPONENT' &&
+        node.name === options.name &&
+        node.id === options.id
+      )
+    })
 
-      console.log('import component success', component)
+    // ローカルコンポーネントがある場合
+    // そのコンポーネントをload
+    if (localComponent) {
+      component = localComponent as ComponentNode
+      console.log('found localComponent', component)
     }
-    // keyがない場合
-    // ローカルのコンポーネントなので、現在のドキュメントから同じ名前とidのものを取得してcomponent変数に入れる
+    // ローカルコンポーネントがない場合
     else {
-      const localComponent = figma.root.findOne(node => {
-        return (
-          node.type === 'COMPONENT' &&
-          node.name === options.name &&
-          node.id === options.id
-        )
-      })
+      console.log('not found localComponent')
+      // keyがある場合
+      // →ライブラリのコンポーネントなので、そのkeyを元にコンポーネントをload
+      if (options.key.length > 0) {
+        console.log('found key')
+        component = await figma
+          .importComponentByKeyAsync(options.key)
+          .catch(err => {
+            figma.ui.postMessage({
+              type: 'createinstancefailed',
+              data: {
+                errorMessage:
+                  'Failed to create instance. If not, you need to enable the library you want to use.'
+              }
+            } as PluginMessage)
+            throw new Error(err)
+          })
 
-      // コンポーネントが見つからなかったらエラーをthrow
-      if (!localComponent) {
+        console.log('import component success', component)
+      }
+      // keyがない場合
+      // →エラーを投げる
+      else {
+        console.log('not found key')
+        const msg = 'Failed to create instance. Component not found.'
         figma.ui.postMessage({
           type: 'createinstancefailed',
           data: {
-            errorMessage: 'Failed to create instance. No local components.'
+            errorMessage: msg
           }
         } as PluginMessage)
-        throw new Error('Failed to create instance. No local components.')
+        throw new Error(msg)
       }
-
-      component = localComponent as ComponentNode
-
-      console.log('found localComponent', component)
     }
 
     // create instance from component
