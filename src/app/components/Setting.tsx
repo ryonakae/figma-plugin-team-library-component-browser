@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
 import Store from '@/app/Store'
+import Util from '@/app/Util'
 
 type Props = {
   store?: Store
@@ -18,6 +19,9 @@ export default class Setting extends React.Component<Props, State> {
   }
 
   async onSaveClick(): Promise<void> {
+    this.props.store!.updateIsHold(true)
+    this.props.store!.openSnackbar('Now save or update this library data...')
+    await Util.wait(this.props.store!.transitionDurationMS)
     parent.postMessage(
       {
         pluginMessage: {
@@ -35,7 +39,10 @@ export default class Setting extends React.Component<Props, State> {
       dialogMessage:
         'If you want to list team library components again, you need to press the "Save or update this library data" button again.',
       dialogConfirmText: 'Clear all library data',
-      dialogOnConfirm: () => {
+      dialogOnConfirm: async () => {
+        this.props.store!.updateIsHold(true)
+        this.props.store!.openSnackbar('Now clear all library data...')
+        await Util.wait(this.props.store!.transitionDurationMS)
         parent.postMessage(
           {
             pluginMessage: {

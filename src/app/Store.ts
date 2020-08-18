@@ -22,8 +22,10 @@ export default class Store {
         this.updateLibrary(msg.data.pluginMessage.data)
         console.log('library update', this.library)
       } else if (messageType === 'savesuccess') {
+        this.updateIsHold(false)
         this.openSnackbar('Success to save library data')
       } else if (messageType === 'clearsuccess') {
+        this.updateIsHold(false)
         this.openSnackbar('Success to clear all library data')
       } else if (messageType === 'createinstancesuccess') {
         this.updateIsHold(false)
@@ -35,10 +37,13 @@ export default class Store {
           isOriginalSize: msg.data.pluginMessage.data.isOriginalSize
         })
       } else if (messageType === 'savefailed') {
+        this.updateIsHold(false)
         openErrorDialog(msg)
       } else if (messageType === 'clearfailed') {
+        this.updateIsHold(false)
         openErrorDialog(msg)
       } else if (messageType === 'getfailed') {
+        this.updateIsHold(false)
         openErrorDialog(msg)
       } else if (messageType === 'createinstancefailed') {
         this.updateIsHold(false)
