@@ -1,6 +1,6 @@
 {
   "name": "figma-plugin-team-library-component-browser",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "dependencies": {
     "@material/react-snackbar": "^0.15.0",
     "fuse.js": "^3.4.6",

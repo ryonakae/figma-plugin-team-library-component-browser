@@ -3,9 +3,9 @@ import Store from '@/app/Store'
 import Util from '@/app/Util'
 
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
-const UI_WIDTH = 250
+const UI_WIDTH = 300
 const UI_MIN_HEIGHT = 200
-const UI_MAX_HEIGHT = 450
+const UI_MAX_HEIGHT = 500
 
 class Controller {
   private library: Library = []
@@ -177,14 +177,14 @@ class Controller {
 
     // ページが1つもない→エラーで処理中断
     if (document.pages.length === 0) {
+      const msg = 'Failed to save library. No library components available.'
       figma.ui.postMessage({
         type: 'savefailed',
         data: {
-          errorMessage:
-            'Failed to save library. No library components available.'
+          errorMessage: msg
         }
       } as PluginMessage)
-      throw new Error('')
+      throw new Error(msg)
     }
 
     // 現在保存されているライブラリを取得
@@ -313,26 +313,50 @@ class Controller {
     let component!: ComponentNode
 
     // keyがある場合
-    // →ライブラリのコンポーネントなので、そのkeyを元にコンポーネントをload
     if (options.key.length > 0) {
-      component = await figma
+      console.log('found key')
+      // チームライブラリコンポーネントの取得を試みる
+      await figma
         .importComponentByKeyAsync(options.key)
-        .catch(err => {
-          figma.ui.postMessage({
-            type: 'createinstancefailed',
-            data: {
-              errorMessage:
-                'Failed to create instance. If not, you need to enable the library you want to use.'
-            }
-          } as PluginMessage)
-          throw new Error(err)
+        // インポートに成功
+        .then(foundComponent => {
+          component = foundComponent
+          console.log('import component success', component)
         })
-
-      console.log('import component success', component)
+        // インポートに失敗
+        .catch(err => {
+          // ローカルコンポーネントの取得を試みる
+          console.log('find localComponent')
+          const localComponent = figma.root.findOne(node => {
+            return (
+              node.type === 'COMPONENT' &&
+              node.name === options.name &&
+              node.id === options.id
+            )
+          })
+          // ローカルコンポーネントがある場合、そのコンポーネントを変数に入れる
+          if (localComponent) {
+            component = localComponent as ComponentNode
+            console.log('found localComponent', component)
+          }
+          // ローカルコンポーネントがない場合、エラーを投げる
+          else {
+            const msg = 'Failed to create instance. Component not found.'
+            figma.ui.postMessage({
+              type: 'createinstancefailed',
+              data: {
+                errorMessage: msg
+              }
+            } as PluginMessage)
+            throw new Error(msg)
+          }
+        })
     }
     // keyがない場合
-    // ローカルのコンポーネントなので、現在のドキュメントから同じ名前とidのものを取得してcomponent変数に入れる
     else {
+      console.log('not found key')
+      // ローカルコンポーネントの取得を試みる
+      console.log('find localComponent')
       const localComponent = figma.root.findOne(node => {
         return (
           node.type === 'COMPONENT' &&
@@ -340,21 +364,22 @@ class Controller {
           node.id === options.id
         )
       })
-
-      // コンポーネントが見つからなかったらエラーをthrow
-      if (!localComponent) {
+      // ローカルコンポーネントがある場合、そのコンポーネントを変数に入れる
+      if (localComponent) {
+        component = localComponent as ComponentNode
+        console.log('found localComponent', component)
+      }
+      // ローカルコンポーネントがない場合、エラーを投げる
+      else {
+        const msg = 'Failed to create instance. Component not found.'
         figma.ui.postMessage({
           type: 'createinstancefailed',
           data: {
-            errorMessage: 'Failed to create instance. No local components.'
+            errorMessage: msg
           }
         } as PluginMessage)
-        throw new Error('Failed to create instance. No local components.')
+        throw new Error(msg)
       }
-
-      component = localComponent as ComponentNode
-
-      console.log('found localComponent', component)
     }
 
     // create instance from component

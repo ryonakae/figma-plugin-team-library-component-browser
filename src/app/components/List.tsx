@@ -38,9 +38,11 @@ export default class List extends React.Component<Props, State> {
   }
 
   async fetch(): Promise<void> {
+    this.props.store!.updateIsHold(true)
     this.setState({ isLoading: true })
     await this.getLibrary()
     this.setState({ isLoading: false })
+    this.props.store!.updateIsHold(false)
   }
 
   refresh(): void {
