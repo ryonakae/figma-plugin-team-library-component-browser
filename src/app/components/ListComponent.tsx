@@ -50,9 +50,11 @@ export default class ListComponent extends React.Component<Props, State> {
     this.createInstance()
   }
 
-  createInstance(): void {
+  async createInstance(): Promise<void> {
     this.props.store!.updateIsHold(true)
     this.props.store!.openSnackbar('Now creating an instance...')
+
+    await Util.wait(this.props.store!.transitionDurationMS)
 
     parent.postMessage(
       {
