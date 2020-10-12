@@ -6,7 +6,6 @@ import ListDocument from '@/app/components/ListDocument'
 import Options from '@/app/components/Options'
 import Search from '@/app/components/Search'
 import ListComponent from './ListComponent'
-import * as mobx from 'mobx'
 
 type Props = {
   store?: Store
