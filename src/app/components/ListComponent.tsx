@@ -117,7 +117,8 @@ export default class ListComponent extends React.Component<Props, State> {
           </div>
           <div className="component-title">
             <span>
-              {pageName} / {name}
+              {/* {pageName}/{name} */}
+              {name}
             </span>
           </div>
           <div

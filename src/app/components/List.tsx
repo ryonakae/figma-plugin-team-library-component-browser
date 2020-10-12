@@ -6,6 +6,7 @@ import ListDocument from '@/app/components/ListDocument'
 import Options from '@/app/components/Options'
 import Search from '@/app/components/Search'
 import ListComponent from './ListComponent'
+import * as mobx from 'mobx'
 
 type Props = {
   store?: Store
@@ -92,9 +93,7 @@ export default class List extends React.Component<Props, State> {
   render(): JSX.Element {
     const { searchWord } = this.props.store!
     const library = this.props.store!.library as Array<FigmaDocument>
-    const searchResults = this.props.store!.searchResults as Array<
-      FigmaComponent
-    >
+    const searchResults = this.props.store!.searchResults
     const isLoading = this.state.isLoading
 
     const ListContent: React.FC = () => {
@@ -143,16 +142,16 @@ export default class List extends React.Component<Props, State> {
                     Showing results from all libraries
                   </div>
 
-                  {searchResults.map((component, index) => {
+                  {mobx.toJS(searchResults).map((result, index) => {
                     return (
                       <ListComponent
                         key={index}
-                        name={component.name}
-                        id={component.id}
-                        componentKey={component.componentKey}
-                        pageName={component.pageName}
-                        documentName={component.documentName}
-                        combinedName={component.combinedName}
+                        name={result.item.name}
+                        id={result.item.id}
+                        componentKey={result.item.componentKey}
+                        pageName={result.item.pageName}
+                        documentName={result.item.documentName}
+                        combinedName={result.item.combinedName}
                       />
                     )
                   })}

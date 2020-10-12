@@ -9,7 +9,7 @@ type Props = {
   store?: Store
 }
 type State = {
-  fuseOptions: Fuse.FuseOptions<FigmaComponent>
+  fuseOptions: Fuse.IFuseOptions<FigmaComponent>
 }
 
 @inject('store')
@@ -21,15 +21,16 @@ export default class Search extends React.Component<Props, State> {
     super(props)
     this.state = {
       fuseOptions: {
-        shouldSort: false,
-        tokenize: true,
-        matchAllTokens: true,
-        findAllMatches: true,
-        threshold: 0.0,
-        location: 0,
-        distance: 100,
-        maxPatternLength: 32,
+        isCaseSensitive: false,
+        includeScore: false,
+        includeMatches: false,
         minMatchCharLength: 1,
+        shouldSort: true,
+        findAllMatches: false,
+        // location: 0,
+        threshold: 0.55,
+        // distance: 100,
+        ignoreLocation: true,
         // keys: [
         //   {
         //     name: 'name',
@@ -55,7 +56,7 @@ export default class Search extends React.Component<Props, State> {
     this.props.store!.updateSearchWord(searchWord)
 
     const library = this.props.store!.library as Array<FigmaDocument>
-    let results: FigmaComponent[] = []
+    let results: Fuse.FuseResult<FigmaComponent>[] = []
 
     // inputに1文字も入力されていなかったら、空の結果を返して以下の処理を中断
     if (searchWord.length === 0) {
@@ -70,7 +71,7 @@ export default class Search extends React.Component<Props, State> {
           mobx.toJS(page.components),
           this.state.fuseOptions
         )
-        const components = fuse.search(searchWord) as FigmaComponent[]
+        const components = fuse.search(searchWord)
 
         if (components.length > 0) {
           results = _.union(results, components)

@@ -1,5 +1,6 @@
 import { observable, action } from 'mobx'
 import Util from '@/app/Util'
+import Fuse from 'fuse.js'
 
 export default class Store {
   constructor() {
@@ -55,7 +56,7 @@ export default class Store {
 
   @observable tabID: TabID = 'list'
   @observable library: Library = []
-  @observable searchResults: FigmaComponent[] = []
+  @observable searchResults: Fuse.FuseResult<FigmaComponent>[] = []
   @observable searchWord = ''
 
   @observable currentSelectComponentName = ''
@@ -84,7 +85,9 @@ export default class Store {
     this.library = library
   }
 
-  @action updateSearchResults(results: FigmaComponent[]): void {
+  @action updateSearchResults(
+    results: Fuse.FuseResult<FigmaComponent>[]
+  ): void {
     this.searchResults = results
   }
 
