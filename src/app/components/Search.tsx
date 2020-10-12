@@ -28,7 +28,7 @@ export default class Search extends React.Component<Props, State> {
         shouldSort: true,
         findAllMatches: false,
         // location: 0,
-        threshold: 0.55,
+        threshold: 0.5,
         // distance: 100,
         ignoreLocation: true,
         // keys: [
@@ -54,6 +54,7 @@ export default class Search extends React.Component<Props, State> {
   filter(event: React.ChangeEvent<HTMLInputElement>): void {
     const searchWord = event.target.value
     this.props.store!.updateSearchWord(searchWord)
+    console.log('excute filter', searchWord)
 
     const library = this.props.store!.library as Array<FigmaDocument>
     let results: Fuse.FuseResult<FigmaComponent>[] = []
@@ -64,21 +65,21 @@ export default class Search extends React.Component<Props, State> {
       return this.props.store!.updateSearchResults(results)
     }
 
-    // ライブラリの各ドキュメントの各ページごとにfuse.searchを実行
-    library.map(document => {
-      document.pages.map((page, index) => {
-        const fuse = new Fuse(
-          mobx.toJS(page.components),
-          this.state.fuseOptions
-        )
-        const components = fuse.search(searchWord)
-
-        if (components.length > 0) {
-          results = _.union(results, components)
-        }
+    const flattenLibrary: FigmaComponent[] = []
+    mobx.toJS(library).map(document => {
+      document.pages.map(page => {
+        page.components.map(component => {
+          flattenLibrary.push(component)
+        })
       })
     })
-    console.log('fuse search', searchWord, results)
+
+    const fuse = new Fuse(flattenLibrary, this.state.fuseOptions)
+    const fuseResult = fuse.search(searchWord)
+    console.log('fuseResult', fuseResult)
+    if (fuseResult.length > 0) {
+      results = fuseResult
+    }
 
     // ローカルコンポーネントとライブラリコンポーネントが重複する場合があるので、
     // lodashで雑にマージする
