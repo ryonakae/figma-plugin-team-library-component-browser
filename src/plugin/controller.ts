@@ -45,6 +45,10 @@ class Controller {
     )
   }
 
+  formatComponentName(componentName: string): string {
+    return componentName.trim().replace(/[ 　]+\/ | \/[ 　]+/g, '/')
+  }
+
   async getLibrary(): Promise<void> {
     console.log('getLibrary')
 
@@ -78,12 +82,14 @@ class Controller {
 
         _.map(foundLocalComponents, component => {
           localComponents.push({
-            name: component.name,
+            name: this.formatComponentName(component.name),
             id: component.id,
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name} / ${page.name} / ${component.name}`
+            combinedName: `${figma.root.name}/${
+              page.name
+            }/${this.formatComponentName(component.name)}`
           })
         })
 
@@ -141,12 +147,14 @@ class Controller {
 
         _.map(foundComponents, component => {
           components.push({
-            name: component.name,
+            name: this.formatComponentName(component.name),
             id: component.id,
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name} / ${page.name} / ${component.name}`
+            combinedName: `${figma.root.name}/${
+              page.name
+            }/${this.formatComponentName(component.name)}`
           })
         })
 

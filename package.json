@@ -3,7 +3,7 @@
   "version": "9.0.0",
   "dependencies": {
     "@material/react-snackbar": "^0.15.0",
-    "fuse.js": "^3.4.6",
+    "fuse.js": "^6.4.1",
     "lodash": "^4.17.15",
     "mobx": "^5.15.4",
     "mobx-react": "^6.1.8",
