@@ -142,7 +142,7 @@ export default class List extends React.Component<Props, State> {
                     Showing results from all libraries
                   </div>
 
-                  {mobx.toJS(searchResults).map((result, index) => {
+                  {searchResults.map((result, index) => {
                     return (
                       <ListComponent
                         key={index}

@@ -56,7 +56,7 @@ export default class Search extends React.Component<Props, State> {
     this.props.store!.updateSearchWord(searchWord)
     console.log('excute filter', searchWord)
 
-    const library = this.props.store!.library as Array<FigmaDocument>
+    const flattenLibrary = this.props.store!.flattenLibrary
     let results: Fuse.FuseResult<FigmaComponent>[] = []
 
     // inputに1文字も入力されていなかったら、空の結果を返して以下の処理を中断
@@ -64,15 +64,6 @@ export default class Search extends React.Component<Props, State> {
       results = []
       return this.props.store!.updateSearchResults(results)
     }
-
-    const flattenLibrary: FigmaComponent[] = []
-    mobx.toJS(library).map(document => {
-      document.pages.map(page => {
-        page.components.map(component => {
-          flattenLibrary.push(component)
-        })
-      })
-    })
 
     const fuse = new Fuse(flattenLibrary, this.state.fuseOptions)
     const fuseResult = fuse.search(searchWord)
