@@ -10,7 +10,7 @@ type State = {}
 
 @inject('store')
 @observer
-export default class ListComponent extends React.Component<Props, State> {
+export default class ListComponent extends React.PureComponent<Props, State> {
   private clickCount: number
 
   constructor(props) {
