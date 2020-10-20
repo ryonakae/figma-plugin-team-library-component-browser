@@ -12,7 +12,7 @@ type State = {
 
 @inject('store')
 @observer
-export default class ListDocument extends React.Component<Props, State> {
+export default class ListDocument extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props)
     this.state = {
