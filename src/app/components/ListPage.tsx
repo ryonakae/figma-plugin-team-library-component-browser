@@ -12,7 +12,7 @@ type State = {
 
 @inject('store')
 @observer
-export default class ListPage extends React.Component<Props, State> {
+export default class ListPage extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props)
     this.state = {

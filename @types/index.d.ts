@@ -44,7 +44,7 @@ type FigmaDocument = {
   isCollapsed: boolean
 }
 
-type Library = FigmaDocument[] | []
+type Library = FigmaDocument[]
 
 type PluginMessage = {
   type: MessageType

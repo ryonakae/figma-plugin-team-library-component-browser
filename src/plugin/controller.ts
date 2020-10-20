@@ -117,11 +117,15 @@ class Controller {
       isCollapsed: false
     }
 
-    // clientStorageに保存されているライブラリと、現在開いているドキュメントをマージする
-    // localDocumentは必ずリストの先頭にする
-    this.library = currentLibrary
-      ? _.union([localDocument], currentLibrary)
-      : [localDocument]
+    // ライブラリにlocalDocumentをマージ
+    this.library.push(localDocument)
+    // ライブラリに現在のライブラリをマージ
+    // localDocumentとライブラリの名前が同じならマージしない
+    _.map(currentLibrary, library => {
+      if (figma.root.name !== library.name) {
+        this.library.push(library)
+      }
+    })
 
     console.log('getLibrary success', this.library)
     figma.ui.postMessage({

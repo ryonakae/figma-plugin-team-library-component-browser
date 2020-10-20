@@ -1,7 +1,5 @@
 import { observable, action } from 'mobx'
 import Util from '@/app/Util'
-import Fuse from 'fuse.js'
-import * as mobx from 'mobx'
 import _ from 'lodash'
 
 export default class Store {
@@ -59,7 +57,7 @@ export default class Store {
   @observable tabID: TabID = 'list'
   @observable library: Library = []
   @observable flattenLibrary: FigmaComponent[] = []
-  @observable searchResults: Fuse.FuseResult<FigmaComponent>[] = []
+  @observable searchResults: FigmaComponent[] = []
   @observable searchWord = ''
 
   @observable currentSelectComponentName = ''
@@ -98,9 +96,7 @@ export default class Store {
     console.log('updateLibrary on Store', this.library, this.flattenLibrary)
   }
 
-  @action updateSearchResults(
-    results: Fuse.FuseResult<FigmaComponent>[]
-  ): void {
+  @action updateSearchResults(results: FigmaComponent[]): void {
     this.searchResults = results
   }
 

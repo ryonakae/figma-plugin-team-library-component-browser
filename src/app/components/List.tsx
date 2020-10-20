@@ -145,12 +145,12 @@ export default class List extends React.Component<Props, State> {
                     return (
                       <ListComponent
                         key={index}
-                        name={result.item.name}
-                        id={result.item.id}
-                        componentKey={result.item.componentKey}
-                        pageName={result.item.pageName}
-                        documentName={result.item.documentName}
-                        combinedName={result.item.combinedName}
+                        name={result.name}
+                        id={result.id}
+                        componentKey={result.componentKey}
+                        pageName={result.pageName}
+                        documentName={result.documentName}
+                        combinedName={result.combinedName}
                       />
                     )
                   })}
