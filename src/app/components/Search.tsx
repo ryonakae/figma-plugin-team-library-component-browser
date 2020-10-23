@@ -70,6 +70,9 @@ export default class Search extends React.Component<Props, State> {
     results = _.uniqWith(results, _.isEqual)
     console.log('duplicate free results', results)
 
+    // コンポーネントの選択を解除する
+    this.props.store!.setCurrentSelectComponent({ name: '', key: '' })
+
     this.props.store!.updateSearchResults(results)
   }
 

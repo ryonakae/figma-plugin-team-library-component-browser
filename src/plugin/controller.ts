@@ -52,6 +52,9 @@ class Controller {
   async getLibrary(): Promise<void> {
     console.log('getLibrary')
 
+    // まずライブラリを空にする
+    this.library = []
+
     // 現在のライブラリを取得
     const currentLibrary:
       | Library
