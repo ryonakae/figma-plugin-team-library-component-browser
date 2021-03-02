@@ -46,7 +46,12 @@ class Controller {
   }
 
   formatComponentName(componentName: string): string {
-    return componentName.trim().replace(/[ 　]+\/ | \/[ 　]+/g, '/')
+    // スラッシュの前後の半角スペースをトルツメ
+    // (Variants対応)カンマの後の半角スペースをトルツメ
+    return componentName
+      .trim()
+      .replace(/[ 　]+\/ | \/[ 　]+/g, '/')
+      .replace(/,[ 　]+/g, ',')
   }
 
   async getLibrary(): Promise<void> {
@@ -81,18 +86,29 @@ class Controller {
 
       if (foundLocalComponents.length > 0) {
         console.log('found local components', foundLocalComponents)
+
+        // localComponentという配列にコンポーネントを追加していく
         let localComponents: FigmaComponent[] = []
 
         _.map(foundLocalComponents, component => {
+          let componentName = this.formatComponentName(component.name)
+
+          // 親のtypeがCOMPONENT_SET、つまりVariantsの場合、名前を変える
+          const componentParent = component.parent
+          if (
+            componentParent &&
+            componentParent.type === ('COMPONENT_SET' as any)
+          ) {
+            componentName = `${componentParent.name}/${componentName}`
+          }
+
           localComponents.push({
-            name: this.formatComponentName(component.name),
+            name: componentName,
             id: component.id,
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name}/${
-              page.name
-            }/${this.formatComponentName(component.name)}`
+            combinedName: `${figma.root.name}/${page.name}/${componentName}`
           })
         })
 
