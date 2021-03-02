@@ -45,8 +45,30 @@ class Controller {
     )
   }
 
-  formatComponentName(componentName: string): string {
-    return componentName.trim().replace(/[ 　]+\/ | \/[ 　]+/g, '/')
+  formatComponentName(component: SceneNode): string {
+    let name = component.name
+
+    // 前後の余白をトルツメ
+    // スラッシュの前後のスペースをトルツメ
+    name = name.trim().replace(/[ 　]*\/[ 　]*/g, '/')
+
+    // Variants対応
+    if (
+      component.parent &&
+      component.parent.type === ('COMPONENT_SET' as any)
+    ) {
+      // イコールとカンマの前後のスペースをトルツメ
+      name = name.replace(/[ 　]*,[ 　]*/g, ',').replace(/[ 　]*=[ 　]*/g, '=')
+
+      // 「Hoge=Fuga」を「Fuga」に整形して、カンマで区切る
+      const properties: string[] = []
+      name.split(',').map(s => {
+        return properties.push(s.split('=')[1])
+      })
+      name = properties.join(',')
+    }
+
+    return name
   }
 
   async getLibrary(): Promise<void> {
@@ -81,23 +103,38 @@ class Controller {
 
       if (foundLocalComponents.length > 0) {
         console.log('found local components', foundLocalComponents)
+
+        // localComponentという配列にコンポーネントを追加していく
         let localComponents: FigmaComponent[] = []
 
         _.map(foundLocalComponents, component => {
+          let componentName = this.formatComponentName(component)
+
+          // 親のtypeがCOMPONENT_SET、つまりVariantsの場合、名前を変える
+          const componentParent = component.parent
+          if (
+            componentParent &&
+            componentParent.type === ('COMPONENT_SET' as any)
+          ) {
+            componentName = `${componentParent.name}/${componentName}`
+          }
+
           localComponents.push({
-            name: this.formatComponentName(component.name),
+            name: componentName,
             id: component.id,
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name}/${
-              page.name
-            }/${this.formatComponentName(component.name)}`
+            combinedName: `${figma.root.name}/${page.name}/${componentName}`
           })
         })
 
         // コンポーネントをアルファベット順にソート
-        localComponents = _.orderBy(localComponents, 'name', 'asc')
+        localComponents = _.orderBy(
+          localComponents,
+          component => component.name.toLowerCase(),
+          'asc'
+        )
 
         localPages.push({
           name: page.name,
@@ -110,7 +147,7 @@ class Controller {
     })
 
     // ページをアルファベット順にソート
-    localPages = _.orderBy(localPages, 'name', 'asc')
+    localPages = _.orderBy(localPages, page => page.name.toLowerCase(), 'asc')
 
     // 現在のページの情報をlocalDocumentというオブジェクトに
     const localDocument: FigmaDocument = {
@@ -153,20 +190,33 @@ class Controller {
         let components: FigmaComponent[] = []
 
         _.map(foundComponents, component => {
+          let componentName = this.formatComponentName(component)
+
+          // 親のtypeがCOMPONENT_SET、つまりVariantsの場合、名前を変える
+          const componentParent = component.parent
+          if (
+            componentParent &&
+            componentParent.type === ('COMPONENT_SET' as any)
+          ) {
+            componentName = `${componentParent.name}/${componentName}`
+          }
+
           components.push({
-            name: this.formatComponentName(component.name),
+            name: componentName,
             id: component.id,
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name}/${
-              page.name
-            }/${this.formatComponentName(component.name)}`
+            combinedName: `${figma.root.name}/${page.name}/${componentName}`
           })
         })
 
         // コンポーネントをアルファベット順にソート
-        components = _.orderBy(components, 'name', 'asc')
+        components = _.orderBy(
+          components,
+          component => component.name.toLowerCase(),
+          'asc'
+        )
 
         pages.push({
           name: page.name,
@@ -179,7 +229,7 @@ class Controller {
     })
 
     // ページをアルファベット順にソート
-    pages = _.orderBy(pages, 'name', 'asc')
+    pages = _.orderBy(pages, page => page.name.toLowerCase(), 'asc')
 
     const document: FigmaDocument = {
       name: figma.root.name,
@@ -242,7 +292,11 @@ class Controller {
       : [document]
 
     // 新しいライブラリをドキュメント名でソートする
-    newLibrary = _.orderBy(newLibrary, ['name'], ['asc'])
+    newLibrary = _.orderBy(
+      newLibrary,
+      library => library.name.toLowerCase(),
+      'asc'
+    )
 
     console.log('sorted newLibrary', newLibrary)
 
