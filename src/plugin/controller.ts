@@ -148,7 +148,8 @@ class Controller {
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName
+            combinedName,
+            isLocalComponent: true
           })
         })
 
@@ -230,7 +231,8 @@ class Controller {
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name}/${page.name}/${componentName}`
+            combinedName: `${figma.root.name}/${page.name}/${componentName}`,
+            isLocalComponent: false
           })
         })
 
@@ -702,6 +704,48 @@ class Controller {
     } as PluginMessage)
   }
 
+  async goToMainComponent(options: {
+    key: FigmaComponent['componentKey']
+    name: FigmaComponent['name']
+    id: FigmaComponent['id']
+  }): Promise<void> {
+    console.log('goToMainComponent', options)
+
+    // メインコンポーネントの取得を試みる
+    console.log('find mainComponent')
+    const mainComponent = figma.root.findOne(node => {
+      return (
+        node.type === 'COMPONENT' &&
+        node.key === options.key &&
+        // node.name === options.name &&
+        node.id === options.id
+      )
+    }) as ComponentNode | null
+
+    // メインコンポーネントがある場合、そのコンポーネントを選択状態にして、ズームインする
+    if (mainComponent) {
+      console.log('found mainComponent', mainComponent)
+      figma.currentPage.selection = [mainComponent]
+      figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection)
+    }
+    // メインコンポーネントがない場合、エラーを投げる
+    else {
+      const msg = 'Failed to go to main component. Component not found.'
+      figma.ui.postMessage({
+        type: 'gotomaincomponentfailed',
+        data: {
+          errorMessage: msg
+        }
+      } as PluginMessage)
+      throw new Error(msg)
+    }
+
+    console.log('go to main component success', mainComponent)
+    figma.ui.postMessage({
+      type: 'gotomaincomponentsuccess'
+    } as PluginMessage)
+  }
+
   resizeUI(height: number): void {
     let _height = height
     if (height < UI_MIN_HEIGHT) {
@@ -735,6 +779,12 @@ figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
       name: msg.data.name,
       id: msg.data.id,
       options: msg.data.options
+    })
+  } else if (msg.type === 'gotomaincomponent') {
+    await contoller.goToMainComponent({
+      key: msg.data.key,
+      name: msg.data.name,
+      id: msg.data.id
     })
   } else if (msg.type === 'resize') {
     contoller.resizeUI(msg.data.height)

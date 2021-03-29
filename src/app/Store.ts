@@ -31,7 +31,11 @@ export default class Store {
       } else if (messageType === 'createinstancesuccess') {
         this.updateIsHold(false)
         this.openSnackbar('Success to create instance')
-        this.setCurrentSelectComponent({ name: '', key: '' })
+        // this.setCurrentSelectComponent({ name: '', key: '' })
+      } else if (messageType === 'gotomaincomponentsuccess') {
+        this.updateIsHold(false)
+        this.openSnackbar('Success to go to main component')
+        // this.setCurrentSelectComponent({ name: '', key: '' })
       } else if (messageType === 'getoptionssuccess') {
         this.updateOptions({
           isSwap: msg.data.pluginMessage.data.isSwap,
@@ -49,7 +53,11 @@ export default class Store {
       } else if (messageType === 'createinstancefailed') {
         this.updateIsHold(false)
         openErrorDialog(msg)
-        this.setCurrentSelectComponent({ name: '', key: '' })
+        // this.setCurrentSelectComponent({ name: '', key: '' })
+      } else if (messageType === 'gotomaincomponentfailed') {
+        this.updateIsHold(false)
+        openErrorDialog(msg)
+        // this.setCurrentSelectComponent({ name: '', key: '' })
       }
     }
   }

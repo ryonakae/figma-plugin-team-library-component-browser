@@ -1,24 +1,27 @@
 type TabID = 'list' | 'setting'
 
 type MessageType =
-  | 'save'
-  | 'clear'
-  | 'update'
   | 'get'
-  | 'createinstance'
-  | 'resize'
-  | 'getoptions'
-  | 'setoptions'
-  | 'savesuccess'
-  | 'clearsuccess'
   | 'getsuccess'
-  | 'createinstancesuccess'
-  | 'getoptionssuccess'
-  | 'setoptionssuccess'
-  | 'savefailed'
-  | 'clearfailed'
   | 'getfailed'
+  | 'save'
+  | 'savesuccess'
+  | 'savefailed'
+  | 'clear'
+  | 'clearsuccess'
+  | 'clearfailed'
+  | 'getoptions'
+  | 'getoptionssuccess'
+  | 'setoptions'
+  | 'setoptionssuccess'
+  | 'createinstance'
+  | 'createinstancesuccess'
   | 'createinstancefailed'
+  | 'gotomaincomponent'
+  | 'gotomaincomponentsuccess'
+  | 'gotomaincomponentfailed'
+  | 'update'
+  | 'resize'
 
 type FigmaComponent = {
   name: string
@@ -27,6 +30,7 @@ type FigmaComponent = {
   documentName: string
   pageName: string
   combinedName: string
+  isLocalComponent: boolean
 }
 
 type FigmaPage = {
