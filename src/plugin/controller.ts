@@ -108,16 +108,39 @@ class Controller {
         let localComponents: FigmaComponent[] = []
 
         _.map(foundLocalComponents, component => {
-          let componentName = this.formatComponentName(component)
+          let componentName = ''
+          let combinedName = ''
 
-          // 親のtypeがCOMPONENT_SET、つまりVariantsの場合、名前を変える
+          // componentNameを設定
+          componentName = this.formatComponentName(component)
+
+          // コンポーネントの親を取得
           const componentParent = component.parent
-          if (
-            componentParent &&
-            componentParent.type === ('COMPONENT_SET' as any)
-          ) {
-            componentName = `${componentParent.name}/${componentName}`
+
+          // componentNameを設定する
+          // コンポーネントの親がある場合
+          if (componentParent) {
+            // 親のtypeがCOMPONENT_SET、つまりVariantsの場合
+            if (componentParent.type === ('COMPONENT_SET' as any)) {
+              // 親のさらに親（Variantsの親）がフレームかどうか
+              const componentAncestor = componentParent.parent
+              if (componentAncestor && componentAncestor.type === 'FRAME') {
+                componentName = `${componentAncestor.name}/${componentParent.name}/${componentName}`
+              } else {
+                componentName = `${componentParent.name}/${componentName}`
+              }
+            }
+            // コンポーネントがVariantsでなく（普通のコンポーネント）、親がフレームの場合
+            else if (componentParent.type === 'FRAME') {
+              // 親の名前をcomponentNameにいい感じに加える
+              componentName = `${componentParent.name}/${componentName}`
+            }
+            // 親がVariantsでなく、親がフレームでもない場合は、componantNameはそのまま
+            // else {}
           }
+
+          // combinedNameを設定
+          combinedName = `${figma.root.name}/${page.name}/${componentName}`
 
           localComponents.push({
             name: componentName,
@@ -125,7 +148,7 @@ class Controller {
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name}/${page.name}/${componentName}`
+            combinedName
           })
         })
 
