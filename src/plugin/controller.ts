@@ -508,8 +508,25 @@ class Controller {
         // 親がない→処理を中断
         if (!parent) return
 
+        // 選択した要素がComponentsの場合
+        if (selection.type === 'COMPONENT') {
+          console.log('selection is component', selection)
+
+          // インスタンスを複製
+          const copiedInstance = instance.clone()
+
+          // コンポーネントを置き換えられると困るので、ドキュメントのルートにインスタンスを追加
+          // レイヤー的に上に追加していく
+          figma.currentPage.insertChild(
+            figma.currentPage.children.length,
+            copiedInstance
+          )
+
+          // copiedInstanceをnewSelectionに入れる
+          newSelections.push(copiedInstance)
+        }
         // 選択した要素の親がインスタンスの場合
-        if (this.getIsParentInstance(selection)) {
+        else if (this.getIsParentInstance(selection)) {
           // 現在のselectionをそのままnewSelectionに入れる
           newSelections.push(selection)
 
@@ -696,6 +713,9 @@ class Controller {
 
       // 現在のselectionをnewSelectionsにする
       figma.currentPage.selection = newSelections
+
+      // ズームインもする
+      figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection)
     }
 
     console.log('create instance success', instance)
