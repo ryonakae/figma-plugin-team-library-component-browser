@@ -399,7 +399,8 @@ class Controller {
           const localComponent = figma.root.findOne(node => {
             return (
               node.type === 'COMPONENT' &&
-              node.name === options.name &&
+              node.key === options.key &&
+              // node.name === options.name &&
               node.id === options.id
             )
           })
@@ -429,7 +430,8 @@ class Controller {
       const localComponent = figma.root.findOne(node => {
         return (
           node.type === 'COMPONENT' &&
-          node.name === options.name &&
+          node.key === options.key &&
+          // node.name === options.name &&
           node.id === options.id
         )
       })
