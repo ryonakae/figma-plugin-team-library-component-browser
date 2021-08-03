@@ -685,7 +685,7 @@ class Controller {
             copiedInstance.layoutAlign = selection.layoutAlign
             if (
               selection.type === 'FRAME' ||
-              selection.type === 'COMPONENT' ||
+              selection.type === ('COMPONENT' as any) ||
               selection.type === 'INSTANCE' ||
               selection.type === 'RECTANGLE' ||
               selection.type === 'LINE' ||
@@ -695,7 +695,17 @@ class Controller {
               selection.type === 'VECTOR' ||
               selection.type === 'TEXT'
             ) {
-              copiedInstance.constraints = selection.constraints
+              copiedInstance.constraints = (selection as
+                | FrameNode
+                | ComponentNode
+                | InstanceNode
+                | VectorNode
+                | StarNode
+                | LineNode
+                | EllipseNode
+                | PolygonNode
+                | RectangleNode
+                | TextNode).constraints
             }
             // Export-related properties
             copiedInstance.exportSettings = selection.exportSettings
@@ -715,7 +725,7 @@ class Controller {
       figma.currentPage.selection = newSelections
 
       // ズームインもする
-      figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection)
+      // figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection)
     }
 
     console.log('create instance success', instance)

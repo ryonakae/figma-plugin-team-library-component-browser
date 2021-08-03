@@ -104,11 +104,16 @@ export default class ListComponent extends React.PureComponent<Props, State> {
     )
   }
 
+  componentDidUpdate(): void {
+    this.props.store!.resizeUI()
+  }
+
   render(): JSX.Element {
     const { name, id, componentKey, pageName } = this.props
     const {
       currentSelectComponentName,
-      currentSelectComponentKey
+      currentSelectComponentKey,
+      isSwap
     } = this.props.store!
 
     this.isSelected =
@@ -145,7 +150,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
                 alt=""
                 className="button-icon"
               />
-              Create instance
+              {isSwap ? 'Swap Selection' : 'Create Instance'}
             </div>
             {this.props.isLocalComponent && (
               <div
@@ -159,7 +164,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
                   alt=""
                   className="button-icon"
                 />
-                Go to main
+                Go to Main
               </div>
             )}
           </div>
