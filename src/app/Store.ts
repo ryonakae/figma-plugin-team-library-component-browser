@@ -19,37 +19,70 @@ export default class Store {
         })
       }
 
-      if (messageType === 'update') {
-        this.updateLibrary(msg.data.pluginMessage.data)
-        console.log('library update', this.library)
-      } else if (messageType === 'savesuccess') {
-        this.updateIsHold(false)
-        this.openSnackbar('Success to save library data')
-      } else if (messageType === 'clearsuccess') {
-        this.updateIsHold(false)
-        this.openSnackbar('Success to clear all library data')
-      } else if (messageType === 'createinstancesuccess') {
-        this.updateIsHold(false)
-        this.openSnackbar('Success to create instance')
-        this.setCurrentSelectComponent({ name: '', key: '' })
-      } else if (messageType === 'getoptionssuccess') {
-        this.updateOptions({
-          isSwap: msg.data.pluginMessage.data.isSwap,
-          isOriginalSize: msg.data.pluginMessage.data.isOriginalSize
-        })
-      } else if (messageType === 'savefailed') {
-        this.updateIsHold(false)
-        openErrorDialog(msg)
-      } else if (messageType === 'clearfailed') {
-        this.updateIsHold(false)
-        openErrorDialog(msg)
-      } else if (messageType === 'getfailed') {
-        this.updateIsHold(false)
-        openErrorDialog(msg)
-      } else if (messageType === 'createinstancefailed') {
-        this.updateIsHold(false)
-        openErrorDialog(msg)
-        this.setCurrentSelectComponent({ name: '', key: '' })
+      switch (messageType) {
+        case 'update':
+          this.updateLibrary(msg.data.pluginMessage.data)
+          console.log('library update', this.library)
+          break
+
+        case 'savesuccess':
+          this.updateIsHold(false)
+          this.notify('Success to save library data')
+          break
+
+        case 'clearsuccess':
+          this.updateIsHold(false)
+          this.notify('Success to clear all library data')
+          break
+
+        case 'createinstancesuccess':
+          this.updateIsHold(false)
+          this.notify('Success to create instance')
+          // this.setCurrentSelectComponent({ name: '', key: '' })
+          break
+
+        case 'gotomaincomponentsuccess':
+          this.updateIsHold(false)
+          this.notify('Success to go to main component')
+          // this.setCurrentSelectComponent({ name: '', key: '' })
+          break
+
+        case 'getoptionssuccess':
+          this.updateOptions({
+            isSwap: msg.data.pluginMessage.data.isSwap,
+            isOriginalSize: msg.data.pluginMessage.data.isOriginalSize
+          })
+          break
+
+        case 'savefailed':
+          this.updateIsHold(false)
+          openErrorDialog(msg)
+          break
+
+        case 'clearfailed':
+          this.updateIsHold(false)
+          openErrorDialog(msg)
+          break
+
+        case 'getfailed':
+          this.updateIsHold(false)
+          openErrorDialog(msg)
+          break
+
+        case 'createinstancefailed':
+          this.updateIsHold(false)
+          openErrorDialog(msg)
+          // this.setCurrentSelectComponent({ name: '', key: '' })
+          break
+
+        case 'gotomaincomponentfailed':
+          this.updateIsHold(false)
+          openErrorDialog(msg)
+          // this.setCurrentSelectComponent({ name: '', key: '' })
+          break
+
+        default:
+          break
       }
     }
   }
@@ -139,17 +172,22 @@ export default class Store {
     this.dialogOnConfirm = undefined
   }
 
-  @action openSnackbar(snackbarMessage: Store['snackbarMessage']): void {
-    console.log('openSnackbar', snackbarMessage)
+  @action notify(snackbarMessage: Store['snackbarMessage']): void {
+    console.log('notify', snackbarMessage)
     this.isSnackbarOpen = true
     this.snackbarMessage = snackbarMessage
-  }
 
-  @action async closeSnackbar(): Promise<void> {
-    console.log('closeSnackbar', this.isSnackbarOpen)
-    this.isSnackbarOpen = false
-    await Util.wait(this.transitionDurationMS)
-    this.snackbarMessage = ''
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'notify',
+          data: {
+            message: snackbarMessage
+          }
+        }
+      } as Message,
+      '*'
+    )
   }
 
   @action toggleIsSwap(): void {

@@ -9,6 +9,7 @@ const UI_MAX_HEIGHT = 500
 
 class Controller {
   private library: Library = []
+  private lastNotify: NotificationHandler | undefined = undefined
 
   getOptions(): void {
     const isSwap = Util.toBoolean(figma.root.getPluginData('isSwap'))
@@ -108,16 +109,39 @@ class Controller {
         let localComponents: FigmaComponent[] = []
 
         _.map(foundLocalComponents, component => {
-          let componentName = this.formatComponentName(component)
+          let componentName = ''
+          let combinedName = ''
 
-          // 親のtypeがCOMPONENT_SET、つまりVariantsの場合、名前を変える
+          // componentNameを設定
+          componentName = this.formatComponentName(component)
+
+          // コンポーネントの親を取得
           const componentParent = component.parent
-          if (
-            componentParent &&
-            componentParent.type === ('COMPONENT_SET' as any)
-          ) {
-            componentName = `${componentParent.name}/${componentName}`
+
+          // componentNameを設定する
+          // コンポーネントの親がある場合
+          if (componentParent) {
+            // 親のtypeがCOMPONENT_SET、つまりVariantsの場合
+            if (componentParent.type === ('COMPONENT_SET' as any)) {
+              // 親のさらに親（Variantsの親）がフレームかどうか
+              const componentAncestor = componentParent.parent
+              if (componentAncestor && componentAncestor.type === 'FRAME') {
+                componentName = `${componentAncestor.name}/${componentParent.name}/${componentName}`
+              } else {
+                componentName = `${componentParent.name}/${componentName}`
+              }
+            }
+            // コンポーネントがVariantsでなく（普通のコンポーネント）、親がフレームの場合
+            else if (componentParent.type === 'FRAME') {
+              // 親の名前をcomponentNameにいい感じに加える
+              componentName = `${componentParent.name}/${componentName}`
+            }
+            // 親がVariantsでなく、親がフレームでもない場合は、componantNameはそのまま
+            // else {}
           }
+
+          // combinedNameを設定
+          combinedName = `${figma.root.name}/${page.name}/${componentName}`
 
           localComponents.push({
             name: componentName,
@@ -125,7 +149,8 @@ class Controller {
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name}/${page.name}/${componentName}`
+            combinedName,
+            isLocalComponent: true
           })
         })
 
@@ -207,7 +232,8 @@ class Controller {
             componentKey: (component as ComponentNode).key,
             pageName: page.name,
             documentName: figma.root.name,
-            combinedName: `${figma.root.name}/${page.name}/${componentName}`
+            combinedName: `${figma.root.name}/${page.name}/${componentName}`,
+            isLocalComponent: false
           })
         })
 
@@ -483,8 +509,25 @@ class Controller {
         // 親がない→処理を中断
         if (!parent) return
 
+        // 選択した要素がComponentsの場合
+        if (selection.type === 'COMPONENT') {
+          console.log('selection is component', selection)
+
+          // インスタンスを複製
+          const copiedInstance = instance.clone()
+
+          // コンポーネントを置き換えられると困るので、ドキュメントのルートにインスタンスを追加
+          // レイヤー的に上に追加していく
+          figma.currentPage.insertChild(
+            figma.currentPage.children.length,
+            copiedInstance
+          )
+
+          // copiedInstanceをnewSelectionに入れる
+          newSelections.push(copiedInstance)
+        }
         // 選択した要素の親がインスタンスの場合
-        if (this.getIsParentInstance(selection)) {
+        else if (this.getIsParentInstance(selection)) {
           // 現在のselectionをそのままnewSelectionに入れる
           newSelections.push(selection)
 
@@ -643,7 +686,7 @@ class Controller {
             copiedInstance.layoutAlign = selection.layoutAlign
             if (
               selection.type === 'FRAME' ||
-              selection.type === 'COMPONENT' ||
+              selection.type === ('COMPONENT' as any) ||
               selection.type === 'INSTANCE' ||
               selection.type === 'RECTANGLE' ||
               selection.type === 'LINE' ||
@@ -653,7 +696,17 @@ class Controller {
               selection.type === 'VECTOR' ||
               selection.type === 'TEXT'
             ) {
-              copiedInstance.constraints = selection.constraints
+              copiedInstance.constraints = (selection as
+                | FrameNode
+                | ComponentNode
+                | InstanceNode
+                | VectorNode
+                | StarNode
+                | LineNode
+                | EllipseNode
+                | PolygonNode
+                | RectangleNode
+                | TextNode).constraints
             }
             // Export-related properties
             copiedInstance.exportSettings = selection.exportSettings
@@ -671,12 +724,64 @@ class Controller {
 
       // 現在のselectionをnewSelectionsにする
       figma.currentPage.selection = newSelections
+
+      // ズームインもする
+      // figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection)
     }
 
     console.log('create instance success', instance)
     figma.ui.postMessage({
       type: 'createinstancesuccess'
     } as PluginMessage)
+  }
+
+  async goToMainComponent(options: {
+    key: FigmaComponent['componentKey']
+    name: FigmaComponent['name']
+    id: FigmaComponent['id']
+  }): Promise<void> {
+    console.log('goToMainComponent', options)
+
+    // メインコンポーネントの取得を試みる
+    console.log('find mainComponent')
+    const mainComponent = figma.root.findOne(node => {
+      return (
+        node.type === 'COMPONENT' &&
+        node.key === options.key &&
+        // node.name === options.name &&
+        node.id === options.id
+      )
+    }) as ComponentNode | null
+
+    // メインコンポーネントがある場合、そのコンポーネントを選択状態にして、ズームインする
+    if (mainComponent) {
+      console.log('found mainComponent', mainComponent)
+      figma.currentPage.selection = [mainComponent]
+      figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection)
+    }
+    // メインコンポーネントがない場合、エラーを投げる
+    else {
+      const msg = 'Failed to go to main component. Component not found.'
+      figma.ui.postMessage({
+        type: 'gotomaincomponentfailed',
+        data: {
+          errorMessage: msg
+        }
+      } as PluginMessage)
+      throw new Error(msg)
+    }
+
+    console.log('go to main component success', mainComponent)
+    figma.ui.postMessage({
+      type: 'gotomaincomponentsuccess'
+    } as PluginMessage)
+  }
+
+  notify(message: string): void {
+    if (this.lastNotify) {
+      this.lastNotify.cancel()
+    }
+    this.lastNotify = figma.notify(message)
   }
 
   resizeUI(height: number): void {
@@ -697,30 +802,59 @@ const contoller = new Controller()
 figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
 
 figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
-  if (msg.type === 'save') {
-    await contoller.saveLibrary()
-    contoller.updateLibrary()
-  } else if (msg.type === 'clear') {
-    await contoller.clearLibrary()
-    contoller.updateLibrary()
-  } else if (msg.type === 'get') {
-    await contoller.getLibrary()
-    contoller.updateLibrary()
-  } else if (msg.type === 'createinstance') {
-    await contoller.createInstance({
-      key: msg.data.key,
-      name: msg.data.name,
-      id: msg.data.id,
-      options: msg.data.options
-    })
-  } else if (msg.type === 'resize') {
-    contoller.resizeUI(msg.data.height)
-  } else if (msg.type === 'getoptions') {
-    contoller.getOptions()
-  } else if (msg.type === 'setoptions') {
-    contoller.setOptions({
-      isSwap: msg.data.isSwap,
-      isOriginalSize: msg.data.isOriginalSize
-    })
+  switch (msg.type) {
+    case 'save':
+      await contoller.saveLibrary()
+      contoller.updateLibrary()
+      break
+
+    case 'clear':
+      await contoller.clearLibrary()
+      contoller.updateLibrary()
+      break
+
+    case 'get':
+      await contoller.getLibrary()
+      contoller.updateLibrary()
+      break
+
+    case 'createinstance':
+      await contoller.createInstance({
+        key: msg.data.key,
+        name: msg.data.name,
+        id: msg.data.id,
+        options: msg.data.options
+      })
+      break
+
+    case 'gotomaincomponent':
+      await contoller.goToMainComponent({
+        key: msg.data.key,
+        name: msg.data.name,
+        id: msg.data.id
+      })
+      break
+
+    case 'resize':
+      contoller.resizeUI(msg.data.height)
+      break
+
+    case 'getoptions':
+      contoller.getOptions()
+      break
+
+    case 'setoptions':
+      contoller.setOptions({
+        isSwap: msg.data.isSwap,
+        isOriginalSize: msg.data.isOriginalSize
+      })
+      break
+
+    case 'notify':
+      contoller.notify(msg.data.message)
+      break
+
+    default:
+      break
   }
 }

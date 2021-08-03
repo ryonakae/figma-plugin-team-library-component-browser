@@ -151,6 +151,7 @@ export default class List extends React.Component<Props, State> {
                         pageName={result.pageName}
                         documentName={result.documentName}
                         combinedName={result.combinedName}
+                        isLocalComponent={result.isLocalComponent}
                       />
                     )
                   })}

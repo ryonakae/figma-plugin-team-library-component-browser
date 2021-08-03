@@ -11,48 +11,37 @@ type State = {}
 @inject('store')
 @observer
 export default class ListComponent extends React.PureComponent<Props, State> {
-  private clickCount: number
+  private isSelected: boolean
 
   constructor(props) {
     super(props)
-    this.clickCount = 0
+    this.isSelected = false
   }
 
-  async handleClick(event: React.MouseEvent<HTMLElement>): Promise<void> {
-    event.persist()
-    this.clickCount++
-
-    if (this.clickCount < 2) {
-      this.onSingleClick(event)
-
-      // ダブルクリックの間隔
-      await Util.wait(350)
-
-      if (this.clickCount > 1) {
-        this.onDoubleClick(event)
-      }
-      this.clickCount = 0
-    }
-  }
-
-  onSingleClick(event: React.MouseEvent<HTMLElement>): void {
+  onListComponentClick(event: React.MouseEvent<HTMLElement>): void {
     event.stopPropagation()
-    console.log('onSingleClick', this.props)
+    console.log('onListComponentClick', this.props)
     this.props.store!.setCurrentSelectComponent({
       name: this.props.name,
       key: this.props.componentKey
     })
   }
 
-  onDoubleClick(event: React.MouseEvent<HTMLElement>): void {
+  onCreateClick(event: React.MouseEvent<HTMLElement>): void {
     event.stopPropagation()
-    console.log('onDoubleClick', this.props)
+    console.log('onCreateClick', this.props)
     this.createInstance()
+  }
+
+  onGoToMainClick(event: React.MouseEvent<HTMLElement>): void {
+    event.stopPropagation()
+    console.log('onCreateClick', this.props)
+    this.goToMainComponent()
   }
 
   async createInstance(): Promise<void> {
     this.props.store!.updateIsHold(true)
-    this.props.store!.openSnackbar('Now creating an instance...')
+    this.props.store!.notify('Now creating an instance...')
 
     await Util.wait(this.props.store!.transitionDurationMS)
 
@@ -90,47 +79,94 @@ export default class ListComponent extends React.PureComponent<Props, State> {
     }, TIMEOUT_DURATION_MS)
   }
 
+  async goToMainComponent(): Promise<void> {
+    this.props.store!.updateIsHold(true)
+    this.props.store!.notify('Now go to main component...')
+
+    await Util.wait(this.props.store!.transitionDurationMS)
+
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'gotomaincomponent',
+          data: {
+            key: this.props.componentKey,
+            name: this.props.name,
+            id: this.props.id,
+            options: {
+              isSwap: this.props.store!.isSwap,
+              isOriginalSize: this.props.store!.isOriginalSize
+            }
+          }
+        }
+      } as Message,
+      '*'
+    )
+  }
+
+  componentDidUpdate(): void {
+    this.props.store!.resizeUI()
+  }
+
   render(): JSX.Element {
     const { name, id, componentKey, pageName } = this.props
     const {
       currentSelectComponentName,
-      currentSelectComponentKey
+      currentSelectComponentKey,
+      isSwap
     } = this.props.store!
 
-    const componentClassName =
+    this.isSelected =
       currentSelectComponentName === name &&
       currentSelectComponentKey === componentKey
-        ? 'is-selected'
-        : ''
 
     return (
       <div>
         <div
-          onClick={this.handleClick.bind(this)}
-          className={`component ${componentClassName}`}
+          onClick={this.onListComponentClick.bind(this)}
+          className={`component ${this.isSelected ? 'is-selected' : ''}`}
         >
-          <div className="component-icon">
-            <img
-              src={require('@/app/assets/img/icon_component.svg').default}
-              alt=""
-            />
+          <div className="component-info">
+            <div className="component-icon">
+              <img
+                src={require('@/app/assets/img/icon_component.svg').default}
+                alt=""
+              />
+            </div>
+            <div className="component-title">
+              <span>
+                {/* {pageName}/{name} */}
+                {name}
+              </span>
+            </div>
           </div>
-          <div className="component-title">
-            <span>
-              {/* {pageName}/{name} */}
-              {name}
-            </span>
-          </div>
-          <div
-            className="component-button button is-border is-small"
-            onClick={this.onDoubleClick.bind(this)}
-          >
-            <img
-              src={require('@/app/assets/img/icon_instance.svg').default}
-              alt=""
-              className="button-icon"
-            />
-            Create
+          <div className="component-buttons">
+            <div
+              className="component-button button is-border is-small"
+              onClick={this.onCreateClick.bind(this)}
+            >
+              <img
+                src={require('@/app/assets/img/icon_instance.svg').default}
+                alt=""
+                className="button-icon"
+              />
+              {isSwap ? 'Swap Selection' : 'Create Instance'}
+            </div>
+            {this.props.isLocalComponent && (
+              <div
+                className="component-button button is-border is-small"
+                onClick={this.onGoToMainClick.bind(this)}
+              >
+                <img
+                  src={
+                    require('@/app/assets/img/icon_component_black.svg').default
+                  }
+                  alt=""
+                  className="button-icon"
+                />
+                Go to Main
+              </div>
+            )}
           </div>
         </div>
       </div>
