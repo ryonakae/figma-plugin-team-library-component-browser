@@ -9,6 +9,7 @@ const UI_MAX_HEIGHT = 500
 
 class Controller {
   private library: Library = []
+  private lastNotify: NotificationHandler | undefined = undefined
 
   getOptions(): void {
     const isSwap = Util.toBoolean(figma.root.getPluginData('isSwap'))
@@ -776,6 +777,13 @@ class Controller {
     } as PluginMessage)
   }
 
+  notify(message: string): void {
+    if (this.lastNotify) {
+      this.lastNotify.cancel()
+    }
+    this.lastNotify = figma.notify(message)
+  }
+
   resizeUI(height: number): void {
     let _height = height
     if (height < UI_MIN_HEIGHT) {
@@ -794,36 +802,59 @@ const contoller = new Controller()
 figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
 
 figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
-  if (msg.type === 'save') {
-    await contoller.saveLibrary()
-    contoller.updateLibrary()
-  } else if (msg.type === 'clear') {
-    await contoller.clearLibrary()
-    contoller.updateLibrary()
-  } else if (msg.type === 'get') {
-    await contoller.getLibrary()
-    contoller.updateLibrary()
-  } else if (msg.type === 'createinstance') {
-    await contoller.createInstance({
-      key: msg.data.key,
-      name: msg.data.name,
-      id: msg.data.id,
-      options: msg.data.options
-    })
-  } else if (msg.type === 'gotomaincomponent') {
-    await contoller.goToMainComponent({
-      key: msg.data.key,
-      name: msg.data.name,
-      id: msg.data.id
-    })
-  } else if (msg.type === 'resize') {
-    contoller.resizeUI(msg.data.height)
-  } else if (msg.type === 'getoptions') {
-    contoller.getOptions()
-  } else if (msg.type === 'setoptions') {
-    contoller.setOptions({
-      isSwap: msg.data.isSwap,
-      isOriginalSize: msg.data.isOriginalSize
-    })
+  switch (msg.type) {
+    case 'save':
+      await contoller.saveLibrary()
+      contoller.updateLibrary()
+      break
+
+    case 'clear':
+      await contoller.clearLibrary()
+      contoller.updateLibrary()
+      break
+
+    case 'get':
+      await contoller.getLibrary()
+      contoller.updateLibrary()
+      break
+
+    case 'createinstance':
+      await contoller.createInstance({
+        key: msg.data.key,
+        name: msg.data.name,
+        id: msg.data.id,
+        options: msg.data.options
+      })
+      break
+
+    case 'gotomaincomponent':
+      await contoller.goToMainComponent({
+        key: msg.data.key,
+        name: msg.data.name,
+        id: msg.data.id
+      })
+      break
+
+    case 'resize':
+      contoller.resizeUI(msg.data.height)
+      break
+
+    case 'getoptions':
+      contoller.getOptions()
+      break
+
+    case 'setoptions':
+      contoller.setOptions({
+        isSwap: msg.data.isSwap,
+        isOriginalSize: msg.data.isOriginalSize
+      })
+      break
+
+    case 'notify':
+      contoller.notify(msg.data.message)
+      break
+
+    default:
+      break
   }
 }

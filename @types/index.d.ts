@@ -22,6 +22,7 @@ type MessageType =
   | 'gotomaincomponentfailed'
   | 'update'
   | 'resize'
+  | 'notify'
 
 type FigmaComponent = {
   name: string

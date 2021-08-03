@@ -20,7 +20,7 @@ export default class Setting extends React.Component<Props, State> {
 
   async onSaveClick(): Promise<void> {
     this.props.store!.updateIsHold(true)
-    this.props.store!.openSnackbar('Now save or update this library data...')
+    this.props.store!.notify('Now save or update this library data...')
     await Util.wait(this.props.store!.transitionDurationMS)
     parent.postMessage(
       {
@@ -41,7 +41,7 @@ export default class Setting extends React.Component<Props, State> {
       dialogConfirmText: 'Clear all library data',
       dialogOnConfirm: async () => {
         this.props.store!.updateIsHold(true)
-        this.props.store!.openSnackbar('Now clear all library data...')
+        this.props.store!.notify('Now clear all library data...')
         await Util.wait(this.props.store!.transitionDurationMS)
         parent.postMessage(
           {

@@ -41,7 +41,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
 
   async createInstance(): Promise<void> {
     this.props.store!.updateIsHold(true)
-    this.props.store!.openSnackbar('Now creating an instance...')
+    this.props.store!.notify('Now creating an instance...')
 
     await Util.wait(this.props.store!.transitionDurationMS)
 
@@ -81,7 +81,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
 
   async goToMainComponent(): Promise<void> {
     this.props.store!.updateIsHold(true)
-    this.props.store!.openSnackbar('Now go to main component...')
+    this.props.store!.notify('Now go to main component...')
 
     await Util.wait(this.props.store!.transitionDurationMS)
 
