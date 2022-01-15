@@ -190,6 +190,11 @@
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
   integrity sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==
 
+"@figma/plugin-typings@^1.41.1":
+  version "1.41.1"
+  resolved "https://registry.yarnpkg.com/@figma/plugin-typings/-/plugin-typings-1.41.1.tgz#5ba8d474cc4952b338b50894455373730cdf66e5"
+  integrity sha512-Cw8iTllj7Lv8cZIQ9zz82SbV3jqqXjTxiziyRP+/FiO+IphF0fGFgbzITE5bSYcn/T/wkkWn9hydJKU57eD51g==
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -230,11 +235,6 @@
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
   integrity sha512-OCutwjDZ4aFS6PB1UZ988C4YgwlBHJd6wCeQqaLdmadZ/7e+w79+hbMUFC1QXDNCmdyoRfAFdm0RypzwR+Qpag==
-
-"@types/figma@^1.0.3":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@types/figma/-/figma-1.0.4.tgz#439a1c1afb17806ed8e9a34e09fa5b320478dc78"
-  integrity sha512-x3ba9L3s2HVCh3eEh7b2A7ReRNn/U6gdNRHavdegSEcDQlTY/E3Xw8vQ/ECD0H7ORKuNURkn5NxGwZ2+bhpV3g==
 
 "@types/glob@^7.1.1":
   version "7.2.0"

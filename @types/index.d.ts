@@ -59,3 +59,29 @@ type PluginMessage = {
 type Message = {
   pluginMessage: PluginMessage
 }
+
+type NodeTypes =
+  | 'BOOLEAN_OPERATION'
+  | 'CODE_BLOCK'
+  | 'COMPONENT'
+  | 'COMPONENT_SET'
+  | 'CONNECTOR'
+  | 'DOCUMENT'
+  | 'ELLIPSE'
+  | 'EMBED'
+  | 'FRAME'
+  | 'GROUP'
+  | 'INSTANCE'
+  | 'LINE'
+  | 'LINK_UNFURL'
+  | 'PAGE'
+  | 'POLYGON'
+  | 'RECTANGLE'
+  | 'SHAPE_WITH_TEXT'
+  | 'SLICE'
+  | 'STAMP'
+  | 'STAR'
+  | 'STICKY'
+  | 'TEXT'
+  | 'VECTOR'
+  | 'WIDGET'

@@ -11,6 +11,71 @@ class Controller {
   private library: Library = []
   private lastNotify: NotificationHandler | undefined = undefined
 
+  constructor() {
+    // https://www.figma.com/plugin-docs/api/properties/figma-skipinvisibleinstancechildren/
+    figma.skipInvisibleInstanceChildren = true
+
+    figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
+
+    figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
+      switch (msg.type) {
+        case 'save':
+          await this.saveLibrary()
+          this.updateLibrary()
+          break
+
+        case 'clear':
+          await this.clearLibrary()
+          this.updateLibrary()
+          break
+
+        case 'get':
+          await this.getLibrary()
+          this.updateLibrary()
+          break
+
+        case 'createinstance':
+          await this.createInstance({
+            key: msg.data.key,
+            name: msg.data.name,
+            id: msg.data.id,
+            options: msg.data.options
+          })
+          break
+
+        case 'gotomaincomponent':
+          await this.goToMainComponent({
+            key: msg.data.key,
+            name: msg.data.name,
+            id: msg.data.id
+          })
+          break
+
+        case 'resize':
+          this.resizeUI(msg.data.height)
+          break
+
+        case 'getoptions':
+          this.getOptions()
+          break
+
+        case 'setoptions':
+          this.setOptions({
+            isSwap: msg.data.isSwap,
+            isOriginalSize: msg.data.isOriginalSize
+          })
+          break
+
+        case 'notify':
+          this.notify(msg.data.message)
+          break
+
+        default:
+          break
+      }
+    }
+  }
+
   getOptions(): void {
     const isSwap = Util.toBoolean(figma.root.getPluginData('isSwap'))
     const isOriginalSize = Util.toBoolean(
@@ -72,104 +137,123 @@ class Controller {
     return name
   }
 
+  private async setLocalComponent(
+    component: ComponentNode,
+    page: PageNode,
+    localComponents: FigmaComponent[]
+  ): Promise<void> {
+    // console.log('setLocalComponent start', component.id)
+
+    let componentName = ''
+    let combinedName = ''
+
+    // componentNameを設定
+    componentName = this.formatComponentName(component)
+
+    // コンポーネントの親を取得
+    const componentParent = component.parent
+
+    // componentNameを設定する
+    // コンポーネントの親がある場合
+    if (componentParent) {
+      // 親のtypeがCOMPONENT_SET、つまりVariantsの場合
+      if (componentParent.type === ('COMPONENT_SET' as any)) {
+        // 親のさらに親（Variantsの親）がフレームかどうか
+        const componentAncestor = componentParent.parent
+        if (componentAncestor && componentAncestor.type === 'FRAME') {
+          componentName = `${componentAncestor.name} / ${componentParent.name} / ${componentName}`
+        } else {
+          componentName = `${componentParent.name} / ${componentName}`
+        }
+      }
+      // コンポーネントがVariantsでなく（普通のコンポーネント）、親がフレームの場合
+      else if (componentParent.type === 'FRAME') {
+        // 親の名前をcomponentNameにいい感じに加える
+        componentName = `${componentParent.name} / ${componentName}`
+      }
+      // 親がVariantsでなく、親がフレームでもない場合は、componantNameはそのまま
+      // else {}
+    }
+
+    // combinedNameを設定
+    combinedName = `${figma.root.name} / ${page.name} / ${componentName}`
+
+    localComponents.push({
+      name: componentName,
+      id: component.id,
+      componentKey: (component as ComponentNode).key,
+      pageName: page.name,
+      documentName: figma.root.name,
+      combinedName,
+      isLocalComponent: true
+    })
+
+    // console.log('setLocalComponent finish', component.id)
+  }
+
+  private async setLocalPage(
+    page: PageNode,
+    localPages: FigmaPage[]
+  ): Promise<void> {
+    console.log('setLocalPage start', page.id)
+
+    // const foundLocalComponents = page.findAll(node => {
+    //   return node.type === 'COMPONENT'
+    // })
+    // https://www.figma.com/plugin-docs/api/properties/DocumentNode-findallwithcriteria/
+    const foundLocalComponents = page.findAllWithCriteria({
+      // types: ['COMPONENT', 'COMPONENT_SET']
+      types: ['COMPONENT']
+    })
+
+    if (foundLocalComponents.length > 0) {
+      console.log('found local components', foundLocalComponents)
+
+      // localComponentという配列にコンポーネントを追加していく
+      let localComponents: FigmaComponent[] = []
+
+      // 各コンポーネントごとに処理
+      await Promise.all(
+        _.map(foundLocalComponents, async component => {
+          await this.setLocalComponent(component, page, localComponents)
+        })
+      )
+
+      // コンポーネントをアルファベット順にソート
+      localComponents = _.orderBy(
+        localComponents,
+        component => component.name.toLowerCase(),
+        'asc'
+      )
+
+      localPages.push({
+        name: page.name,
+        id: page.id,
+        components: localComponents,
+        documentName: figma.root.name,
+        isCollapsed: true
+      })
+    }
+
+    console.log('setLocalPage finish', page.id)
+  }
+
   async getLibrary(): Promise<void> {
     console.log('getLibrary')
 
     // まずライブラリを空にする
     this.library = []
 
-    // 現在のライブラリを取得
-    const currentLibrary:
-      | Library
-      | undefined = await figma.clientStorage
-      .getAsync(CLIENT_STORAGE_KEY_NAME)
-      .catch(err => {
-        console.error(err)
-        figma.ui.postMessage({
-          type: 'getfailed',
-          data: {
-            errorMessage: 'Failed to get library.'
-          }
-        } as PluginMessage)
-        throw new Error(err)
-      })
-
     // ローカルのコンポーネント一覧を取得
+    // ======================================================================
     let localPages: FigmaPage[] = []
 
-    _.map(figma.root.children, page => {
-      const foundLocalComponents = page.findAll(node => {
-        return node.type === 'COMPONENT'
+    // ページごとにコンポーネントを探す
+    await Promise.all(
+      _.map(figma.root.children, async page => {
+        await this.setLocalPage(page, localPages)
       })
-
-      if (foundLocalComponents.length > 0) {
-        console.log('found local components', foundLocalComponents)
-
-        // localComponentという配列にコンポーネントを追加していく
-        let localComponents: FigmaComponent[] = []
-
-        _.map(foundLocalComponents, component => {
-          let componentName = ''
-          let combinedName = ''
-
-          // componentNameを設定
-          componentName = this.formatComponentName(component)
-
-          // コンポーネントの親を取得
-          const componentParent = component.parent
-
-          // componentNameを設定する
-          // コンポーネントの親がある場合
-          if (componentParent) {
-            // 親のtypeがCOMPONENT_SET、つまりVariantsの場合
-            if (componentParent.type === ('COMPONENT_SET' as any)) {
-              // 親のさらに親（Variantsの親）がフレームかどうか
-              const componentAncestor = componentParent.parent
-              if (componentAncestor && componentAncestor.type === 'FRAME') {
-                componentName = `${componentAncestor.name}/${componentParent.name}/${componentName}`
-              } else {
-                componentName = `${componentParent.name}/${componentName}`
-              }
-            }
-            // コンポーネントがVariantsでなく（普通のコンポーネント）、親がフレームの場合
-            else if (componentParent.type === 'FRAME') {
-              // 親の名前をcomponentNameにいい感じに加える
-              componentName = `${componentParent.name}/${componentName}`
-            }
-            // 親がVariantsでなく、親がフレームでもない場合は、componantNameはそのまま
-            // else {}
-          }
-
-          // combinedNameを設定
-          combinedName = `${figma.root.name}/${page.name}/${componentName}`
-
-          localComponents.push({
-            name: componentName,
-            id: component.id,
-            componentKey: (component as ComponentNode).key,
-            pageName: page.name,
-            documentName: figma.root.name,
-            combinedName,
-            isLocalComponent: true
-          })
-        })
-
-        // コンポーネントをアルファベット順にソート
-        localComponents = _.orderBy(
-          localComponents,
-          component => component.name.toLowerCase(),
-          'asc'
-        )
-
-        localPages.push({
-          name: page.name,
-          id: page.id,
-          components: localComponents,
-          documentName: figma.root.name,
-          isCollapsed: true
-        })
-      }
-    })
+    )
 
     // ページをアルファベット順にソート
     localPages = _.orderBy(localPages, page => page.name.toLowerCase(), 'asc')
@@ -184,9 +268,25 @@ class Controller {
 
     // ライブラリにlocalDocumentをマージ
     this.library.push(localDocument)
+
     // ライブラリに現在のライブラリをマージ
+    // 現在のライブラリを取得
+    const savedLibrary:
+      | Library
+      | undefined = await figma.clientStorage
+      .getAsync(CLIENT_STORAGE_KEY_NAME)
+      .catch(err => {
+        console.error(err)
+        figma.ui.postMessage({
+          type: 'getfailed',
+          data: {
+            errorMessage: 'Failed to get library.'
+          }
+        } as PluginMessage)
+        throw new Error(err)
+      })
     // localDocumentとライブラリの名前が同じならマージしない
-    _.map(currentLibrary, library => {
+    _.map(savedLibrary, library => {
       if (figma.root.name !== library.name) {
         this.library.push(library)
       }
@@ -198,61 +298,93 @@ class Controller {
     } as PluginMessage)
   }
 
+  private async pushComponentToLibrary(
+    component: ComponentNode,
+    page: PageNode,
+    components: FigmaComponent[]
+  ): Promise<void> {
+    // keyがない場合は処理をスキップ
+    if (component.key.length === 0) {
+      return
+    }
+
+    // コンポーネントがチームライブラリでPublishされているのかどうかを調べる
+    const publishStatus = await component.getPublishStatusAsync()
+    // publishされてなかったら処理をスキップ
+    if (publishStatus === 'UNPUBLISHED') {
+      console.log('this is unpublished component', component)
+      return
+    }
+
+    let componentName = this.formatComponentName(component)
+
+    // 親のtypeがCOMPONENT_SET、つまりVariantsの場合、名前を変える
+    const componentParent = component.parent
+    if (componentParent && componentParent.type === ('COMPONENT_SET' as any)) {
+      componentName = `${componentParent.name}/${componentName}`
+    }
+
+    components.push({
+      name: componentName,
+      id: component.id,
+      componentKey: (component as ComponentNode).key,
+      pageName: page.name,
+      documentName: figma.root.name,
+      combinedName: `${figma.root.name}/${page.name}/${componentName}`,
+      isLocalComponent: false
+    })
+  }
+
+  private async pushPageToLibrary(
+    page: PageNode,
+    pages: FigmaPage[]
+  ): Promise<void> {
+    // ページ以下にあるコンポーネントをすべて探す
+    const foundComponents = page.findAllWithCriteria({
+      // types: ['COMPONENT', 'COMPONENT_SET']
+      types: ['COMPONENT']
+    })
+
+    // コンポーネントが1つ以上あった場合
+    if (foundComponents.length > 0) {
+      console.log('found library components', foundComponents)
+      let components: FigmaComponent[] = []
+
+      // 各コンポーネントごとに処理
+      await Promise.all(
+        _.map(foundComponents, async component => {
+          await this.pushComponentToLibrary(component, page, components)
+        })
+      )
+
+      // コンポーネントをアルファベット順にソート
+      components = _.orderBy(
+        components,
+        component => component.name.toLowerCase(),
+        'asc'
+      )
+
+      pages.push({
+        name: page.name,
+        id: page.id,
+        components,
+        documentName: figma.root.name,
+        isCollapsed: true
+      })
+    }
+  }
+
   async saveLibrary(): Promise<void> {
     console.log('saveLibrary', figma.root)
 
     let pages: FigmaPage[] = []
 
     // 各ページごとに処理
-    _.map(figma.root.children, page => {
-      // ページ以下にある、keyがあるコンポーネントをすべて返す
-      const foundComponents = page.findAll(node => {
-        return node.type === 'COMPONENT' && node.key.length > 0
+    await Promise.all(
+      _.map(figma.root.children, async page => {
+        await this.pushPageToLibrary(page, pages)
       })
-
-      if (foundComponents.length > 0) {
-        console.log('found library components', foundComponents)
-        let components: FigmaComponent[] = []
-
-        _.map(foundComponents, component => {
-          let componentName = this.formatComponentName(component)
-
-          // 親のtypeがCOMPONENT_SET、つまりVariantsの場合、名前を変える
-          const componentParent = component.parent
-          if (
-            componentParent &&
-            componentParent.type === ('COMPONENT_SET' as any)
-          ) {
-            componentName = `${componentParent.name}/${componentName}`
-          }
-
-          components.push({
-            name: componentName,
-            id: component.id,
-            componentKey: (component as ComponentNode).key,
-            pageName: page.name,
-            documentName: figma.root.name,
-            combinedName: `${figma.root.name}/${page.name}/${componentName}`,
-            isLocalComponent: false
-          })
-        })
-
-        // コンポーネントをアルファベット順にソート
-        components = _.orderBy(
-          components,
-          component => component.name.toLowerCase(),
-          'asc'
-        )
-
-        pages.push({
-          name: page.name,
-          id: page.id,
-          components,
-          documentName: figma.root.name,
-          isCollapsed: true
-        })
-      }
-    })
+    )
 
     // ページをアルファベット順にソート
     pages = _.orderBy(pages, page => page.name.toLowerCase(), 'asc')
@@ -279,9 +411,7 @@ class Controller {
     }
 
     // 現在保存されているライブラリを取得
-    let currentLibrary:
-      | Library
-      | undefined = await figma.clientStorage
+    let savedLibrary: Library | undefined = await figma.clientStorage
       .getAsync(CLIENT_STORAGE_KEY_NAME)
       .catch(err => {
         console.error(err)
@@ -293,12 +423,12 @@ class Controller {
         } as PluginMessage)
         throw new Error(err)
       })
-    console.log('currentLibrary', currentLibrary)
+    console.log('savedLibrary', savedLibrary)
 
     // もしライブラリがすでにある場合、
     // 現在のライブラリから、documentと同じ名前のものを削除
-    if (currentLibrary) {
-      currentLibrary = _.remove(currentLibrary, currentDocument => {
+    if (savedLibrary) {
+      savedLibrary = _.remove(savedLibrary, currentDocument => {
         console.log(
           currentDocument.name,
           document.name,
@@ -307,14 +437,14 @@ class Controller {
         return currentDocument.name !== document.name
       })
       console.log(
-        'same name documents are deleted from currentLibrary',
-        currentLibrary
+        'same name documents are deleted from savedLibrary',
+        savedLibrary
       )
     }
 
     // 現在のライブラリにdocumentをマージしたものを新しいライブラリとして返す
-    let newLibrary = currentLibrary
-      ? _.union(currentLibrary, [document])
+    let newLibrary = savedLibrary
+      ? _.union(savedLibrary, [document])
       : [document]
 
     // 新しいライブラリをドキュメント名でソートする
@@ -535,7 +665,7 @@ class Controller {
           // →選択した要素のmaster componentを変更する(つまり強制的にswap)
           if (selection.type === 'INSTANCE') {
             console.log('both selection and parent node is instance.')
-            selection.masterComponent = component
+            selection.mainComponent = component
           }
           // 選択した要素はインスタンスではない場合
           // →要素の削除や追加はできないので処理を中断
@@ -682,8 +812,8 @@ class Controller {
             copiedInstance.relativeTransform = selection.relativeTransform
             copiedInstance.x = selection.x
             copiedInstance.y = selection.y
-            copiedInstance.rotation = selection.rotation
-            copiedInstance.layoutAlign = selection.layoutAlign
+            // copiedInstance.rotation = selection.rotation
+            // copiedInstance.layoutAlign = selection.layoutAlign
             if (
               selection.type === 'FRAME' ||
               selection.type === ('COMPONENT' as any) ||
@@ -798,63 +928,3 @@ class Controller {
 }
 
 const contoller = new Controller()
-
-figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
-
-figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
-  switch (msg.type) {
-    case 'save':
-      await contoller.saveLibrary()
-      contoller.updateLibrary()
-      break
-
-    case 'clear':
-      await contoller.clearLibrary()
-      contoller.updateLibrary()
-      break
-
-    case 'get':
-      await contoller.getLibrary()
-      contoller.updateLibrary()
-      break
-
-    case 'createinstance':
-      await contoller.createInstance({
-        key: msg.data.key,
-        name: msg.data.name,
-        id: msg.data.id,
-        options: msg.data.options
-      })
-      break
-
-    case 'gotomaincomponent':
-      await contoller.goToMainComponent({
-        key: msg.data.key,
-        name: msg.data.name,
-        id: msg.data.id
-      })
-      break
-
-    case 'resize':
-      contoller.resizeUI(msg.data.height)
-      break
-
-    case 'getoptions':
-      contoller.getOptions()
-      break
-
-    case 'setoptions':
-      contoller.setOptions({
-        isSwap: msg.data.isSwap,
-        isOriginalSize: msg.data.isOriginalSize
-      })
-      break
-
-    case 'notify':
-      contoller.notify(msg.data.message)
-      break
-
-    default:
-      break
-  }
-}
