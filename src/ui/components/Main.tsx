@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import List from '@/app/components/List'
-import Setting from '@/app/components/Setting'
-import Store from '@/app/Store'
+import List from '@/ui/components/List'
+import Setting from '@/ui/components/Setting'
+import Store from '@/ui/Store'
 
 type Props = {
   store?: Store

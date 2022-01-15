@@ -1,7 +1,7 @@
 import * as React from 'react'
-import ListPage from '@/app/components/ListPage'
+import ListPage from '@/ui/components/ListPage'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
+import Store from '@/ui/Store'
 
 type Props = FigmaDocument & {
   store?: Store
@@ -46,7 +46,7 @@ export default class ListDocument extends React.PureComponent<Props, State> {
         >
           <div className="document-title-icon">
             <img
-              src={require('@/app/assets/img/icon_arrow_down.svg').default}
+              src={require('@/ui/assets/img/icon_arrow_down.svg').default}
               alt=""
             />
           </div>

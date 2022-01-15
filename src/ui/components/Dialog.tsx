@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Modal from 'react-modal'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
+import Store from '@/ui/Store'
 
 type Props = {
   store?: Store
@@ -54,7 +54,7 @@ export default class Dialog extends React.Component<Props, State> {
           <div className="dialog-title">{dialogTitle}</div>
           <div className="dialog-close" onClick={this.close.bind(this)}>
             <img
-              src={require('@/app/assets/img/icon_close.svg').default}
+              src={require('@/ui/assets/img/icon_close.svg').default}
               alt=""
             />
           </div>

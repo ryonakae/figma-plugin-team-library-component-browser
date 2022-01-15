@@ -488,7 +488,9 @@ body {
   position: relative;
   display: flex;
   align-items: center;
+
   /* height: var(--height-row-small); */
+
   /* padding: 7px calc(var(--spacing-default) / 2) 7px var(--spacing-default); */
   padding: 7px var(--spacing-default);
   border: 1px solid transparent;
@@ -514,8 +516,8 @@ body {
 }
 
 .component-info {
-  width: 100%;
   display: flex;
+  width: 100%;
 }
 
 .component-icon {
@@ -526,11 +528,11 @@ body {
 
 .component-title {
   padding-right: calc(var(--spacing-default) / 2);
+  margin-top: 1px;
   margin-left: var(--spacing-default);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-top: 1px;
 
   @nest .component.is-selected & {
     text-overflow: initial;
@@ -541,6 +543,7 @@ body {
 .component-buttons {
   display: none;
   width: 100%;
+
   /* padding-left: calc(18px + var(--spacing-default)); */
   margin-top: var(--spacing-text);
 

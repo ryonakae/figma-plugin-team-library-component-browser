@@ -1,7 +1,7 @@
 import * as React from 'react'
-import Util from '@/app/Util'
+import Util from '@/ui/Util'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
+import Store from '@/ui/Store'
 
 type Props = FigmaComponent & {
   store?: Store
@@ -129,7 +129,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
           <div className="component-info">
             <div className="component-icon">
               <img
-                src={require('@/app/assets/img/icon_component.svg').default}
+                src={require('@/ui/assets/img/icon_component.svg').default}
                 alt=""
               />
             </div>
@@ -146,7 +146,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
               onClick={this.onCreateClick.bind(this)}
             >
               <img
-                src={require('@/app/assets/img/icon_instance.svg').default}
+                src={require('@/ui/assets/img/icon_instance.svg').default}
                 alt=""
                 className="button-icon"
               />
@@ -159,7 +159,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
               >
                 <img
                   src={
-                    require('@/app/assets/img/icon_component_black.svg').default
+                    require('@/ui/assets/img/icon_component_black.svg').default
                   }
                   alt=""
                   className="button-icon"

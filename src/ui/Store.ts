@@ -1,5 +1,5 @@
 import { observable, action } from 'mobx'
-import Util from '@/app/Util'
+import Util from '@/ui/Util'
 import _ from 'lodash'
 
 export default class Store {

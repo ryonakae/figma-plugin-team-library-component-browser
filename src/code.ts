@@ -1,6 +1,6 @@
 import _ from 'lodash'
-import Store from '@/app/Store'
-import Util from '@/app/Util'
+import Store from '@/ui/Store'
+import Util from '@/ui/Util'
 
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
 const UI_WIDTH = 300

@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
-import Util from '@/app/Util'
-import ListDocument from '@/app/components/ListDocument'
-import Options from '@/app/components/Options'
-import Search from '@/app/components/Search'
+import Store from '@/ui/Store'
+import Util from '@/ui/Util'
+import ListDocument from '@/ui/components/ListDocument'
+import Options from '@/ui/components/Options'
+import Search from '@/ui/components/Search'
 import ListComponent from './ListComponent'
 
 type Props = {
@@ -228,7 +228,7 @@ export default class List extends React.Component<Props, State> {
           <div className="iconButton" onClick={this.onRefreshClick.bind(this)}>
             <img
               className="iconButton-icon is-refresh"
-              src={require('@/app/assets/img/icon_refresh.svg').default}
+              src={require('@/ui/assets/img/icon_refresh.svg').default}
               alt=""
             />
           </div>
