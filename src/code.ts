@@ -137,6 +137,32 @@ class Controller {
     return name
   }
 
+  private findRootFrame(node: BaseNode): FrameNode | undefined {
+    // 親がある場合
+    if (node.parent) {
+      // 親がページの場合
+      if (node.parent.type === 'PAGE') {
+        // 自分がフレームの場合、nodeを返して再帰を抜ける
+        if (node.type === 'FRAME') {
+          console.log('this is root frame', node, node.name)
+          return node
+        }
+        // 自分がフレームじゃない場合、rootFrameはなし
+        else {
+          console.log('this is root object, but not frame')
+          return undefined
+        }
+      }
+      // それ以外の場合→再帰的に親nodeを探す
+      return this.findRootFrame(node.parent)
+    }
+    // 親がない場合
+    else {
+      console.log('there is no parent')
+      return undefined
+    }
+  }
+
   private setLocalComponent(
     component: ComponentNode,
     page: PageNode,
@@ -150,26 +176,36 @@ class Controller {
     // componentNameを設定
     componentName = this.formatComponentName(component)
 
-    // コンポーネントの親を取得
-    const componentParent = component.parent
-
-    // componentNameを設定する
     // コンポーネントの親がある場合
-    if (componentParent) {
+    if (component.parent) {
       // 親のtypeがCOMPONENT_SET、つまりVariantsの場合
-      if (componentParent.type === ('COMPONENT_SET' as any)) {
-        // 親のさらに親（Variantsの親）がフレームかどうか
-        const componentAncestor = componentParent.parent
-        if (componentAncestor && componentAncestor.type === 'FRAME') {
-          componentName = `${componentAncestor.name}/${componentParent.name}/${componentName}`
-        } else {
-          componentName = `${componentParent.name}/${componentName}`
+      if (component.parent.type === 'COMPONENT_SET') {
+        // root frameを探す
+        const rootFrame = this.findRootFrame(component.parent)
+        console.log(rootFrame)
+
+        // rootFrameがある場合
+        if (rootFrame) {
+          componentName = `${rootFrame.name}/${component.parent.name} - ${componentName}`
+        }
+        // ない場合(Variantsがrootに置かれている場合)
+        else {
+          componentName = `${component.parent.name} - ${componentName}`
         }
       }
-      // コンポーネントがVariantsでなく（普通のコンポーネント）、親がフレームの場合
-      else if (componentParent.type === 'FRAME') {
-        // 親の名前をcomponentNameにいい感じに加える
-        componentName = `${componentParent.name}/${componentName}`
+      // Variantsでなく普通のコンポーネントで、親がフレームの場合
+      else if (component.parent.type === 'FRAME') {
+        // root frameを探す
+        const rootFrame = this.findRootFrame(component.parent)
+
+        // rootFrameがある場合
+        if (rootFrame) {
+          componentName = `${rootFrame.name}/${componentName}`
+        }
+        // ない場合(Variantsがrootに置かれている場合)
+        else {
+          componentName = `${component.parent.name}/${componentName}`
+        }
       }
       // 親がVariantsでなく、親がフレームでもない場合は、componantNameはそのまま
       // else {}
