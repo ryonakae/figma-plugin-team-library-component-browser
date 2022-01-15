@@ -15,8 +15,6 @@ class Controller {
     // https://www.figma.com/plugin-docs/api/properties/figma-skipinvisibleinstancechildren/
     figma.skipInvisibleInstanceChildren = true
 
-    figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
-
     figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
       switch (msg.type) {
         case 'save':
@@ -74,6 +72,8 @@ class Controller {
           break
       }
     }
+
+    figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
   }
 
   getOptions(): void {
@@ -137,11 +137,11 @@ class Controller {
     return name
   }
 
-  private async setLocalComponent(
+  private setLocalComponent(
     component: ComponentNode,
     page: PageNode,
     localComponents: FigmaComponent[]
-  ): Promise<void> {
+  ): void {
     // console.log('setLocalComponent start', component.id)
 
     let componentName = ''
@@ -161,22 +161,22 @@ class Controller {
         // 親のさらに親（Variantsの親）がフレームかどうか
         const componentAncestor = componentParent.parent
         if (componentAncestor && componentAncestor.type === 'FRAME') {
-          componentName = `${componentAncestor.name} / ${componentParent.name} / ${componentName}`
+          componentName = `${componentAncestor.name}/${componentParent.name}/${componentName}`
         } else {
-          componentName = `${componentParent.name} / ${componentName}`
+          componentName = `${componentParent.name}/${componentName}`
         }
       }
       // コンポーネントがVariantsでなく（普通のコンポーネント）、親がフレームの場合
       else if (componentParent.type === 'FRAME') {
         // 親の名前をcomponentNameにいい感じに加える
-        componentName = `${componentParent.name} / ${componentName}`
+        componentName = `${componentParent.name}/${componentName}`
       }
       // 親がVariantsでなく、親がフレームでもない場合は、componantNameはそのまま
       // else {}
     }
 
     // combinedNameを設定
-    combinedName = `${figma.root.name} / ${page.name} / ${componentName}`
+    combinedName = `${figma.root.name}/${page.name}/${componentName}`
 
     localComponents.push({
       name: componentName,
@@ -191,49 +191,43 @@ class Controller {
     // console.log('setLocalComponent finish', component.id)
   }
 
-  private async setLocalPage(
-    page: PageNode,
-    localPages: FigmaPage[]
-  ): Promise<void> {
+  private setLocalPage(page: PageNode, localPages: FigmaPage[]): void {
     console.log('setLocalPage start', page.id)
 
-    // const foundLocalComponents = page.findAll(node => {
-    //   return node.type === 'COMPONENT'
-    // })
-    // https://www.figma.com/plugin-docs/api/properties/DocumentNode-findallwithcriteria/
     const foundLocalComponents = page.findAllWithCriteria({
       // types: ['COMPONENT', 'COMPONENT_SET']
       types: ['COMPONENT']
     })
 
-    if (foundLocalComponents.length > 0) {
-      console.log('found local components', foundLocalComponents)
-
-      // localComponentという配列にコンポーネントを追加していく
-      let localComponents: FigmaComponent[] = []
-
-      // 各コンポーネントごとに処理
-      await Promise.all(
-        _.map(foundLocalComponents, async component => {
-          await this.setLocalComponent(component, page, localComponents)
-        })
-      )
-
-      // コンポーネントをアルファベット順にソート
-      localComponents = _.orderBy(
-        localComponents,
-        component => component.name.toLowerCase(),
-        'asc'
-      )
-
-      localPages.push({
-        name: page.name,
-        id: page.id,
-        components: localComponents,
-        documentName: figma.root.name,
-        isCollapsed: true
-      })
+    if (foundLocalComponents.length === 0) {
+      console.log('setLocalPage aborted', page.id)
+      return
     }
+
+    console.log('found local components', foundLocalComponents)
+
+    // localComponentという配列にコンポーネントを追加していく
+    let localComponents: FigmaComponent[] = []
+
+    // 各コンポーネントごとに処理
+    _.map(foundLocalComponents, component => {
+      this.setLocalComponent(component, page, localComponents)
+    })
+
+    // コンポーネントをアルファベット順にソート
+    localComponents = _.orderBy(
+      localComponents,
+      component => component.name.toLowerCase(),
+      'asc'
+    )
+
+    localPages.push({
+      name: page.name,
+      id: page.id,
+      components: localComponents,
+      documentName: figma.root.name,
+      isCollapsed: true
+    })
 
     console.log('setLocalPage finish', page.id)
   }
@@ -249,11 +243,9 @@ class Controller {
     let localPages: FigmaPage[] = []
 
     // ページごとにコンポーネントを探す
-    await Promise.all(
-      _.map(figma.root.children, async page => {
-        await this.setLocalPage(page, localPages)
-      })
-    )
+    _.map(figma.root.children, page => {
+      this.setLocalPage(page, localPages)
+    })
 
     // ページをアルファベット順にソート
     localPages = _.orderBy(localPages, page => page.name.toLowerCase(), 'asc')
@@ -345,33 +337,35 @@ class Controller {
       types: ['COMPONENT']
     })
 
-    // コンポーネントが1つ以上あった場合
-    if (foundComponents.length > 0) {
-      console.log('found library components', foundComponents)
-      let components: FigmaComponent[] = []
-
-      // 各コンポーネントごとに処理
-      await Promise.all(
-        _.map(foundComponents, async component => {
-          await this.pushComponentToLibrary(component, page, components)
-        })
-      )
-
-      // コンポーネントをアルファベット順にソート
-      components = _.orderBy(
-        components,
-        component => component.name.toLowerCase(),
-        'asc'
-      )
-
-      pages.push({
-        name: page.name,
-        id: page.id,
-        components,
-        documentName: figma.root.name,
-        isCollapsed: true
-      })
+    // コンポーネントが1つも無い場合は処理をスキップ
+    if (foundComponents.length === 0) {
+      return
     }
+
+    console.log('found library components', foundComponents)
+    let components: FigmaComponent[] = []
+
+    // 各コンポーネントごとに処理
+    await Promise.all(
+      _.map(foundComponents, async component => {
+        await this.pushComponentToLibrary(component, page, components)
+      })
+    )
+
+    // コンポーネントをアルファベット順にソート
+    components = _.orderBy(
+      components,
+      component => component.name.toLowerCase(),
+      'asc'
+    )
+
+    pages.push({
+      name: page.name,
+      id: page.id,
+      components,
+      documentName: figma.root.name,
+      isCollapsed: true
+    })
   }
 
   async saveLibrary(): Promise<void> {
@@ -927,4 +921,4 @@ class Controller {
   }
 }
 
-const contoller = new Controller()
+new Controller()

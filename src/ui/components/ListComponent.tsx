@@ -8,6 +8,27 @@ type Props = FigmaComponent & {
 }
 type State = {}
 
+class FormatedComponentTitle extends React.Component<{ name: string }> {
+  constructor(props) {
+    super(props)
+  }
+
+  render(): JSX.Element {
+    return (
+      <div className="component-title">
+        {this.props.name.split('/').map((n, index, array) => (
+          <React.Fragment key={index}>
+            <span className="component-title-text">{n}</span>
+            {index + 1 !== array.length && (
+              <span className="component-title-slash">/</span>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    )
+  }
+}
+
 @inject('store')
 @observer
 export default class ListComponent extends React.PureComponent<Props, State> {
@@ -133,12 +154,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
                 alt=""
               />
             </div>
-            <div className="component-title">
-              <span>
-                {/* {pageName}/{name} */}
-                {name}
-              </span>
-            </div>
+            <FormatedComponentTitle name={name} />
           </div>
           <div className="component-buttons">
             <div

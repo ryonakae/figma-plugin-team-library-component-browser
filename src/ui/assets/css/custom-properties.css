@@ -48,8 +48,10 @@
   --height-row-small: 32px;
 
   /* z-index */
-  --zIndex-search: 1;
-  --zIndex-options: 1;
+  --zIndex-search: 3;
+  --zIndex-documentTitle: 2;
+  --zIndex-pageTitle: 1;
+  --zIndex-options: 4;
   --zIndex-dialog: 100;
   --zIndex-snackbar: 101;
 }

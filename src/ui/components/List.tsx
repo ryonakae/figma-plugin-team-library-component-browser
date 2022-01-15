@@ -58,8 +58,13 @@ export default class List extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     console.log('List did mount')
-    await this.fetch()
-    this.refresh()
+
+    // libraryが空のとき（初回起動のとき）だけfetchする
+    if (this.props.store!.library.length === 0) {
+      await this.fetch()
+    }
+
+    // this.refresh()
     this.props.store!.resizeUI()
   }
 
