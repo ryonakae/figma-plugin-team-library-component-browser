@@ -32,6 +32,7 @@ type FigmaComponent = {
   pageName: string
   combinedName: string
   isLocalComponent: boolean
+  publishStatus: PublishStatus
 }
 
 type FigmaPage = {

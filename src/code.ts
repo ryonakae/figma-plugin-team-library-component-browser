@@ -75,99 +75,135 @@ class Code {
     return name
   }
 
-  getLocalLibrary(libraryName: string): FigmaLibrary {
+  async getLocalLibrary(
+    libraryName: string
+  ): Promise<FigmaLibrary | undefined> {
     console.log('getLocalLibrary')
 
     let pages: FigmaPage[] = []
 
     // 各ページごとに処理
-    _.map(figma.root.children, page => {
-      let components: FigmaComponent[] = []
+    await Promise.all(
+      _.map(figma.root.children, async page => {
+        let components: FigmaComponent[] = []
 
-      // ページ直下に置かれているコンポーネントを取得
-      const immediateComponents = page.findChildren(
-        node => node.type === 'COMPONENT'
-      ) as ComponentNode[]
+        // ページ直下に置かれているコンポーネントを取得
+        const immediateComponents = page.findChildren(
+          node => node.type === 'COMPONENT'
+        ) as ComponentNode[]
 
-      // 各immediateComponentsをcomponentsに追加する
-      _.map(immediateComponents, component => {
-        let name = ''
-        name = this.formatComponentName(component)
+        // 各immediateComponentsをcomponentsに追加する
+        await Promise.all(
+          _.map(immediateComponents, async component => {
+            let name = ''
+            name = this.formatComponentName(component)
 
-        // variantsの場合
-        if (component.parent && component.parent.type === 'COMPONENT_SET') {
-          name = `${component.parent.name} - ${name}`
+            // variantsの場合
+            if (component.parent && component.parent.type === 'COMPONENT_SET') {
+              name = `${component.parent.name} - ${name}`
+            }
+
+            const combinedName = `${figma.root.name}/${page.name}/${name}`
+
+            // publish statusを取得
+            const publishStatus = await component.getPublishStatusAsync()
+
+            components.push({
+              name,
+              id: component.id,
+              componentKey: component.key,
+              pageName: page.name,
+              documentName: figma.root.name,
+              combinedName,
+              isLocalComponent: true,
+              publishStatus
+            })
+          })
+        )
+
+        // ページ直下にあるフレームを検索
+        const foundRootFrames = page.findChildren(
+          node => node.type === 'FRAME'
+        ) as FrameNode[]
+
+        // 各rootFrameごとに処理
+        await Promise.all(
+          _.map(foundRootFrames, async frame => {
+            // rootFrame内にコンポーネントがあるか検索
+            const childComponents = frame.findAllWithCriteria({
+              types: ['COMPONENT']
+            })
+
+            // 各childComponentsをcomponentsに追加する
+            await Promise.all(
+              _.map(childComponents, async component => {
+                let name = ''
+
+                name = this.formatComponentName(component)
+
+                if (
+                  component.parent &&
+                  component.parent.type === 'COMPONENT_SET'
+                ) {
+                  // variantsの場合
+                  name = `${frame.name}/${component.parent.name} - ${name}`
+                } else {
+                  // 普通のコンポーネントの場合
+                  name = `${frame.name}/${name}`
+                }
+
+                const combinedName = `${figma.root.name}/${page.name}/${frame.name}/${name}`
+
+                // publish statusを取得
+                const publishStatus = await component.getPublishStatusAsync()
+
+                components.push({
+                  name,
+                  id: component.id,
+                  componentKey: component.key,
+                  pageName: page.name,
+                  documentName: figma.root.name,
+                  combinedName,
+                  isLocalComponent: true,
+                  publishStatus
+                })
+              })
+            )
+          })
+        )
+
+        // componentsが空ならここで処理を中断
+        if (!components) {
+          return undefined
         }
 
-        const combinedName = `${figma.root.name}/${page.name}/${name}`
+        // コンポーネントをアルファベット順にソート
+        components = _.orderBy(
+          components,
+          component => component.name.toLowerCase(),
+          'asc'
+        )
 
-        components.push({
-          name,
-          id: component.id,
-          componentKey: component.key,
-          pageName: page.name,
+        // コンポーネント情報を持ったページをpages配列に追加
+        pages.push({
+          name: page.name,
+          id: page.id,
+          components,
           documentName: figma.root.name,
-          combinedName,
-          isLocalComponent: true
+          isCollapsed: true
         })
       })
+    )
 
-      // ページ直下にあるフレームを検索
-      const foundRootFrames = page.findChildren(
-        node => node.type === 'FRAME'
-      ) as FrameNode[]
-
-      // 各rootFrameごとに処理
-      _.map(foundRootFrames, frame => {
-        // rootFrame内にコンポーネントがあるか検索
-        const childComponents = frame.findAllWithCriteria({
-          types: ['COMPONENT']
-        })
-
-        // 各childComponentsをcomponentsに追加する
-        _.map(childComponents, component => {
-          let name = ''
-
-          name = this.formatComponentName(component)
-
-          if (component.parent && component.parent.type === 'COMPONENT_SET') {
-            // variantsの場合
-            name = `${frame.name}/${component.parent.name} - ${name}`
-          } else {
-            // 普通のコンポーネントの場合
-            name = `${frame.name}/${name}`
-          }
-
-          const combinedName = `${figma.root.name}/${page.name}/${frame.name}/${name}`
-
-          components.push({
-            name,
-            id: component.id,
-            componentKey: component.key,
-            pageName: page.name,
-            documentName: figma.root.name,
-            combinedName,
-            isLocalComponent: true
-          })
-        })
-      })
-
-      // コンポーネントをアルファベット順にソート
-      components = _.orderBy(
-        components,
-        component => component.name.toLowerCase(),
-        'asc'
-      )
-
-      // コンポーネント情報を持ったページをpages配列に追加
-      pages.push({
-        name: page.name,
-        id: page.id,
-        components,
-        documentName: figma.root.name,
-        isCollapsed: true
-      })
-    })
+    // コンポーネントを持ったページが0ならここで処理を中断
+    const hasComponentsPages = _.filter(
+      pages,
+      page => page.components.length > 0
+    )
+    if (hasComponentsPages.length === 0) {
+      console.log('getLocalLibrary aborted')
+      return undefined
+    }
 
     // ページをアルファベット順にソート
     pages = _.orderBy(pages, page => page.name.toLowerCase(), 'asc')
@@ -180,10 +216,13 @@ class Code {
       isCollapsed: false
     }
 
+    console.log('getLocalLibrary success', localLibrary)
     return localLibrary
   }
 
-  async getSavedLibrary(): Promise<FigmaLibrary[]> {
+  async getSavedLibraries(): Promise<FigmaLibrary[] | undefined> {
+    console.log('getSavedLibraries')
+
     const library: FigmaLibrary[] = []
 
     // clientStorageに保存されたlibraryを取得
@@ -195,6 +234,12 @@ class Code {
         throw new Error('Failed to get library.')
       })
 
+    // 保存されたライブラリがない場合は処理を中断
+    if (!savedLibrary || (savedLibrary && savedLibrary.length === 0)) {
+      console.log('getSavedLibraries aborted')
+      return undefined
+    }
+
     // savedLibraryの各ライブラリをlibraryに追加
     _.map(savedLibrary, l => {
       // ローカルライブラリと名前が同じなら追加しない
@@ -204,6 +249,7 @@ class Code {
       library.push(l)
     })
 
+    console.log('getSavedLibraries success')
     return library
   }
 
@@ -214,13 +260,18 @@ class Code {
     this.library = []
 
     // ローカルのコンポーネントを取得
-    const localLibrary = this.getLocalLibrary('Local Components')
+    const localLibrary = await this.getLocalLibrary('Local Components')
 
     // clientStorageに保存されたライブラリを取得
-    const savedLibrary = await this.getSavedLibrary()
+    const savedLibrary = await this.getSavedLibraries()
 
     // ライブラリにlocalLibraryとsavedLibraryを追加
-    this.library = [localLibrary, ...savedLibrary]
+    if (localLibrary) {
+      this.library.push(localLibrary)
+    }
+    if (savedLibrary) {
+      this.library = [...this.library, ...savedLibrary]
+    }
 
     console.log('getLibrary success', this.library)
     figma.ui.postMessage({
@@ -232,17 +283,24 @@ class Code {
     console.log('saveLibrary', figma.root)
 
     // ローカルライブラリを取得
-    const localLibrary = this.getLocalLibrary(figma.root.name)
+    const localLibrary = await this.getLocalLibrary(figma.root.name)
 
-    // ローカルライブラリにページが1つもない→エラーで処理中断
-    if (localLibrary.pages.length === 0) {
+    // if (localLibrary) {
+    //   const filteredLocalLibrary = _.filter(localLibrary.pages, {
+    //     components: [{ publishStatus: 'CURRENT' || 'CHANGED' }]
+    //   })
+    //   console.log('filteredLocalLibrary', filteredLocalLibrary)
+    // }
+
+    // ローカルライブラリにコンポーネントがない場合処理を中断
+    if (!localLibrary) {
       throw new Error(
         'Failed to save library. No library components available.'
       )
     }
 
     // clientStorageに保存されたライブラリを取得
-    let savedLibrary = await this.getSavedLibrary()
+    let savedLibrary = await this.getSavedLibraries()
 
     // もしライブラリがすでにある場合、
     // 現在のライブラリから、documentと同じ名前のものを削除
@@ -262,7 +320,12 @@ class Code {
     }
 
     // 現在のライブラリにdocumentをマージしたものを新しいライブラリとして返す
-    let newLibrary = [...savedLibrary, localLibrary]
+    let newLibrary: FigmaLibrary[] = []
+    if (savedLibrary) {
+      newLibrary = [...savedLibrary, localLibrary]
+    } else {
+      newLibrary.push(localLibrary)
+    }
 
     // 新しいライブラリをドキュメント名でソートする
     newLibrary = _.orderBy(
@@ -290,7 +353,7 @@ class Code {
       figma.ui.postMessage({
         type: 'savefailed',
         data: {
-          errorMessage: err
+          errorMessage: err.message
         }
       } as PluginMessage)
       throw new Error(err)
@@ -304,7 +367,8 @@ class Code {
 
   async saveLibraryFromMenu(): Promise<void> {
     await this.saveLibrary().catch(err => {
-      this.notify(err, { error: true })
+      this.notify(err.message, { error: true })
+      figma.closePlugin()
       throw new Error(err)
     })
     this.notify('Success to save library data')
@@ -343,7 +407,8 @@ class Code {
 
   async clearLibraryFromMenu(): Promise<void> {
     await this.clearLibrary().catch(err => {
-      this.notify(err, { error: true })
+      this.notify(err.message, { error: true })
+      figma.closePlugin()
       throw new Error(err)
     })
     this.notify('Success to clear all library data')
@@ -762,7 +827,7 @@ class Code {
     this.lastNotify = figma.notify(message, options)
   }
 
-  openUI() {
+  openUI(): void {
     figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
       switch (msg.type) {
         case 'save':

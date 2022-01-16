@@ -56,6 +56,7 @@ export default class ListPage extends React.PureComponent<Props, State> {
               pageName={component.pageName}
               combinedName={component.combinedName}
               isLocalComponent={component.isLocalComponent}
+              publishStatus={component.publishStatus}
             />
           ))}
         </div>
