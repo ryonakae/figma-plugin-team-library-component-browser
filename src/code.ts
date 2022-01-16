@@ -308,7 +308,7 @@ class Code {
       throw new Error(err)
     })
     this.notify('Success to save library data')
-    figma.ui.close()
+    figma.closePlugin()
   }
 
   async clearLibrary(): Promise<void> {
@@ -347,7 +347,7 @@ class Code {
       throw new Error(err)
     })
     this.notify('Success to clear all library data')
-    figma.ui.close()
+    figma.closePlugin()
   }
 
   updateLibrary(): void {
