@@ -86,3 +86,13 @@ type NodeTypes =
   | 'TEXT'
   | 'VECTOR'
   | 'WIDGET'
+
+type CreateInstanceOptions = {
+  key: FigmaComponent['componentKey']
+  name: FigmaComponent['name']
+  id: FigmaComponent['id']
+  options: {
+    isSwap: boolean
+    isOriginalSize: boolean
+  }
+}

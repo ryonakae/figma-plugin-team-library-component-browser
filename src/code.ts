@@ -77,7 +77,7 @@ class Code {
 
   async getLocalLibrary(
     libraryName: string,
-    isPublishedOnly?: boolean
+    isTeamLibrary?: boolean
   ): Promise<FigmaLibrary | undefined> {
     console.log('getLocalLibrary')
 
@@ -109,9 +109,9 @@ class Code {
             // publish statusを取得
             const publishStatus = await component.getPublishStatusAsync()
 
-            // isPublishedOnlyがtrueの場合、
+            // isTeamLibraryがtrueの場合、
             // publishStatusがUNPUBLISHEDなら処理を中断
-            if (isPublishedOnly && publishStatus === 'UNPUBLISHED') {
+            if (isTeamLibrary && publishStatus === 'UNPUBLISHED') {
               return
             }
 
@@ -122,7 +122,7 @@ class Code {
               pageName: page.name,
               documentName: figma.root.name,
               combinedName,
-              isLocalComponent: true,
+              isLocalComponent: !isTeamLibrary,
               publishStatus
             })
           })
@@ -164,9 +164,9 @@ class Code {
                 // publish statusを取得
                 const publishStatus = await component.getPublishStatusAsync()
 
-                // isPublishedOnlyがtrueの場合、
+                // isTeamLibraryがtrueの場合、
                 // publishStatusがUNPUBLISHEDなら処理を中断
-                if (isPublishedOnly && publishStatus === 'UNPUBLISHED') {
+                if (isTeamLibrary && publishStatus === 'UNPUBLISHED') {
                   return
                 }
 
@@ -177,7 +177,7 @@ class Code {
                   pageName: page.name,
                   documentName: figma.root.name,
                   combinedName,
-                  isLocalComponent: true,
+                  isLocalComponent: !isTeamLibrary,
                   publishStatus
                 })
               })
@@ -186,7 +186,7 @@ class Code {
         )
 
         // componentsが空ならここで処理を中断
-        if (!components) {
+        if (components.length === 0) {
           return undefined
         }
 
@@ -443,18 +443,68 @@ class Code {
     }
   }
 
-  async createInstance(options: {
-    key: FigmaComponent['componentKey']
-    name: FigmaComponent['name']
-    id: FigmaComponent['id']
-    options: {
-      isSwap: boolean
-      isOriginalSize: boolean
+  async getTeamLibraryComponent(
+    options: CreateInstanceOptions
+  ): Promise<ComponentNode> {
+    const component = await figma
+      .importComponentByKeyAsync(options.key)
+      .catch(err => {
+        throw new Error(err)
+      })
+    return component
+  }
+
+  async getLocalComponent(
+    options: CreateInstanceOptions
+  ): Promise<ComponentNode> {
+    const localComponent = figma.root.findOne(node => {
+      return (
+        node.type === 'COMPONENT' &&
+        node.key === options.key &&
+        // node.name === options.name &&
+        node.id === options.id
+      )
+    }) as ComponentNode | null
+    if (!localComponent) {
+      throw new Error('Failed to create instance. Component not found.')
+    } else {
+      return localComponent
     }
-  }): Promise<void> {
+  }
+
+  async createInstance(options: CreateInstanceOptions): Promise<void> {
     console.log('createInstance', options)
 
     let component!: ComponentNode
+
+    // function onError(err: any): void {
+    //   figma.ui.postMessage({
+    //     type: 'createinstancefailed',
+    //     data: {
+    //       errorMessage: err.message
+    //     }
+    //   } as PluginMessage)
+    //   throw new Error(err)
+    // }
+
+    // if (options.key.length > 0) {
+    //   console.log('found key')
+
+    //   // チームライブラリコンポーネントの取得を試みる
+    //   const teamLibraryComponent = await this.getTeamLibraryComponent(
+    //     options
+    //   ).catch(async err => {
+    //     const localComponent = await this.getLocalComponent(options).catch(
+    //       onError
+    //     )
+    //     if (localComponent) {
+    //       component = localComponent
+    //     } else {
+    //       onError(err)
+    //     }
+    //   })
+    //   component = teamLibraryComponent
+    // }
 
     // keyがある場合
     if (options.key.length > 0) {
