@@ -42,14 +42,14 @@ type FigmaPage = {
   isCollapsed: boolean
 }
 
-type FigmaDocument = {
+type FigmaLibrary = {
   name: string
   id: string
   pages: FigmaPage[]
   isCollapsed: boolean
 }
 
-type Library = FigmaDocument[]
+type Library = FigmaLibrary[]
 
 type PluginMessage = {
   type: MessageType

@@ -547,10 +547,6 @@ body {
 
 .component-title-text {
   font-weight: var(--fontWeight-title);
-
-  @nest .component.is-selected & {
-    display: inline-block;
-  }
 }
 
 .component-title-slash {

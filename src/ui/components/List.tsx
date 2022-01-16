@@ -96,7 +96,7 @@ export default class List extends React.Component<Props, State> {
 
   render(): JSX.Element {
     const { searchWord } = this.props.store!
-    const library = this.props.store!.library as Array<FigmaDocument>
+    const library = this.props.store!.library as Array<FigmaLibrary>
     const searchResults = this.props.store!.searchResults
     const isLoading = this.state.isLoading
 

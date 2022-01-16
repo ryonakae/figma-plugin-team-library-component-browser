@@ -137,168 +137,118 @@ class Controller {
     return name
   }
 
-  private findRootFrame(node: BaseNode): FrameNode | undefined {
-    // 親がある場合
-    if (node.parent) {
-      // 親がページの場合
-      if (node.parent.type === 'PAGE') {
-        // 自分がフレームの場合、nodeを返して再帰を抜ける
-        if (node.type === 'FRAME') {
-          console.log('this is root frame', node, node.name)
-          return node
-        }
-        // 自分がフレームじゃない場合、rootFrameはなし
-        else {
-          console.log('this is root object, but not frame')
-          return undefined
-        }
-      }
-      // それ以外の場合→再帰的に親nodeを探す
-      return this.findRootFrame(node.parent)
-    }
-    // 親がない場合
-    else {
-      console.log('there is no parent')
-      return undefined
-    }
-  }
+  getLocalLibrary(libraryName: string): FigmaLibrary {
+    console.log('getLocalLibrary')
 
-  private setLocalComponent(
-    component: ComponentNode,
-    page: PageNode,
-    localComponents: FigmaComponent[]
-  ): void {
-    // console.log('setLocalComponent start', component.id)
+    let pages: FigmaPage[] = []
 
-    let componentName = ''
-    let combinedName = ''
-
-    // componentNameを設定
-    componentName = this.formatComponentName(component)
-
-    // コンポーネントの親がある場合
-    if (component.parent) {
-      // 親のtypeがCOMPONENT_SET、つまりVariantsの場合
-      if (component.parent.type === 'COMPONENT_SET') {
-        // root frameを探す
-        const rootFrame = this.findRootFrame(component.parent)
-        console.log(rootFrame)
-
-        // rootFrameがある場合
-        if (rootFrame) {
-          componentName = `${rootFrame.name}/${component.parent.name} - ${componentName}`
-        }
-        // ない場合(Variantsがrootに置かれている場合)
-        else {
-          componentName = `${component.parent.name} - ${componentName}`
-        }
-      }
-      // Variantsでなく普通のコンポーネントで、親がフレームの場合
-      else if (component.parent.type === 'FRAME') {
-        // root frameを探す
-        const rootFrame = this.findRootFrame(component.parent)
-
-        // rootFrameがある場合
-        if (rootFrame) {
-          componentName = `${rootFrame.name}/${componentName}`
-        }
-        // ない場合(Variantsがrootに置かれている場合)
-        else {
-          componentName = `${component.parent.name}/${componentName}`
-        }
-      }
-      // 親がVariantsでなく、親がフレームでもない場合は、componantNameはそのまま
-      // else {}
-    }
-
-    // combinedNameを設定
-    combinedName = `${figma.root.name}/${page.name}/${componentName}`
-
-    localComponents.push({
-      name: componentName,
-      id: component.id,
-      componentKey: (component as ComponentNode).key,
-      pageName: page.name,
-      documentName: figma.root.name,
-      combinedName,
-      isLocalComponent: true
-    })
-
-    // console.log('setLocalComponent finish', component.id)
-  }
-
-  private setLocalPage(page: PageNode, localPages: FigmaPage[]): void {
-    console.log('setLocalPage start', page.id)
-
-    const foundLocalComponents = page.findAllWithCriteria({
-      // types: ['COMPONENT', 'COMPONENT_SET']
-      types: ['COMPONENT']
-    })
-
-    if (foundLocalComponents.length === 0) {
-      console.log('setLocalPage aborted', page.id)
-      return
-    }
-
-    console.log('found local components', foundLocalComponents)
-
-    // localComponentという配列にコンポーネントを追加していく
-    let localComponents: FigmaComponent[] = []
-
-    // 各コンポーネントごとに処理
-    _.map(foundLocalComponents, component => {
-      this.setLocalComponent(component, page, localComponents)
-    })
-
-    // コンポーネントをアルファベット順にソート
-    localComponents = _.orderBy(
-      localComponents,
-      component => component.name.toLowerCase(),
-      'asc'
-    )
-
-    localPages.push({
-      name: page.name,
-      id: page.id,
-      components: localComponents,
-      documentName: figma.root.name,
-      isCollapsed: true
-    })
-
-    console.log('setLocalPage finish', page.id)
-  }
-
-  async getLibrary(): Promise<void> {
-    console.log('getLibrary')
-
-    // まずライブラリを空にする
-    this.library = []
-
-    // ローカルのコンポーネント一覧を取得
-    // ======================================================================
-    let localPages: FigmaPage[] = []
-
-    // ページごとにコンポーネントを探す
+    // 各ページごとに処理
     _.map(figma.root.children, page => {
-      this.setLocalPage(page, localPages)
+      let components: FigmaComponent[] = []
+
+      // ページ直下に置かれているコンポーネントを取得
+      const immediateComponents = page.findChildren(
+        node => node.type === 'COMPONENT'
+      ) as ComponentNode[]
+
+      // 各immediateComponentsをcomponentsに追加する
+      _.map(immediateComponents, component => {
+        let name = ''
+        name = this.formatComponentName(component)
+
+        // variantsの場合
+        if (component.parent && component.parent.type === 'COMPONENT_SET') {
+          name = `${component.parent.name} - ${name}`
+        }
+
+        const combinedName = `${figma.root.name}/${page.name}/${name}`
+
+        components.push({
+          name,
+          id: component.id,
+          componentKey: component.key,
+          pageName: page.name,
+          documentName: figma.root.name,
+          combinedName,
+          isLocalComponent: true
+        })
+      })
+
+      // ページ直下にあるフレームを検索
+      const foundRootFrames = page.findChildren(
+        node => node.type === 'FRAME'
+      ) as FrameNode[]
+
+      // 各rootFrameごとに処理
+      _.map(foundRootFrames, frame => {
+        // rootFrame内にコンポーネントがあるか検索
+        const childComponents = frame.findAllWithCriteria({
+          types: ['COMPONENT']
+        })
+
+        // 各childComponentsをcomponentsに追加する
+        _.map(childComponents, component => {
+          let name = ''
+
+          name = this.formatComponentName(component)
+
+          if (component.parent && component.parent.type === 'COMPONENT_SET') {
+            // variantsの場合
+            name = `${frame.name}/${component.parent.name} - ${name}`
+          } else {
+            // 普通のコンポーネントの場合
+            name = `${frame.name}/${name}`
+          }
+
+          const combinedName = `${figma.root.name}/${page.name}/${frame.name}/${name}`
+
+          components.push({
+            name,
+            id: component.id,
+            componentKey: component.key,
+            pageName: page.name,
+            documentName: figma.root.name,
+            combinedName,
+            isLocalComponent: true
+          })
+        })
+      })
+
+      // コンポーネントをアルファベット順にソート
+      components = _.orderBy(
+        components,
+        component => component.name.toLowerCase(),
+        'asc'
+      )
+
+      // コンポーネント情報を持ったページをpages配列に追加
+      pages.push({
+        name: page.name,
+        id: page.id,
+        components,
+        documentName: figma.root.name,
+        isCollapsed: true
+      })
     })
 
     // ページをアルファベット順にソート
-    localPages = _.orderBy(localPages, page => page.name.toLowerCase(), 'asc')
+    pages = _.orderBy(pages, page => page.name.toLowerCase(), 'asc')
 
-    // 現在のページの情報をlocalDocumentというオブジェクトに
-    const localDocument: FigmaDocument = {
-      name: 'Local components',
+    // localLibraryというオブジェクトを作る
+    const localLibrary: FigmaLibrary = {
+      name: libraryName,
       id: figma.root.id,
-      pages: localPages,
+      pages,
       isCollapsed: false
     }
 
-    // ライブラリにlocalDocumentをマージ
-    this.library.push(localDocument)
+    return localLibrary
+  }
 
-    // ライブラリに現在のライブラリをマージ
-    // 現在のライブラリを取得
+  async getSavedLibrary(): Promise<FigmaLibrary[]> {
+    const library: FigmaLibrary[] = []
+
+    // clientStorageに保存されたlibraryを取得
     const savedLibrary:
       | Library
       | undefined = await figma.clientStorage
@@ -313,12 +263,33 @@ class Controller {
         } as PluginMessage)
         throw new Error(err)
       })
-    // localDocumentとライブラリの名前が同じならマージしない
-    _.map(savedLibrary, library => {
-      if (figma.root.name !== library.name) {
-        this.library.push(library)
+
+    // savedLibraryの各ライブラリをlibraryに追加
+    _.map(savedLibrary, l => {
+      // ローカルライブラリと名前が同じなら追加しない
+      if (figma.root.name === l.name) {
+        return
       }
+      library.push(l)
     })
+
+    return library
+  }
+
+  async getLibrary(): Promise<void> {
+    console.log('getLibrary')
+
+    // まずライブラリを空にする
+    this.library = []
+
+    // ローカルのコンポーネントを取得
+    const localLibrary = this.getLocalLibrary('Local Components')
+
+    // clientStorageに保存されたライブラリを取得
+    const savedLibrary = await this.getSavedLibrary()
+
+    // ライブラリにlocalLibraryとsavedLibraryを追加
+    this.library = [localLibrary, ...savedLibrary]
 
     console.log('getLibrary success', this.library)
     figma.ui.postMessage({
@@ -326,110 +297,14 @@ class Controller {
     } as PluginMessage)
   }
 
-  private async pushComponentToLibrary(
-    component: ComponentNode,
-    page: PageNode,
-    components: FigmaComponent[]
-  ): Promise<void> {
-    // keyがない場合は処理をスキップ
-    if (component.key.length === 0) {
-      return
-    }
-
-    // コンポーネントがチームライブラリでPublishされているのかどうかを調べる
-    const publishStatus = await component.getPublishStatusAsync()
-    // publishされてなかったら処理をスキップ
-    if (publishStatus === 'UNPUBLISHED') {
-      console.log('this is unpublished component', component)
-      return
-    }
-
-    let componentName = this.formatComponentName(component)
-
-    // 親のtypeがCOMPONENT_SET、つまりVariantsの場合、名前を変える
-    const componentParent = component.parent
-    if (componentParent && componentParent.type === ('COMPONENT_SET' as any)) {
-      componentName = `${componentParent.name}/${componentName}`
-    }
-
-    components.push({
-      name: componentName,
-      id: component.id,
-      componentKey: (component as ComponentNode).key,
-      pageName: page.name,
-      documentName: figma.root.name,
-      combinedName: `${figma.root.name}/${page.name}/${componentName}`,
-      isLocalComponent: false
-    })
-  }
-
-  private async pushPageToLibrary(
-    page: PageNode,
-    pages: FigmaPage[]
-  ): Promise<void> {
-    // ページ以下にあるコンポーネントをすべて探す
-    const foundComponents = page.findAllWithCriteria({
-      // types: ['COMPONENT', 'COMPONENT_SET']
-      types: ['COMPONENT']
-    })
-
-    // コンポーネントが1つも無い場合は処理をスキップ
-    if (foundComponents.length === 0) {
-      return
-    }
-
-    console.log('found library components', foundComponents)
-    let components: FigmaComponent[] = []
-
-    // 各コンポーネントごとに処理
-    await Promise.all(
-      _.map(foundComponents, async component => {
-        await this.pushComponentToLibrary(component, page, components)
-      })
-    )
-
-    // コンポーネントをアルファベット順にソート
-    components = _.orderBy(
-      components,
-      component => component.name.toLowerCase(),
-      'asc'
-    )
-
-    pages.push({
-      name: page.name,
-      id: page.id,
-      components,
-      documentName: figma.root.name,
-      isCollapsed: true
-    })
-  }
-
   async saveLibrary(): Promise<void> {
     console.log('saveLibrary', figma.root)
 
-    let pages: FigmaPage[] = []
+    // ローカルライブラリを取得
+    const localLibrary = this.getLocalLibrary(figma.root.name)
 
-    // 各ページごとに処理
-    await Promise.all(
-      _.map(figma.root.children, async page => {
-        await this.pushPageToLibrary(page, pages)
-      })
-    )
-
-    // ページをアルファベット順にソート
-    pages = _.orderBy(pages, page => page.name.toLowerCase(), 'asc')
-
-    const document: FigmaDocument = {
-      name: figma.root.name,
-      id: figma.root.id,
-      pages,
-      isCollapsed: false
-    }
-
-    console.log('document', document)
-
-    // ページが1つもない→エラーで処理中断
-    if (document.pages.length === 0) {
+    // ローカルライブラリにページが1つもない→エラーで処理中断
+    if (localLibrary.pages.length === 0) {
       const msg = 'Failed to save library. No library components available.'
       figma.ui.postMessage({
         type: 'savefailed',
@@ -440,20 +315,8 @@ class Controller {
       throw new Error(msg)
     }
 
-    // 現在保存されているライブラリを取得
-    let savedLibrary: Library | undefined = await figma.clientStorage
-      .getAsync(CLIENT_STORAGE_KEY_NAME)
-      .catch(err => {
-        console.error(err)
-        figma.ui.postMessage({
-          type: 'savefailed',
-          data: {
-            errorMessage: 'Failed to save library.'
-          }
-        } as PluginMessage)
-        throw new Error(err)
-      })
-    console.log('savedLibrary', savedLibrary)
+    // clientStorageに保存されたライブラリを取得
+    let savedLibrary = await this.getSavedLibrary()
 
     // もしライブラリがすでにある場合、
     // 現在のライブラリから、documentと同じ名前のものを削除
@@ -461,21 +324,19 @@ class Controller {
       savedLibrary = _.remove(savedLibrary, currentDocument => {
         console.log(
           currentDocument.name,
-          document.name,
-          currentDocument.name === document.name
+          localLibrary.name,
+          currentDocument.name === localLibrary.name
         )
-        return currentDocument.name !== document.name
+        return currentDocument.name !== localLibrary.name
       })
       console.log(
-        'same name documents are deleted from savedLibrary',
+        'same name localLibrary are deleted from savedLibrary',
         savedLibrary
       )
     }
 
     // 現在のライブラリにdocumentをマージしたものを新しいライブラリとして返す
-    let newLibrary = savedLibrary
-      ? _.union(savedLibrary, [document])
-      : [document]
+    let newLibrary = [...savedLibrary, localLibrary]
 
     // 新しいライブラリをドキュメント名でソートする
     newLibrary = _.orderBy(

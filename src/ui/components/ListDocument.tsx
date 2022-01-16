@@ -3,7 +3,7 @@ import ListPage from '@/ui/components/ListPage'
 import { inject, observer } from 'mobx-react'
 import Store from '@/ui/Store'
 
-type Props = FigmaDocument & {
+type Props = FigmaLibrary & {
   store?: Store
 }
 type State = {
