@@ -76,7 +76,8 @@ class Code {
   }
 
   async getLocalLibrary(
-    libraryName: string
+    libraryName: string,
+    isPublishedOnly?: boolean
   ): Promise<FigmaLibrary | undefined> {
     console.log('getLocalLibrary')
 
@@ -107,6 +108,12 @@ class Code {
 
             // publish statusを取得
             const publishStatus = await component.getPublishStatusAsync()
+
+            // isPublishedOnlyがtrueの場合、
+            // publishStatusがUNPUBLISHEDなら処理を中断
+            if (isPublishedOnly && publishStatus === 'UNPUBLISHED') {
+              return
+            }
 
             components.push({
               name,
@@ -156,6 +163,12 @@ class Code {
 
                 // publish statusを取得
                 const publishStatus = await component.getPublishStatusAsync()
+
+                // isPublishedOnlyがtrueの場合、
+                // publishStatusがUNPUBLISHEDなら処理を中断
+                if (isPublishedOnly && publishStatus === 'UNPUBLISHED') {
+                  return
+                }
 
                 components.push({
                   name,
@@ -283,14 +296,7 @@ class Code {
     console.log('saveLibrary', figma.root)
 
     // ローカルライブラリを取得
-    const localLibrary = await this.getLocalLibrary(figma.root.name)
-
-    // if (localLibrary) {
-    //   const filteredLocalLibrary = _.filter(localLibrary.pages, {
-    //     components: [{ publishStatus: 'CURRENT' || 'CHANGED' }]
-    //   })
-    //   console.log('filteredLocalLibrary', filteredLocalLibrary)
-    // }
+    const localLibrary = await this.getLocalLibrary(figma.root.name, true)
 
     // ローカルライブラリにコンポーネントがない場合処理を中断
     if (!localLibrary) {
