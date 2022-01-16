@@ -7,74 +7,12 @@ const UI_WIDTH = 300
 const UI_MIN_HEIGHT = 200
 const UI_MAX_HEIGHT = 500
 
-class Controller {
+// https://www.figma.com/plugin-docs/api/properties/figma-skipinvisibleinstancechildren/
+figma.skipInvisibleInstanceChildren = true
+
+class Code {
   private library: Library = []
   private lastNotify: NotificationHandler | undefined = undefined
-
-  constructor() {
-    // https://www.figma.com/plugin-docs/api/properties/figma-skipinvisibleinstancechildren/
-    figma.skipInvisibleInstanceChildren = true
-
-    figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
-      switch (msg.type) {
-        case 'save':
-          await this.saveLibrary()
-          this.updateLibrary()
-          break
-
-        case 'clear':
-          await this.clearLibrary()
-          this.updateLibrary()
-          break
-
-        case 'get':
-          await this.getLibrary()
-          this.updateLibrary()
-          break
-
-        case 'createinstance':
-          await this.createInstance({
-            key: msg.data.key,
-            name: msg.data.name,
-            id: msg.data.id,
-            options: msg.data.options
-          })
-          break
-
-        case 'gotomaincomponent':
-          await this.goToMainComponent({
-            key: msg.data.key,
-            name: msg.data.name,
-            id: msg.data.id
-          })
-          break
-
-        case 'resize':
-          this.resizeUI(msg.data.height)
-          break
-
-        case 'getoptions':
-          this.getOptions()
-          break
-
-        case 'setoptions':
-          this.setOptions({
-            isSwap: msg.data.isSwap,
-            isOriginalSize: msg.data.isOriginalSize
-          })
-          break
-
-        case 'notify':
-          this.notify(msg.data.message)
-          break
-
-        default:
-          break
-      }
-    }
-
-    figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
-  }
 
   getOptions(): void {
     const isSwap = Util.toBoolean(figma.root.getPluginData('isSwap'))
@@ -254,14 +192,7 @@ class Controller {
       | undefined = await figma.clientStorage
       .getAsync(CLIENT_STORAGE_KEY_NAME)
       .catch(err => {
-        console.error(err)
-        figma.ui.postMessage({
-          type: 'getfailed',
-          data: {
-            errorMessage: 'Failed to get library.'
-          }
-        } as PluginMessage)
-        throw new Error(err)
+        throw new Error('Failed to get library.')
       })
 
     // savedLibraryの各ライブラリをlibraryに追加
@@ -305,14 +236,9 @@ class Controller {
 
     // ローカルライブラリにページが1つもない→エラーで処理中断
     if (localLibrary.pages.length === 0) {
-      const msg = 'Failed to save library. No library components available.'
-      figma.ui.postMessage({
-        type: 'savefailed',
-        data: {
-          errorMessage: msg
-        }
-      } as PluginMessage)
-      throw new Error(msg)
+      throw new Error(
+        'Failed to save library. No library components available.'
+      )
     }
 
     // clientStorageに保存されたライブラリを取得
@@ -353,21 +279,36 @@ class Controller {
     await figma.clientStorage
       .setAsync(CLIENT_STORAGE_KEY_NAME, this.library)
       .catch(err => {
-        console.error(err)
-        figma.ui.postMessage({
-          type: 'savefailed',
-          data: {
-            errorMessage: 'Failed to save library.'
-          }
-        } as PluginMessage)
-        throw new Error(err)
+        throw new Error('Failed to save library.')
       })
 
     console.log('saveLibrary success', this.library)
+  }
+
+  async saveLibraryFromUI(): Promise<void> {
+    await this.saveLibrary().catch(err => {
+      figma.ui.postMessage({
+        type: 'savefailed',
+        data: {
+          errorMessage: err
+        }
+      } as PluginMessage)
+      throw new Error(err)
+    })
+
     figma.ui.postMessage({
       type: 'savesuccess',
       data: this.library
     } as PluginMessage)
+  }
+
+  async saveLibraryFromMenu(): Promise<void> {
+    await this.saveLibrary().catch(err => {
+      this.notify(err, { error: true })
+      throw new Error(err)
+    })
+    this.notify('Success to save library data')
+    figma.ui.close()
   }
 
   async clearLibrary(): Promise<void> {
@@ -378,19 +319,35 @@ class Controller {
     await figma.clientStorage
       .setAsync(CLIENT_STORAGE_KEY_NAME, this.library)
       .catch(err => {
-        figma.ui.postMessage({
-          type: 'clearfailed',
-          data: {
-            errorMessage: 'Failed to clear library.'
-          }
-        } as PluginMessage)
-        throw new Error(err)
+        throw new Error('Failed to clear library.')
       })
 
     console.log('clearLibrary success')
+  }
+
+  async clearLibraryFromUI(): Promise<void> {
+    await this.clearLibrary().catch(err => {
+      figma.ui.postMessage({
+        type: 'clearfailed',
+        data: {
+          errorMessage: 'Failed to clear library.'
+        }
+      } as PluginMessage)
+      throw new Error(err)
+    })
+
     figma.ui.postMessage({
       type: 'clearsuccess'
     } as PluginMessage)
+  }
+
+  async clearLibraryFromMenu(): Promise<void> {
+    await this.clearLibrary().catch(err => {
+      this.notify(err, { error: true })
+      throw new Error(err)
+    })
+    this.notify('Success to clear all library data')
+    figma.ui.close()
   }
 
   updateLibrary(): void {
@@ -798,11 +755,73 @@ class Controller {
     } as PluginMessage)
   }
 
-  notify(message: string): void {
+  notify(message: string, options?: NotificationOptions): void {
     if (this.lastNotify) {
       this.lastNotify.cancel()
     }
-    this.lastNotify = figma.notify(message)
+    this.lastNotify = figma.notify(message, options)
+  }
+
+  openUI() {
+    figma.ui.onmessage = async (msg: PluginMessage): Promise<void> => {
+      switch (msg.type) {
+        case 'save':
+          await this.saveLibraryFromUI()
+          this.updateLibrary()
+          break
+
+        case 'clear':
+          await this.clearLibraryFromUI()
+          this.updateLibrary()
+          break
+
+        case 'get':
+          await this.getLibrary()
+          this.updateLibrary()
+          break
+
+        case 'createinstance':
+          await this.createInstance({
+            key: msg.data.key,
+            name: msg.data.name,
+            id: msg.data.id,
+            options: msg.data.options
+          })
+          break
+
+        case 'gotomaincomponent':
+          await this.goToMainComponent({
+            key: msg.data.key,
+            name: msg.data.name,
+            id: msg.data.id
+          })
+          break
+
+        case 'resize':
+          this.resizeUI(msg.data.height)
+          break
+
+        case 'getoptions':
+          this.getOptions()
+          break
+
+        case 'setoptions':
+          this.setOptions({
+            isSwap: msg.data.isSwap,
+            isOriginalSize: msg.data.isOriginalSize
+          })
+          break
+
+        case 'notify':
+          this.notify(msg.data.message)
+          break
+
+        default:
+          break
+      }
+    }
+
+    figma.showUI(__html__, { width: UI_WIDTH, height: UI_MIN_HEIGHT })
   }
 
   resizeUI(height: number): void {
@@ -818,4 +837,12 @@ class Controller {
   }
 }
 
-new Controller()
+const code = new Code()
+
+if (figma.command === 'open') {
+  code.openUI()
+} else if (figma.command === 'save') {
+  code.saveLibraryFromMenu()
+} else if (figma.command === 'clear') {
+  code.clearLibraryFromMenu()
+}
