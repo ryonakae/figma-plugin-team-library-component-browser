@@ -449,7 +449,7 @@ class Code {
     const component = await figma
       .importComponentByKeyAsync(options.key)
       .catch(err => {
-        throw new Error(err)
+        throw new Error('Team library component import failed.')
       })
     return component
   }
@@ -457,7 +457,7 @@ class Code {
   async getLocalComponent(
     options: CreateInstanceOptions
   ): Promise<ComponentNode> {
-    const localComponent = figma.root.findOne(node => {
+    const component = figma.root.findOne(node => {
       return (
         node.type === 'COMPONENT' &&
         node.key === options.key &&
@@ -465,10 +465,10 @@ class Code {
         node.id === options.id
       )
     }) as ComponentNode | null
-    if (!localComponent) {
-      throw new Error('Failed to create instance. Component not found.')
+    if (!component) {
+      throw new Error('Local component not found.')
     } else {
-      return localComponent
+      return component
     }
   }
 
@@ -477,96 +477,53 @@ class Code {
 
     let component!: ComponentNode
 
-    // function onError(err: any): void {
-    //   figma.ui.postMessage({
-    //     type: 'createinstancefailed',
-    //     data: {
-    //       errorMessage: err.message
-    //     }
-    //   } as PluginMessage)
-    //   throw new Error(err)
-    // }
-
-    // if (options.key.length > 0) {
-    //   console.log('found key')
-
-    //   // チームライブラリコンポーネントの取得を試みる
-    //   const teamLibraryComponent = await this.getTeamLibraryComponent(
-    //     options
-    //   ).catch(async err => {
-    //     const localComponent = await this.getLocalComponent(options).catch(
-    //       onError
-    //     )
-    //     if (localComponent) {
-    //       component = localComponent
-    //     } else {
-    //       onError(err)
-    //     }
-    //   })
-    //   component = teamLibraryComponent
-    // }
-
     // keyがある場合
     if (options.key.length > 0) {
       console.log('found key')
+
       // チームライブラリコンポーネントの取得を試みる
-      await figma
-        .importComponentByKeyAsync(options.key)
-        // インポートに成功
-        .then(foundComponent => {
-          component = foundComponent
-          console.log('import component success', component)
-        })
-        // インポートに失敗
-        .catch(err => {
-          // ローカルコンポーネントの取得を試みる
-          console.log('find localComponent')
-          const localComponent = figma.root.findOne(node => {
-            return (
-              node.type === 'COMPONENT' &&
-              node.key === options.key &&
-              // node.name === options.name &&
-              node.id === options.id
-            )
-          })
-          // ローカルコンポーネントがある場合、そのコンポーネントを変数に入れる
-          if (localComponent) {
-            component = localComponent as ComponentNode
-            console.log('found localComponent', component)
+      // 普通に取得できたらそのままComponentNodeを返す
+      // 取得に失敗したらローカルコンポーネントを取得し、そのComponentNodeを返す
+      // ローカルコンポーネントも無かったら、undefinedを返す
+      const teamLibraryComponent = await this.getTeamLibraryComponent(
+        options
+      ).catch(async err => {
+        const localComponent = await this.getLocalComponent(options).catch(
+          err => {
+            return undefined
           }
-          // ローカルコンポーネントがない場合、エラーを投げる
-          else {
-            const msg = 'Failed to create instance. Component not found.'
-            figma.ui.postMessage({
-              type: 'createinstancefailed',
-              data: {
-                errorMessage: msg
-              }
-            } as PluginMessage)
-            throw new Error(msg)
+        )
+        return localComponent
+      })
+
+      if (teamLibraryComponent) {
+        component = teamLibraryComponent
+      } else {
+        const msg = 'Failed to create instance. Component not found.'
+        figma.ui.postMessage({
+          type: 'createinstancefailed',
+          data: {
+            errorMessage: msg
           }
-        })
+        } as PluginMessage)
+        throw new Error(msg)
+      }
     }
     // keyがない場合
     else {
       console.log('not found key')
+
       // ローカルコンポーネントの取得を試みる
-      console.log('find localComponent')
-      const localComponent = figma.root.findOne(node => {
-        return (
-          node.type === 'COMPONENT' &&
-          node.key === options.key &&
-          // node.name === options.name &&
-          node.id === options.id
-        )
-      })
-      // ローカルコンポーネントがある場合、そのコンポーネントを変数に入れる
+      const localComponent = await this.getLocalComponent(options).catch(
+        err => {
+          return undefined
+        }
+      )
+
       if (localComponent) {
-        component = localComponent as ComponentNode
+        component = localComponent
         console.log('found localComponent', component)
-      }
-      // ローカルコンポーネントがない場合、エラーを投げる
-      else {
+      } else {
         const msg = 'Failed to create instance. Component not found.'
         figma.ui.postMessage({
           type: 'createinstancefailed',
@@ -578,23 +535,63 @@ class Code {
       }
     }
 
-    // create instance from component
-    const instance = component.createInstance()
-    console.log('instance', instance)
-
     // get selections
     const selections = figma.currentPage.selection
     console.log('selections', selections)
 
-    // なにも選択してない→ドキュメントのルートに挿入
-    if (selections.length === 0) {
-      // なにもしない
-      console.log('no selection, so instance is inserted to document root')
+    // isSwapがfalseで何も選択していない場合
+    if (!options.options.isSwap && selections.length === 0) {
+      // ドキュメントのルートにインスタンスを追加
+      console.log('isSwap is false, so instance is inserted to document root')
+
+      const instance = component.createInstance()
 
       // 現在のselectionをインスタンスにする
       figma.currentPage.selection = [instance]
     }
-    // 1つ以上選択している→selectionごとに処理を実行
+    // isSwapがfalseだが1つ以上選択している場合
+    else if (!options.options.isSwap && selections.length > 0) {
+      console.log('isSwap is false, but some selections.')
+      console.log(selections)
+
+      const instance = component.createInstance()
+      const selectionsParent = selections[0].parent
+
+      // selectionsParentが無い場合は処理中断
+      if (!selectionsParent) {
+        return
+      }
+
+      // 選択した要素のインデックスを格納した配列を作る
+      let indexArray: number[] = []
+      _.map(selections, selection => {
+        const index = _.findIndex(selections, (child): boolean => {
+          return child.id === selection.id
+        })
+        indexArray.push(index)
+      })
+
+      // 配列を数字順でソート
+      indexArray = _.sortBy(indexArray)
+      console.log(indexArray)
+      console.log(selectionsParent)
+
+      // 取得したインデックスを元に、選択した要素の後にインスタンスを移動
+      // ※配列的には後、Figmaの表示では上
+      // 配列の一番最初のインデックスを使う
+      selectionsParent.insertChild(indexArray[0] + 1, instance)
+    }
+    // isSwapがtrueだが何も選択してない場合
+    else if (options.options.isSwap && selections.length === 0) {
+      // ドキュメントのルートにインスタンスを追加
+      console.log('isSwap is false, so instance is inserted to document root')
+
+      const instance = component.createInstance()
+
+      // 現在のselectionをインスタンスにする
+      figma.currentPage.selection = [instance]
+    }
+    // isSwapがtrueで、1つ以上選択している場合→selectionごとに処理を実行
     else {
       const newSelections: SceneNode[] = []
 
@@ -608,47 +605,66 @@ class Code {
         // 親がない→処理を中断
         if (!parent) return
 
-        // 選択した要素がComponentsの場合
-        if (selection.type === 'COMPONENT') {
-          console.log('selection is component', selection)
-
-          // インスタンスを複製
-          const copiedInstance = instance.clone()
-
+        // 選択した要素がComponentsもしくはVariantsの場合
+        if (
+          selection.type === 'COMPONENT' ||
+          selection.type === 'COMPONENT_SET'
+        ) {
           // コンポーネントを置き換えられると困るので、ドキュメントのルートにインスタンスを追加
           // レイヤー的に上に追加していく
+          const instance = component.createInstance()
           figma.currentPage.insertChild(
             figma.currentPage.children.length,
-            copiedInstance
+            instance
           )
-
-          // copiedInstanceをnewSelectionに入れる
-          newSelections.push(copiedInstance)
+          newSelections.push(instance)
         }
         // 選択した要素の親がインスタンスの場合
         else if (this.getIsParentInstance(selection)) {
-          // 現在のselectionをそのままnewSelectionに入れる
-          newSelections.push(selection)
+          console.log('selection parent is instance')
 
-          // 選択した要素がインスタンスの場合
-          // →選択した要素のmaster componentを変更する(つまり強制的にswap)
+          // 選択した要素がインスタンスの場合→swap
           if (selection.type === 'INSTANCE') {
-            console.log('both selection and parent node is instance.')
-            selection.mainComponent = component
+            console.log('selection is instance')
+            selection.swapComponent(component)
           }
-          // 選択した要素はインスタンスではない場合
-          // →要素の削除や追加はできないので処理を中断
+          // インスタンスではない場合
           else {
-            console.log(
-              'selection is child of instance, but selection is not instance'
-            )
-            return
+            // 要素の削除や追加はできないのでエラーで処理中断
+            console.log('selection is child of instance, but not instance')
+            const msg =
+              'Failed to create instance. Selection is child of instance, but not instance.'
+            figma.ui.postMessage({
+              type: 'createinstancefailed',
+              data: {
+                errorMessage: msg
+              }
+            } as PluginMessage)
+            throw new Error(msg)
           }
+
+          newSelections.push(selection)
+        }
+        // 選択した要素がインスタンスの場合
+        else if (selection.type === 'INSTANCE') {
+          console.log('selection is instance')
+
+          const selectionWidth = selection.width
+          const selectionHeight = selection.height
+
+          // swapする
+          selection.swapComponent(component)
+
+          // isOriginalSizeがfalse→selectionのサイズをswap後のインスタンスにも適用
+          if (!options.options.isOriginalSize) {
+            selection.resize(selectionWidth, selectionHeight)
+          }
+
+          newSelections.push(selection)
         }
         // それ以外の場合
         else {
-          // インスタンスを複製
-          const copiedInstance = instance.clone()
+          const instance = component.createInstance()
 
           // 選択した要素のインデックスを取得
           const index = _.findIndex(parent.children, (child): boolean => {
@@ -658,168 +674,160 @@ class Code {
 
           // 取得したインデックスを元に、選択した要素の後にインスタンスを移動
           // ※配列的には後、Figmaの表示では上
-          parent.insertChild(index + 1, copiedInstance)
+          parent.insertChild(index + 1, instance)
 
-          // isSwapがtrue→selectionを削除
-          if (options.options.isSwap) {
-            console.log('swap copied instance')
-
-            // isOriginalSizeがfalse→selectionのサイズをインスタンスのサイズにする
-            if (!options.options.isOriginalSize) {
-              console.log('resize copied instance')
-              copiedInstance.resize(selection.width, selection.height)
-            }
-
-            // instanceの色んなプロパティを選択した要素と同じにする
-            // Scene node properties
-            copiedInstance.visible = selection.visible
-            copiedInstance.locked = selection.locked
-            // // Frame properties
-            // if (
-            //   selection.type === 'GROUP' ||
-            //   selection.type === 'FRAME' ||
-            //   selection.type === 'COMPONENT' ||
-            //   selection.type === 'INSTANCE'
-            // ) {
-            //   copiedInstance.clipsContent = selection.clipsContent
-            //   copiedInstance.guides = selection.guides
-            //   copiedInstance.layoutGrids = selection.layoutGrids
-            //   copiedInstance.gridStyleId = selection.gridStyleId
-            // }
-            // if (
-            //   selection.type === 'FRAME' ||
-            //   selection.type === 'COMPONENT' ||
-            //   selection.type === 'INSTANCE'
-            // ) {
-            //   copiedInstance.layoutMode = selection.layoutMode
-            //   copiedInstance.counterAxisSizingMode =
-            //     selection.counterAxisSizingMode
-            //   copiedInstance.horizontalPadding = selection.horizontalPadding
-            //   copiedInstance.verticalPadding = selection.verticalPadding
-            //   copiedInstance.itemSpacing = selection.itemSpacing
-            // }
-            // // Container-related properties
-            // if (
-            //   selection.type === 'GROUP' ||
-            //   selection.type === 'FRAME' ||
-            //   selection.type === 'COMPONENT' ||
-            //   selection.type === 'INSTANCE'
-            // ) {
-            //   copiedInstance.backgrounds = selection.backgrounds
-            //   copiedInstance.backgroundStyleId = selection.backgroundStyleId
-            // }
-            // // Geometry-related properties
-            // if (
-            //   selection.type === 'FRAME' ||
-            //   selection.type === 'COMPONENT' ||
-            //   selection.type === 'INSTANCE' ||
-            //   selection.type === 'RECTANGLE' ||
-            //   selection.type === 'LINE' ||
-            //   selection.type === 'ELLIPSE' ||
-            //   selection.type === 'POLYGON' ||
-            //   selection.type === 'STAR' ||
-            //   selection.type === 'VECTOR' ||
-            //   selection.type === 'TEXT'
-            // ) {
-            //   copiedInstance.fills = selection.fills
-            //   copiedInstance.strokes = selection.strokes
-            //   copiedInstance.strokeWeight = selection.strokeWeight
-            //   // copiedInstance.strokeMiterLimit = selection.strokeMiterLimit
-            //   copiedInstance.strokeAlign = selection.strokeAlign
-            //   copiedInstance.strokeCap = selection.strokeCap
-            //   copiedInstance.strokeJoin = selection.strokeJoin
-            //   copiedInstance.dashPattern = selection.dashPattern
-            //   copiedInstance.fillStyleId = selection.fillStyleId
-            //   copiedInstance.strokeStyleId = selection.strokeStyleId
-            // }
-            // // Corner-related properties
-            // if (
-            //   selection.type === 'FRAME' ||
-            //   selection.type === 'COMPONENT' ||
-            //   selection.type === 'INSTANCE' ||
-            //   selection.type === 'RECTANGLE' ||
-            //   selection.type === 'ELLIPSE' ||
-            //   selection.type === 'POLYGON' ||
-            //   selection.type === 'STAR' ||
-            //   selection.type === 'VECTOR'
-            // ) {
-            //   copiedInstance.cornerRadius = selection.cornerRadius
-            //   copiedInstance.cornerSmoothing = selection.cornerSmoothing
-            // }
-            // if (
-            //   selection.type === 'FRAME' ||
-            //   selection.type === 'COMPONENT' ||
-            //   selection.type === 'INSTANCE' ||
-            //   selection.type === 'RECTANGLE'
-            // ) {
-            //   copiedInstance.topLeftRadius = selection.topLeftRadius
-            //   copiedInstance.topRightRadius = selection.topRightRadius
-            //   copiedInstance.bottomLeftRadius = selection.bottomLeftRadius
-            //   copiedInstance.bottomRightRadius = selection.bottomRightRadius
-            // }
-            // // Blend-related properties
-            // if (
-            //   selection.type === 'GROUP' ||
-            //   selection.type === 'FRAME' ||
-            //   selection.type === 'COMPONENT' ||
-            //   selection.type === 'INSTANCE' ||
-            //   selection.type === 'RECTANGLE' ||
-            //   selection.type === 'LINE' ||
-            //   selection.type === 'ELLIPSE' ||
-            //   selection.type === 'POLYGON' ||
-            //   selection.type === 'STAR' ||
-            //   selection.type === 'VECTOR' ||
-            //   selection.type === 'TEXT'
-            // ) {
-            //   copiedInstance.opacity = selection.opacity
-            //   copiedInstance.blendMode = selection.blendMode
-            //   copiedInstance.isMask = selection.isMask
-            //   copiedInstance.effects = selection.effects
-            //   copiedInstance.effectStyleId = selection.effectStyleId
-            // }
-            // Layout-related properties
-            copiedInstance.relativeTransform = selection.relativeTransform
-            copiedInstance.x = selection.x
-            copiedInstance.y = selection.y
-            // copiedInstance.rotation = selection.rotation
-            // copiedInstance.layoutAlign = selection.layoutAlign
-            if (
-              selection.type === 'FRAME' ||
-              selection.type === ('COMPONENT' as any) ||
-              selection.type === 'INSTANCE' ||
-              selection.type === 'RECTANGLE' ||
-              selection.type === 'LINE' ||
-              selection.type === 'ELLIPSE' ||
-              selection.type === 'POLYGON' ||
-              selection.type === 'STAR' ||
-              selection.type === 'VECTOR' ||
-              selection.type === 'TEXT'
-            ) {
-              copiedInstance.constraints = (selection as
-                | FrameNode
-                | ComponentNode
-                | InstanceNode
-                | VectorNode
-                | StarNode
-                | LineNode
-                | EllipseNode
-                | PolygonNode
-                | RectangleNode
-                | TextNode).constraints
-            }
-            // Export-related properties
-            copiedInstance.exportSettings = selection.exportSettings
-
-            selection.remove()
+          // isOriginalSizeがfalse→selectionのサイズをインスタンスのサイズにする
+          if (!options.options.isOriginalSize) {
+            console.log('resize copied instance')
+            instance.resize(selection.width, selection.height)
           }
 
-          // copiedInstanceをnewSelectionに入れる
-          newSelections.push(copiedInstance)
+          // instanceの色んなプロパティを選択した要素と同じにする
+          // Scene node properties
+          instance.visible = selection.visible
+          instance.locked = selection.locked
+          // // Frame properties
+          // if (
+          //   selection.type === 'GROUP' ||
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE'
+          // ) {
+          //   instance.clipsContent = selection.clipsContent
+          //   instance.guides = selection.guides
+          //   instance.layoutGrids = selection.layoutGrids
+          //   instance.gridStyleId = selection.gridStyleId
+          // }
+          // if (
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE'
+          // ) {
+          //   instance.layoutMode = selection.layoutMode
+          //   instance.counterAxisSizingMode =
+          //     selection.counterAxisSizingMode
+          //   instance.horizontalPadding = selection.horizontalPadding
+          //   instance.verticalPadding = selection.verticalPadding
+          //   instance.itemSpacing = selection.itemSpacing
+          // }
+          // // Container-related properties
+          // if (
+          //   selection.type === 'GROUP' ||
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE'
+          // ) {
+          //   instance.backgrounds = selection.backgrounds
+          //   instance.backgroundStyleId = selection.backgroundStyleId
+          // }
+          // // Geometry-related properties
+          // if (
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE' ||
+          //   selection.type === 'RECTANGLE' ||
+          //   selection.type === 'LINE' ||
+          //   selection.type === 'ELLIPSE' ||
+          //   selection.type === 'POLYGON' ||
+          //   selection.type === 'STAR' ||
+          //   selection.type === 'VECTOR' ||
+          //   selection.type === 'TEXT'
+          // ) {
+          //   instance.fills = selection.fills
+          //   instance.strokes = selection.strokes
+          //   instance.strokeWeight = selection.strokeWeight
+          //   // instance.strokeMiterLimit = selection.strokeMiterLimit
+          //   instance.strokeAlign = selection.strokeAlign
+          //   instance.strokeCap = selection.strokeCap
+          //   instance.strokeJoin = selection.strokeJoin
+          //   instance.dashPattern = selection.dashPattern
+          //   instance.fillStyleId = selection.fillStyleId
+          //   instance.strokeStyleId = selection.strokeStyleId
+          // }
+          // // Corner-related properties
+          // if (
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE' ||
+          //   selection.type === 'RECTANGLE' ||
+          //   selection.type === 'ELLIPSE' ||
+          //   selection.type === 'POLYGON' ||
+          //   selection.type === 'STAR' ||
+          //   selection.type === 'VECTOR'
+          // ) {
+          //   instance.cornerRadius = selection.cornerRadius
+          //   instance.cornerSmoothing = selection.cornerSmoothing
+          // }
+          // if (
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE' ||
+          //   selection.type === 'RECTANGLE'
+          // ) {
+          //   instance.topLeftRadius = selection.topLeftRadius
+          //   instance.topRightRadius = selection.topRightRadius
+          //   instance.bottomLeftRadius = selection.bottomLeftRadius
+          //   instance.bottomRightRadius = selection.bottomRightRadius
+          // }
+          // // Blend-related properties
+          // if (
+          //   selection.type === 'GROUP' ||
+          //   selection.type === 'FRAME' ||
+          //   selection.type === 'COMPONENT' ||
+          //   selection.type === 'INSTANCE' ||
+          //   selection.type === 'RECTANGLE' ||
+          //   selection.type === 'LINE' ||
+          //   selection.type === 'ELLIPSE' ||
+          //   selection.type === 'POLYGON' ||
+          //   selection.type === 'STAR' ||
+          //   selection.type === 'VECTOR' ||
+          //   selection.type === 'TEXT'
+          // ) {
+          //   instance.opacity = selection.opacity
+          //   instance.blendMode = selection.blendMode
+          //   instance.isMask = selection.isMask
+          //   instance.effects = selection.effects
+          //   instance.effectStyleId = selection.effectStyleId
+          // }
+          // Layout-related properties
+          instance.relativeTransform = selection.relativeTransform
+          instance.x = selection.x
+          instance.y = selection.y
+          // instance.rotation = selection.rotation
+          // instance.layoutAlign = selection.layoutAlign
+          if (
+            selection.type === 'FRAME' ||
+            selection.type === ('COMPONENT' as any) ||
+            // selection.type === 'INSTANCE' ||
+            selection.type === 'RECTANGLE' ||
+            selection.type === 'LINE' ||
+            selection.type === 'ELLIPSE' ||
+            selection.type === 'POLYGON' ||
+            selection.type === 'STAR' ||
+            selection.type === 'VECTOR' ||
+            selection.type === 'TEXT'
+          ) {
+            instance.constraints = (selection as
+              | FrameNode
+              | ComponentNode
+              | InstanceNode
+              | VectorNode
+              | StarNode
+              | LineNode
+              | EllipseNode
+              | PolygonNode
+              | RectangleNode
+              | TextNode).constraints
+          }
+          // Export-related properties
+          instance.exportSettings = selection.exportSettings
+
+          // selectionを削除
+          selection.remove()
+
+          newSelections.push(instance)
         }
       })
-
-      // map関数内で複製した元のインスタンスを削除
-      instance.remove()
 
       // 現在のselectionをnewSelectionsにする
       figma.currentPage.selection = newSelections
@@ -828,7 +836,7 @@ class Code {
       // figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection)
     }
 
-    console.log('create instance success', instance)
+    console.log('create instance success')
     figma.ui.postMessage({
       type: 'createinstancesuccess'
     } as PluginMessage)
