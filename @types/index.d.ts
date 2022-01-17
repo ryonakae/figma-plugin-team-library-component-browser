@@ -35,10 +35,24 @@ type FigmaComponent = {
   publishStatus: PublishStatus
 }
 
-type FigmaPage = {
+type FigmaVariants = {
   name: string
   id: string
   components: FigmaComponent[]
+  // defaultVariant: ComponentNode
+  variantGroupProperties: { [property: string]: { values: string[] } }
+  documentName: string
+  pageName: string
+  combinedName: string
+  isLocalComponent: boolean
+  publishStatus: PublishStatus
+  isCollapsed: boolean
+}
+
+type FigmaPage = {
+  name: string
+  id: string
+  components: (FigmaComponent | FigmaVariants)[]
   documentName: string
   isCollapsed: boolean
 }

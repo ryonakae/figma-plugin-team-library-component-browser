@@ -2,32 +2,13 @@ import * as React from 'react'
 import Util from '@/ui/Util'
 import { inject, observer } from 'mobx-react'
 import Store from '@/ui/Store'
+import FormatedComponentTitle from '@/ui/components/FormatedComponentTitle'
 
 type Props = FigmaComponent & {
   store?: Store
+  isVariantsComponent?: boolean
 }
 type State = {}
-
-class FormatedComponentTitle extends React.Component<{ name: string }> {
-  constructor(props) {
-    super(props)
-  }
-
-  render(): JSX.Element {
-    return (
-      <div className="component-title">
-        {this.props.name.split('/').map((n, index, array) => (
-          <React.Fragment key={index}>
-            <span className="component-title-text">{n}</span>
-            {index + 1 !== array.length && (
-              <span className="component-title-slash">/</span>
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-    )
-  }
-}
 
 @inject('store')
 @observer
@@ -130,7 +111,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
   }
 
   render(): JSX.Element {
-    const { name, id, componentKey, pageName } = this.props
+    const { name, id, componentKey, pageName, isVariantsComponent } = this.props
     const {
       currentSelectComponentName,
       currentSelectComponentKey,
@@ -145,16 +126,29 @@ export default class ListComponent extends React.PureComponent<Props, State> {
       <div>
         <div
           onClick={this.onListComponentClick.bind(this)}
-          className={`component ${this.isSelected ? 'is-selected' : ''}`}
+          className={`component ${this.isSelected &&
+            'is-selected'} ${isVariantsComponent && 'is-variantsComponent'}`}
         >
           <div className="component-info">
             <div className="component-icon">
-              <img
-                src={require('@/ui/assets/img/icon_component.svg').default}
-                alt=""
-              />
+              {isVariantsComponent ? (
+                <img
+                  src={
+                    require('@/ui/assets/img/icon_variants_component.svg')
+                      .default
+                  }
+                  alt=""
+                />
+              ) : (
+                <img
+                  src={require('@/ui/assets/img/icon_component.svg').default}
+                  alt=""
+                />
+              )}
             </div>
-            <FormatedComponentTitle name={name} />
+            <div className="component-title">
+              <FormatedComponentTitle name={name} />
+            </div>
           </div>
           <div className="component-buttons">
             <div

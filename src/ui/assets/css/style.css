@@ -432,7 +432,7 @@ body {
   display: flex;
   align-items: center;
   height: var(--height-row-small);
-  padding: 0 var(--spacing-default) 0 calc(var(--spacing-default) - 6px);
+  padding-right: 0 var(--spacing-default);
   background-color: white;
 
   &:hover {
@@ -482,6 +482,81 @@ body {
   }
 }
 
+/* variants */
+.variants {
+  background-color: #edf5fa;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &.is-collapsed {
+    background-color: transparent;
+  }
+}
+
+.variants-title {
+  top: calc(var(--height-row-default) + var(--height-row-small));
+  z-index: var(--zIndex-pageTitle);
+  display: flex;
+  align-items: center;
+  height: var(--height-row-small);
+  padding-right: 0 var(--spacing-default);
+  color: var(--color-component);
+  border: 1px solid transparent;
+
+  &:hover {
+    border-color: var(--color-component);
+  }
+}
+
+.variants-title-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-default);
+  min-width: var(--spacing-default);
+  height: 100%;
+  opacity: 0.3;
+
+  & > img {
+    width: 6px;
+    height: auto;
+  }
+
+  @nest .variants-title:hover & {
+    opacity: 0.7;
+  }
+
+  @nest .variants.is-collapsed & {
+    transform: rotate(-90deg);
+  }
+}
+
+.variants-title-icon {
+  width: 12px;
+  min-width: 12px;
+  height: 12px;
+
+  & > img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.variants-title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: var(--spacing-text);
+}
+
+.variants-components {
+  @nest .variants.is-collapsed & {
+    display: none;
+  }
+}
+
 /* component */
 .component {
   position: relative;
@@ -493,6 +568,10 @@ body {
   /* padding: 7px calc(var(--spacing-default) / 2) 7px var(--spacing-default); */
   padding: 7px var(--spacing-default);
   border: 1px solid transparent;
+
+  &.is-variantsComponent {
+    padding-left: calc(16px + 12px + 8px);
+  }
 
   &:hover {
     border-color: var(--color-component);
@@ -533,7 +612,7 @@ body {
 
 .component-title {
   padding-right: var(--spacing-text);
-  margin-left: var(--spacing-text);
+  padding-left: var(--spacing-text);
   overflow: hidden;
   color: var(--color-component);
   text-overflow: ellipsis;
@@ -545,9 +624,9 @@ body {
   }
 }
 
-.component-title-text {
+/* .component-title-text {
   font-weight: var(--fontWeight-title);
-}
+} */
 
 .component-title-slash {
   margin: 0 calc(var(--spacing-text) / 2);

@@ -41,7 +41,7 @@ export default class Search extends React.Component<Props, State> {
     console.log('excute filter', searchWord)
 
     const flattenLibrary = this.props.store!.flattenLibrary
-    let results: FigmaComponent[] = []
+    let results: (FigmaComponent | FigmaVariants)[] = []
 
     // inputに1文字も入力されていなかったら、空の結果を返して以下の処理を中断
     if (searchWord.length === 0) {

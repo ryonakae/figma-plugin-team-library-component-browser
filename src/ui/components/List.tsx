@@ -5,7 +5,8 @@ import Util from '@/ui/Util'
 import ListDocument from '@/ui/components/ListDocument'
 import Options from '@/ui/components/Options'
 import Search from '@/ui/components/Search'
-import ListComponent from './ListComponent'
+import ListComponent from '@/ui/components/ListComponent'
+import ListVariants from '@/ui/components/ListVariants'
 
 type Props = {
   store?: Store
@@ -70,6 +71,10 @@ export default class List extends React.Component<Props> {
     console.log('List will unmount')
   }
 
+  isVariants(item: FigmaComponent | FigmaVariants): item is FigmaVariants {
+    return (item as FigmaVariants).variantGroupProperties !== undefined
+  }
+
   render(): JSX.Element {
     const { searchWord } = this.props.store!
     const library = this.props.store!.library as Array<FigmaLibrary>
@@ -122,21 +127,35 @@ export default class List extends React.Component<Props> {
                     Showing results from all libraries
                   </div>
 
-                  {searchResults.map((result, index) => {
-                    return (
-                      <ListComponent
-                        key={index}
-                        name={result.name}
-                        id={result.id}
-                        componentKey={result.componentKey}
-                        pageName={result.pageName}
-                        documentName={result.documentName}
-                        combinedName={result.combinedName}
-                        isLocalComponent={result.isLocalComponent}
-                        publishStatus={result.publishStatus}
-                      />
-                    )
-                  })}
+                  {searchResults.map((result, index) => (
+                    <React.Fragment key={index}>
+                      {this.isVariants(result) ? (
+                        <ListVariants
+                          name={result.name}
+                          id={result.id}
+                          components={result.components}
+                          variantGroupProperties={result.variantGroupProperties}
+                          documentName={result.documentName}
+                          pageName={result.pageName}
+                          combinedName={result.combinedName}
+                          isLocalComponent={result.isLocalComponent}
+                          publishStatus={result.publishStatus}
+                          isCollapsed={result.isCollapsed}
+                        />
+                      ) : (
+                        <ListComponent
+                          name={result.name}
+                          id={result.id}
+                          componentKey={result.componentKey}
+                          pageName={result.pageName}
+                          documentName={result.documentName}
+                          combinedName={result.combinedName}
+                          isLocalComponent={result.isLocalComponent}
+                          publishStatus={result.publishStatus}
+                        />
+                      )}
+                    </React.Fragment>
+                  ))}
                 </div>
               )
             }

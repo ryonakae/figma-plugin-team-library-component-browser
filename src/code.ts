@@ -5,7 +5,7 @@ import Util from '@/ui/Util'
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
 const UI_WIDTH = 300
 const UI_MIN_HEIGHT = 200
-const UI_MAX_HEIGHT = 600
+const UI_MAX_HEIGHT = 500
 
 // https://www.figma.com/plugin-docs/api/properties/figma-skipinvisibleinstancechildren/
 figma.skipInvisibleInstanceChildren = true
@@ -49,30 +49,37 @@ class Code {
     )
   }
 
-  formatComponentName(component: SceneNode): string {
-    let name = component.name
+  formatComponentName(name: string, isVariants?: boolean): string {
+    let formattedName = name
 
     // 前後の余白をトルツメ
     // スラッシュの前後のスペースをトルツメ
-    name = name.trim().replace(/[ 　]*\/[ 　]*/g, '/')
+    formattedName = formattedName.trim().replace(/[ 　]*\/[ 　]*/g, '/')
 
     // Variants対応
-    if (
-      component.parent &&
-      component.parent.type === ('COMPONENT_SET' as any)
-    ) {
+    if (isVariants) {
       // イコールとカンマの前後のスペースをトルツメ
-      name = name.replace(/[ 　]*,[ 　]*/g, ',').replace(/[ 　]*=[ 　]*/g, '=')
+      // カンマの後には半角スペース入れる
+      formattedName = formattedName
+        .replace(/[ 　]*,[ 　]*/g, ', ')
+        .replace(/[ 　]*=[ 　]*/g, '=')
 
-      // 「Hoge=Fuga」を「Fuga」に整形して、カンマで区切る
-      const properties: string[] = []
-      name.split(',').map(s => {
-        return properties.push(s.split('=')[1])
-      })
-      name = properties.join(',')
+      // イコールをコロンに変換
+      formattedName = formattedName.replace(/=/g, ':')
+
+      // // 「Hoge=Fuga」を「Fuga」に整形して、カンマで区切る
+      // const properties: string[] = []
+      // name.split(',').map(s => {
+      //   return properties.push(s.split('=')[1])
+      // })
+      // name = properties.join(',')
     }
 
-    return name
+    return formattedName
+  }
+
+  isVariants(item: ComponentNode | ComponentSetNode): item is ComponentSetNode {
+    return (item as ComponentSetNode).variantGroupProperties !== undefined
   }
 
   async getLocalLibrary(
@@ -86,25 +93,23 @@ class Code {
     // 各ページごとに処理
     await Promise.all(
       _.map(figma.root.children, async page => {
-        let components: FigmaComponent[] = []
+        let components: (FigmaComponent | FigmaVariants)[] = []
 
         // ページ直下に置かれているコンポーネントを取得
         const immediateComponents = page.findChildren(
-          node => node.type === 'COMPONENT'
-        ) as ComponentNode[]
+          node => node.type === 'COMPONENT' || node.type === 'COMPONENT_SET'
+        ) as (ComponentNode | ComponentSetNode)[]
+
+        console.log(immediateComponents)
 
         // 各immediateComponentsをcomponentsに追加する
         await Promise.all(
           _.map(immediateComponents, async component => {
-            let name = ''
-            name = this.formatComponentName(component)
+            const name = this.formatComponentName(component.name)
 
-            // variantsの場合
-            if (component.parent && component.parent.type === 'COMPONENT_SET') {
-              name = `${component.parent.name} - ${name}`
-            }
-
-            const combinedName = `${figma.root.name}/${page.name}/${name}`
+            const combinedName = this.formatComponentName(
+              `${figma.root.name}/${page.name}/${name}`
+            )
 
             // isTeamLibraryがtrueの場合publish statusを取得
             let publishStatus: PublishStatus = 'UNPUBLISHED'
@@ -116,16 +121,49 @@ class Code {
               }
             }
 
-            components.push({
-              name,
-              id: component.id,
-              componentKey: component.key,
-              pageName: page.name,
-              documentName: figma.root.name,
-              combinedName,
-              isLocalComponent: !isTeamLibrary,
-              publishStatus
-            })
+            if (this.isVariants(component)) {
+              const variantsComponents: FigmaComponent[] = []
+
+              _.map(
+                (component.children as unknown) as ComponentNode[],
+                component => {
+                  variantsComponents.push({
+                    name: this.formatComponentName(component.name, true),
+                    id: component.id,
+                    componentKey: component.key,
+                    pageName: page.name,
+                    documentName: figma.root.name,
+                    combinedName,
+                    isLocalComponent: !isTeamLibrary,
+                    publishStatus
+                  } as FigmaComponent)
+                }
+              )
+
+              components.push({
+                name,
+                id: component.id,
+                components: variantsComponents,
+                variantGroupProperties: component.variantGroupProperties,
+                documentName: figma.root.name,
+                pageName: page.name,
+                combinedName,
+                isLocalComponent: !isTeamLibrary,
+                publishStatus,
+                isCollapsed: true
+              } as FigmaVariants)
+            } else {
+              components.push({
+                name,
+                id: component.id,
+                componentKey: component.key,
+                pageName: page.name,
+                documentName: figma.root.name,
+                combinedName,
+                isLocalComponent: !isTeamLibrary,
+                publishStatus
+              } as FigmaComponent)
+            }
           })
         )
 
@@ -138,29 +176,28 @@ class Code {
         await Promise.all(
           _.map(foundRootFrames, async frame => {
             // rootFrame内にコンポーネントがあるか検索
-            const childComponents = frame.findAllWithCriteria({
-              types: ['COMPONENT']
+            let childComponents = frame.findAllWithCriteria({
+              types: ['COMPONENT', 'COMPONENT_SET']
+            })
+
+            // コンポーネントの親がVariantsのものは除外する
+            // lodashだとうまくできなかったのでVanillaJSで
+            childComponents = childComponents.filter(component => {
+              return (
+                component.parent && component.parent.type !== 'COMPONENT_SET'
+              )
             })
 
             // 各childComponentsをcomponentsに追加する
             await Promise.all(
               _.map(childComponents, async component => {
-                let name = ''
+                const name = this.formatComponentName(
+                  `${frame.name}/${component.name}`
+                )
 
-                name = this.formatComponentName(component)
-
-                if (
-                  component.parent &&
-                  component.parent.type === 'COMPONENT_SET'
-                ) {
-                  // variantsの場合
-                  name = `${frame.name}/${component.parent.name} - ${name}`
-                } else {
-                  // 普通のコンポーネントの場合
-                  name = `${frame.name}/${name}`
-                }
-
-                const combinedName = `${figma.root.name}/${page.name}/${frame.name}/${name}`
+                const combinedName = this.formatComponentName(
+                  `${figma.root.name}/${page.name}/${frame.name}/${name}`
+                )
 
                 // isTeamLibraryがtrueの場合publish statusを取得
                 let publishStatus: PublishStatus = 'UNPUBLISHED'
@@ -172,16 +209,49 @@ class Code {
                   }
                 }
 
-                components.push({
-                  name,
-                  id: component.id,
-                  componentKey: component.key,
-                  pageName: page.name,
-                  documentName: figma.root.name,
-                  combinedName,
-                  isLocalComponent: !isTeamLibrary,
-                  publishStatus
-                })
+                if (this.isVariants(component)) {
+                  const variantsComponents: FigmaComponent[] = []
+
+                  _.map(
+                    (component.children as unknown) as ComponentNode[],
+                    component => {
+                      variantsComponents.push({
+                        name: this.formatComponentName(component.name, true),
+                        id: component.id,
+                        componentKey: component.key,
+                        pageName: page.name,
+                        documentName: figma.root.name,
+                        combinedName,
+                        isLocalComponent: !isTeamLibrary,
+                        publishStatus
+                      } as FigmaComponent)
+                    }
+                  )
+
+                  components.push({
+                    name,
+                    id: component.id,
+                    components: variantsComponents,
+                    variantGroupProperties: component.variantGroupProperties,
+                    documentName: figma.root.name,
+                    pageName: page.name,
+                    combinedName,
+                    isLocalComponent: !isTeamLibrary,
+                    publishStatus,
+                    isCollapsed: true
+                  } as FigmaVariants)
+                } else {
+                  components.push({
+                    name,
+                    id: component.id,
+                    componentKey: component.key,
+                    pageName: page.name,
+                    documentName: figma.root.name,
+                    combinedName,
+                    isLocalComponent: !isTeamLibrary,
+                    publishStatus
+                  } as FigmaComponent)
+                }
               })
             )
           })

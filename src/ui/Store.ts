@@ -89,8 +89,8 @@ export default class Store {
 
   @observable tabID: TabID = 'list'
   @observable library: Library = []
-  @observable flattenLibrary: FigmaComponent[] = []
-  @observable searchResults: FigmaComponent[] = []
+  @observable flattenLibrary: (FigmaComponent | FigmaVariants)[] = []
+  @observable searchResults: (FigmaComponent | FigmaVariants)[] = []
   @observable searchWord = ''
 
   @observable currentSelectComponentName = ''
@@ -149,7 +149,9 @@ export default class Store {
     console.log('updateLibrary on Store', this.library, this.flattenLibrary)
   }
 
-  @action updateSearchResults(results: FigmaComponent[]): void {
+  @action updateSearchResults(
+    results: (FigmaComponent | FigmaVariants)[]
+  ): void {
     this.searchResults = results
   }
 
