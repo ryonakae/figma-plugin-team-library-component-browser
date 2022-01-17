@@ -432,11 +432,13 @@ body {
   display: flex;
   align-items: center;
   height: var(--height-row-small);
-  padding-right: 0 var(--spacing-default);
+  padding: 0 var(--spacing-default) 0 calc(var(--spacing-default) - 6px);
   background-color: white;
+  border: 1px solid white;
 
   &:hover {
     background-color: var(--color-selectBg);
+    border-color: var(--color-selectBg)
   }
 }
 
@@ -501,8 +503,8 @@ body {
   display: flex;
   align-items: center;
   height: var(--height-row-small);
-  padding-right: 0 var(--spacing-default);
-  color: var(--color-component);
+  padding: 0 var(--spacing-default) 0 10px;
+  /* color: var(--color-component); */
   border: 1px solid transparent;
 
   &:hover {
@@ -566,11 +568,11 @@ body {
   /* height: var(--height-row-small); */
 
   /* padding: 7px calc(var(--spacing-default) / 2) 7px var(--spacing-default); */
-  padding: 7px var(--spacing-default);
+  padding: 7px var(--spacing-default) 7px calc(var(--spacing-default) + 10px);
   border: 1px solid transparent;
 
   &.is-variantsComponent {
-    padding-left: calc(16px + 12px + 8px);
+    padding-left: calc(16px + 12px + 8px + 10px);
   }
 
   &:hover {
@@ -614,7 +616,7 @@ body {
   padding-right: var(--spacing-text);
   padding-left: var(--spacing-text);
   overflow: hidden;
-  color: var(--color-component);
+  /* color: var(--color-component); */
   text-overflow: ellipsis;
   white-space: nowrap;
 
