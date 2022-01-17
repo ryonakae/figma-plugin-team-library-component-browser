@@ -5,7 +5,7 @@ import Util from '@/ui/Util'
 const CLIENT_STORAGE_KEY_NAME = 'team-library-component-browser'
 const UI_WIDTH = 300
 const UI_MIN_HEIGHT = 200
-const UI_MAX_HEIGHT = 500
+const UI_MAX_HEIGHT = 600
 
 // https://www.figma.com/plugin-docs/api/properties/figma-skipinvisibleinstancechildren/
 figma.skipInvisibleInstanceChildren = true
@@ -106,13 +106,14 @@ class Code {
 
             const combinedName = `${figma.root.name}/${page.name}/${name}`
 
-            // publish statusを取得
-            const publishStatus = await component.getPublishStatusAsync()
-
-            // isTeamLibraryがtrueの場合、
-            // publishStatusがUNPUBLISHEDなら処理を中断
-            if (isTeamLibrary && publishStatus === 'UNPUBLISHED') {
-              return
+            // isTeamLibraryがtrueの場合publish statusを取得
+            let publishStatus: PublishStatus = 'UNPUBLISHED'
+            if (isTeamLibrary) {
+              publishStatus = await component.getPublishStatusAsync()
+              // publishStatusがUNPUBLISHEDなら処理を中断
+              if (publishStatus === 'UNPUBLISHED') {
+                return
+              }
             }
 
             components.push({
@@ -161,13 +162,14 @@ class Code {
 
                 const combinedName = `${figma.root.name}/${page.name}/${frame.name}/${name}`
 
-                // publish statusを取得
-                const publishStatus = await component.getPublishStatusAsync()
-
-                // isTeamLibraryがtrueの場合、
-                // publishStatusがUNPUBLISHEDなら処理を中断
-                if (isTeamLibrary && publishStatus === 'UNPUBLISHED') {
-                  return
+                // isTeamLibraryがtrueの場合publish statusを取得
+                let publishStatus: PublishStatus = 'UNPUBLISHED'
+                if (isTeamLibrary) {
+                  publishStatus = await component.getPublishStatusAsync()
+                  // publishStatusがUNPUBLISHEDなら処理を中断
+                  if (publishStatus === 'UNPUBLISHED') {
+                    return
+                  }
                 }
 
                 components.push({
@@ -429,20 +431,6 @@ class Code {
     } as PluginMessage)
   }
 
-  getIsParentInstance(node: SceneNode): boolean {
-    // nodeの親がインスタンスかどうかを返す再帰関数
-    // 親がpage or documentまで遡り、typeがINSTANCEならtrueを返す
-    if (!node.parent) return false
-
-    if (node.parent.type === 'INSTANCE') {
-      return true
-    } else if (node.parent.type === 'PAGE' || node.parent.type === 'DOCUMENT') {
-      return false
-    } else {
-      return this.getIsParentInstance(node.parent)
-    }
-  }
-
   async getTeamLibraryComponent(
     options: CreateInstanceOptions
   ): Promise<ComponentNode> {
@@ -472,13 +460,28 @@ class Code {
     }
   }
 
+  getIsParentInstance(node: SceneNode): boolean {
+    // nodeの親がインスタンスかどうかを返す再帰関数
+    // 親がpage or documentまで遡り、typeがINSTANCEならtrueを返す
+    if (!node.parent) return false
+
+    if (node.parent.type === 'INSTANCE') {
+      return true
+    } else if (node.parent.type === 'PAGE' || node.parent.type === 'DOCUMENT') {
+      return false
+    } else {
+      return this.getIsParentInstance(node.parent)
+    }
+  }
+
   async createInstance(options: CreateInstanceOptions): Promise<void> {
     console.log('createInstance', options)
 
     let component!: ComponentNode
 
-    // keyがある場合
+    // コンポーネントを取得する
     if (options.key.length > 0) {
+      // keyがある場合
       console.log('found key')
 
       // チームライブラリコンポーネントの取得を試みる
@@ -508,9 +511,8 @@ class Code {
         } as PluginMessage)
         throw new Error(msg)
       }
-    }
-    // keyがない場合
-    else {
+    } else {
+      // keyがない場合
       console.log('not found key')
 
       // ローカルコンポーネントの取得を試みる
@@ -541,8 +543,8 @@ class Code {
 
     // isSwapがfalseで何も選択していない場合
     if (!options.options.isSwap && selections.length === 0) {
-      // ドキュメントのルートにインスタンスを追加
-      console.log('isSwap is false, so instance is inserted to document root')
+      // ページのルートにインスタンスを追加
+      console.log('isSwap is false, so instance is inserted to root')
 
       const instance = component.createInstance()
 
@@ -555,31 +557,33 @@ class Code {
       console.log(selections)
 
       const instance = component.createInstance()
-      const selectionsParent = selections[0].parent
 
-      // selectionsParentが無い場合は処理中断
-      if (!selectionsParent) {
-        return
+      // 1つだけ選択しているとき→その要素の上にインスタンスを追加
+      if (selections.length === 1) {
+        const selection = selections[0]
+        const selectionsParent = selection.parent
+        // selectionsParentが無い場合は処理中断
+        if (!selectionsParent) {
+          return
+        }
+        // 選択した要素のインデックスを取得
+        const index = _.findIndex(
+          selectionsParent.children,
+          (child): boolean => {
+            return child.id === selection.id
+          }
+        )
+        // 取得したインデックスを元に、選択した要素の後にインスタンスを移動
+        // ※配列的には後、Figmaの表示では上
+        selectionsParent.insertChild(index + 1, instance)
+      }
+      // 1つ以上選択しているとき→場合分けが膨大すぎるのでページのルートに挿入
+      else {
+        // なにもしない
       }
 
-      // 選択した要素のインデックスを格納した配列を作る
-      let indexArray: number[] = []
-      _.map(selections, selection => {
-        const index = _.findIndex(selections, (child): boolean => {
-          return child.id === selection.id
-        })
-        indexArray.push(index)
-      })
-
-      // 配列を数字順でソート
-      indexArray = _.sortBy(indexArray)
-      console.log(indexArray)
-      console.log(selectionsParent)
-
-      // 取得したインデックスを元に、選択した要素の後にインスタンスを移動
-      // ※配列的には後、Figmaの表示では上
-      // 配列の一番最初のインデックスを使う
-      selectionsParent.insertChild(indexArray[0] + 1, instance)
+      // 現在のselectionをインスタンスにする
+      figma.currentPage.selection = [instance]
     }
     // isSwapがtrueだが何も選択してない場合
     else if (options.options.isSwap && selections.length === 0) {

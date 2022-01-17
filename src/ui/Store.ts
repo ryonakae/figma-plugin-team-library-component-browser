@@ -110,12 +110,27 @@ export default class Store {
 
   @observable transitionDurationMS = 150
   @observable isHold = false
+  @observable isLoading = false
 
   @action updateTabID(tabID: TabID): void {
     this.tabID = tabID
   }
 
-  @action private updateLibrary(library: Library): void {
+  @action getLibrary(): void {
+    console.log('getLibrary')
+    this.isHold = true
+    this.isLoading = true
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'get'
+        }
+      } as Message,
+      '*'
+    )
+  }
+
+  @action private async updateLibrary(library: Library): Promise<void> {
     this.library = library
 
     _.map(this.library, document => {
@@ -125,6 +140,11 @@ export default class Store {
         })
       })
     })
+
+    await Util.wait(200)
+
+    this.isLoading = false
+    this.isHold = false
 
     console.log('updateLibrary on Store', this.library, this.flattenLibrary)
   }
@@ -232,5 +252,9 @@ export default class Store {
 
   @action updateIsHold(bool: boolean): void {
     this.isHold = bool
+  }
+
+  @action updateIsLoading(bool: boolean): void {
+    this.isLoading = bool
   }
 }

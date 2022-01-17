@@ -10,39 +10,16 @@ import ListComponent from './ListComponent'
 type Props = {
   store?: Store
 }
-type State = {
-  isLoading: boolean
-}
 
 @inject('store')
 @observer
-export default class List extends React.Component<Props, State> {
+export default class List extends React.Component<Props> {
   constructor(props) {
     super(props)
-    this.state = {
-      isLoading: false
-    }
   }
 
-  async getLibrary(): Promise<void> {
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: 'get'
-        }
-      } as Message,
-      '*'
-    )
-
-    await Util.wait(200)
-  }
-
-  async fetch(): Promise<void> {
-    this.props.store!.updateIsHold(true)
-    this.setState({ isLoading: true })
-    await this.getLibrary()
-    this.setState({ isLoading: false })
-    this.props.store!.updateIsHold(false)
+  fetch(): void {
+    this.props.store!.getLibrary()
   }
 
   refresh(): void {
@@ -51,20 +28,19 @@ export default class List extends React.Component<Props, State> {
     this.props.store!.setCurrentSelectComponent({ name: '', key: '' })
   }
 
-  async onRefreshClick(): Promise<void> {
-    await this.fetch()
+  onRefreshClick(): void {
+    this.fetch()
     this.refresh()
   }
 
-  async componentDidMount(): Promise<void> {
+  componentDidMount(): void {
     console.log('List did mount')
 
     // libraryが空のとき（初回起動のとき）だけfetchする
     if (this.props.store!.library.length === 0) {
-      await this.fetch()
+      this.fetch()
     }
 
-    // this.refresh()
     this.props.store!.resizeUI()
   }
 
@@ -98,7 +74,7 @@ export default class List extends React.Component<Props, State> {
     const { searchWord } = this.props.store!
     const library = this.props.store!.library as Array<FigmaLibrary>
     const searchResults = this.props.store!.searchResults
-    const isLoading = this.state.isLoading
+    const isLoading = this.props.store!.isLoading
 
     const ListContent: React.FC = () => {
       // ロード中ではないとき
@@ -210,8 +186,12 @@ export default class List extends React.Component<Props, State> {
     }
     // ライブラリがあるとき
     else {
+      // ローディング中は表示しない
+      if (isLoading) {
+        contentClassName = ''
+      }
       // 検索中のとき
-      if (searchWord.length > 0) {
+      else if (searchWord.length > 0) {
         // searchResultsがある→検索結果を表示
         if (searchResults.length > 0) {
           contentClassName = 'has-options'
@@ -221,7 +201,7 @@ export default class List extends React.Component<Props, State> {
           contentClassName = ''
         }
       }
-      // 検索中ではない→ライブラリを表示
+      // それ以外はライブラリを表示
       else {
         contentClassName = 'has-options'
       }

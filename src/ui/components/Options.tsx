@@ -56,6 +56,7 @@ export default class Options extends React.Component<Props, State> {
       isSwap,
       isOriginalSize,
       library,
+      isLoading,
       searchResults,
       searchWord
     } = this.props.store!
@@ -68,8 +69,12 @@ export default class Options extends React.Component<Props, State> {
     }
     // ライブラリがあるとき
     else {
+      // ローディング中は表示しない
+      if (isLoading) {
+        optionsClassName = ''
+      }
       // 検索中のとき
-      if (searchWord.length > 0) {
+      else if (searchWord.length > 0) {
         // searchResultsがある→検索結果を表示
         if (searchResults.length > 0) {
           optionsClassName = 'is-visible'
@@ -79,7 +84,7 @@ export default class Options extends React.Component<Props, State> {
           optionsClassName = ''
         }
       }
-      // 検索中ではない→ライブラリを表示
+      // それ以外はライブラリを表示
       else {
         optionsClassName = 'is-visible'
       }
