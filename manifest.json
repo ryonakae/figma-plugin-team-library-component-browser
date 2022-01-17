@@ -7,7 +7,7 @@
   "ui": "dist/ui.html",
   "menu": [
     {
-      "name": "Open plugin",
+      "name": "Open plugin panel",
       "command": "open"
     },
     { "separator": true },
