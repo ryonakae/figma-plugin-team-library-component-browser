@@ -71,10 +71,6 @@ export default class List extends React.Component<Props> {
     console.log('List will unmount')
   }
 
-  isVariants(item: FigmaComponent | FigmaVariants): item is FigmaVariants {
-    return (item as FigmaVariants).variantGroupProperties !== undefined
-  }
-
   render(): JSX.Element {
     const { searchWord } = this.props.store!
     const library = this.props.store!.library as Array<FigmaLibrary>
@@ -129,12 +125,12 @@ export default class List extends React.Component<Props> {
 
                   {searchResults.map((result, index) => (
                     <React.Fragment key={index}>
-                      {this.isVariants(result) ? (
+                      {'components' in result ? (
                         <ListVariants
                           name={result.name}
                           id={result.id}
                           components={result.components}
-                          variantGroupProperties={result.variantGroupProperties}
+                          // variantGroupProperties={result.variantGroupProperties}
                           documentName={result.documentName}
                           pageName={result.pageName}
                           combinedName={result.combinedName}
