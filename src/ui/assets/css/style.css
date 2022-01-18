@@ -484,13 +484,15 @@ body {
 
 /* variants */
 .variants {
-  background-color: var(--color-selectBg-variants);
-
   &:last-child {
     margin-bottom: 0;
   }
 
-  &.is-collapsed {
+  &:hover {
+    background-color: var(--color-selectBg-variants);
+  }
+
+  &.is-collapsed:hover {
     background-color: transparent;
   }
 }
