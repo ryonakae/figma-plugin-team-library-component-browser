@@ -21,8 +21,8 @@ body {
 
 /* tab */
 .tab {
-  height: var(--height-row-default);
-  padding: 0 calc(var(--spacing-default) / 2);
+  height: 40px;
+  padding: 0 8px;
   border-bottom: 1px solid var(--color-border);
 
   &.is-hold {
@@ -46,7 +46,7 @@ body {
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0 calc(var(--spacing-default) / 2);
+  padding: 0 8px;
   font-weight: var(--fontWeight-tab-inactive);
   color: var(--color-inactive);
 
@@ -77,9 +77,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--height-row-default);
-  padding: var(--spacing-list) calc(var(--spacing-default) / 2)
-    var(--spacing-list) var(--spacing-default);
+  height: 40px;
+  padding: 6px 8px 6px 16px;
   background-color: white;
 }
 
@@ -98,7 +97,7 @@ body {
 .search-input {
   flex: 1;
   margin-left: 8px;
-  line-height: var(--height-row-small);
+  line-height: 32px;
   outline: none;
 
   &::placeholder {
@@ -133,22 +132,22 @@ body {
 
 /* content */
 .content {
-  padding-bottom: var(--spacing-bottom);
+  padding-bottom: 12px;
 
   &.has-options {
-    padding-bottom: calc(var(--spacing-bottom) + 77px);
+    padding-bottom: calc(12px + 77px);
   }
 }
 
 .content-title {
   display: flex;
   align-items: center;
-  height: var(--height-row-small);
-  padding: 0 var(--spacing-default);
+  height: 32px;
+  padding: 0 16px;
   font-weight: var(--fontWeight-title);
 
   &.is-large {
-    height: var(--height-row-default);
+    height: 40px;
   }
 
   &.is-normal {
@@ -157,11 +156,11 @@ body {
 }
 
 .content-note {
-  padding: var(--spacing-text) var(--spacing-default);
+  padding: 8px 16px;
 
   & > * {
-    margin-top: var(--spacing-text);
-    margin-bottom: var(--spacing-text);
+    margin-top: 8px;
+    margin-bottom: 8px;
 
     &:first-child {
       margin-top: 0;
@@ -180,7 +179,7 @@ body {
 
 .content-empty,
 .content-loading {
-  padding: var(--height-row-small) var(--spacing-default);
+  padding: 32px 16px;
 }
 
 .content-loading {
@@ -189,7 +188,7 @@ body {
 }
 
 .content-button {
-  padding: var(--spacing-text) var(--spacing-default);
+  padding: 8px 16px;
 
   &.is-zeroPadding {
     padding-top: 0;
@@ -202,10 +201,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-text);
+  padding: 8px;
   color: white;
   text-align: center;
-  border-radius: var(--radius-button);
+  border-radius: 6px;
 
   &.is-active {
     background-color: var(--color-active);
@@ -227,16 +226,16 @@ body {
   }
 
   &.is-small {
-    padding: calc(var(--spacing-text) / 4) calc(var(--spacing-text) / 2);
-    border-radius: calc(var(--radius-button) / 2);
+    padding: 2px 4px;
+    border-radius: 3px;
   }
 }
 
 .button-icon {
-  margin-right: var(--spacing-text);
+  margin-right: 8px;
 
   @nest .button.is-small & {
-    margin-right: calc(var(--spacing-text) / 2);
+    margin-right: 4px;
   }
 }
 
@@ -249,8 +248,7 @@ body {
   z-index: var(--zIndex-options);
   display: none;
   width: 100%;
-  padding: var(--spacing-list) calc(var(--spacing-default) / 2)
-    var(--spacing-list) var(--spacing-default);
+  padding: 6px 8px 6px 16px;
   background: var(--color-bg);
   border-top: 1px solid var(--color-border);
 
@@ -263,7 +261,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--height-row-small);
+  height: 32px;
 }
 
 /* iconButton */
@@ -275,7 +273,7 @@ body {
   min-width: 32px;
   height: 32px;
   border: 1px solid transparent;
-  border-radius: var(--radius-default);
+  border-radius: 2px;
 
   &:hover {
     background-color: var(--color-iconButtonBg);
@@ -308,7 +306,7 @@ body {
       height: 100%;
       content: '';
       border: 1px solid var(--color-segmentedControlBg);
-      border-radius: var(--radius-default);
+      border-radius: 2px;
     }
   }
 }
@@ -319,7 +317,7 @@ body {
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: var(--radius-default);
+  border-radius: 2px;
 
   & img {
     width: 16px;
@@ -349,8 +347,8 @@ body {
 
 /* document */
 .document {
-  margin-top: var(--spacing-list);
-  margin-bottom: var(--spacing-list);
+  margin-top: 6px;
+  margin-bottom: 6px;
 
   &:first-child {
     margin-top: 0;
@@ -363,13 +361,13 @@ body {
 
 .document-title {
   position: sticky;
-  top: var(--height-row-default);
+  top: 40px;
   z-index: var(--zIndex-documentTitle);
   display: flex;
   align-items: center;
-  height: var(--height-row-small);
-  padding-right: var(--spacing-default);
-  margin-bottom: var(--spacing-list);
+  height: 32px;
+  padding-right: 16px;
+  margin-bottom: 6px;
   background-color: white;
 
   &:hover {
@@ -381,8 +379,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--spacing-default);
-  min-width: var(--spacing-default);
+  width: 16px;
+  min-width: 16px;
   height: 100%;
   opacity: 0.3;
   transform-origin: 50% 50%;
@@ -415,7 +413,7 @@ body {
 }
 
 .document-empty {
-  padding: var(--spacing-default);
+  padding: 16px;
 }
 
 /* page */
@@ -427,18 +425,18 @@ body {
 
 .page-title {
   position: sticky;
-  top: calc(var(--height-row-default) + var(--height-row-small));
+  top: calc(40px + 32px);
   z-index: var(--zIndex-pageTitle);
   display: flex;
   align-items: center;
-  height: var(--height-row-small);
-  padding: 0 var(--spacing-default) 0 calc(var(--spacing-default) - 6px);
+  height: 32px;
+  padding: 0 16px 0 10px;
   background-color: white;
   border: 1px solid white;
 
   &:hover {
     background-color: var(--color-selectBg);
-    border-color: var(--color-selectBg)
+    border-color: var(--color-selectBg);
   }
 }
 
@@ -446,8 +444,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--spacing-default);
-  min-width: var(--spacing-default);
+  width: 16px;
+  min-width: 16px;
   height: 100%;
   opacity: 0.3;
 
@@ -472,8 +470,8 @@ body {
 }
 
 .page-components {
-  margin-top: var(--spacing-list);
-  margin-bottom: var(--spacing-list);
+  margin-top: 6px;
+  margin-bottom: 6px;
 
   @nest .page-title.is-collapsed + & {
     display: none;
@@ -486,7 +484,7 @@ body {
 
 /* variants */
 .variants {
-  background-color: #edf5fa;
+  background-color: var(--color-selectBg-variants);
 
   &:last-child {
     margin-bottom: 0;
@@ -498,12 +496,13 @@ body {
 }
 
 .variants-title {
-  top: calc(var(--height-row-default) + var(--height-row-small));
+  top: calc(40px + 32px);
   z-index: var(--zIndex-pageTitle);
   display: flex;
   align-items: center;
-  height: var(--height-row-small);
-  padding: 0 var(--spacing-default) 0 10px;
+  height: 32px;
+  padding: 0 16px 0 10px;
+
   /* color: var(--color-component); */
   border: 1px solid transparent;
 
@@ -516,8 +515,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--spacing-default);
-  min-width: var(--spacing-default);
+  width: 16px;
+  min-width: 16px;
   height: 100%;
   opacity: 0.3;
 
@@ -547,10 +546,10 @@ body {
 }
 
 .variants-title-text {
+  padding-left: 8px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-left: var(--spacing-text);
 }
 
 .variants-components {
@@ -565,14 +564,13 @@ body {
   display: flex;
   align-items: center;
 
-  /* height: var(--height-row-small); */
+  /* height: 32px; */
 
-  /* padding: 7px calc(var(--spacing-default) / 2) 7px var(--spacing-default); */
-  padding: 7px var(--spacing-default) 7px calc(var(--spacing-default) + 10px);
+  padding: 7px 16px 7px 26px;
   border: 1px solid transparent;
 
   &.is-variantsComponent {
-    padding-left: calc(16px + 12px + 8px + 10px);
+    padding-left: 46px;
   }
 
   &:hover {
@@ -613,9 +611,10 @@ body {
 }
 
 .component-title {
-  padding-right: var(--spacing-text);
-  padding-left: var(--spacing-text);
+  padding-right: 8px;
+  padding-left: 8px;
   overflow: hidden;
+
   /* color: var(--color-component); */
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -631,16 +630,14 @@ body {
 } */
 
 .component-title-slash {
-  margin: 0 calc(var(--spacing-text) / 2);
+  margin: 0 4px;
   color: var(--color-inactive);
 }
 
 .component-buttons {
   display: none;
   width: 100%;
-
-  /* padding-left: calc(18px + var(--spacing-default)); */
-  margin-top: var(--spacing-text);
+  margin-top: 8px;
 
   @nest .component.is-selected & {
     display: flex;
@@ -686,7 +683,7 @@ body {
 .dialog {
   width: 80vw;
   background-color: white;
-  border-radius: var(--radius-default);
+  border-radius: 2px;
   outline: none;
   box-shadow: var(--shadow);
   opacity: 0;
@@ -708,8 +705,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-text) calc(var(--spacing-default) / 2)
-    var(--spacing-text) var(--spacing-default);
+  padding: 8px 8px 8px 16px;
 }
 
 .dialog-title {
@@ -739,11 +735,11 @@ body {
 }
 
 .dialog-message {
-  padding: 0 var(--spacing-default) var(--spacing-default);
+  padding: 0 16px 16px;
 }
 
 .dialog-button {
-  padding: 0 var(--spacing-default) var(--spacing-default);
+  padding: 0 16px 16px;
 }
 
 /* snackbar */
@@ -757,7 +753,7 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: var(--spacing-default);
+  padding: 16px;
   pointer-events: none;
 
   /* &.mdc-snackbar--open {
@@ -770,7 +766,7 @@ body {
   align-items: center;
   justify-content: center;
   background-color: var(--color-snackbarBg);
-  border-radius: var(--radius-snackbar);
+  border-radius: 5px;
   box-shadow: var(--shadow);
   opacity: 0;
   transition: var(--transition);
@@ -784,7 +780,7 @@ body {
 }
 
 .mdc-snackbar__label {
-  padding: var(--spacing-text);
+  padding: 8px;
   color: white;
   text-align: center;
 }

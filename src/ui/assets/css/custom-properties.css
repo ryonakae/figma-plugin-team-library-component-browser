@@ -18,6 +18,7 @@
   --color-iconButtonBg: rgba(0, 0, 0, 0.06);
   --color-selectBg: #f0f0f0;
   --color-selectBg-component: #daebf7;
+  --color-selectBg-variants: #edf5fa;
   --color-text: #333;
   --color-alert: #f04629;
   --color-active: #18a0fb;
@@ -26,26 +27,11 @@
   --color-component: #7b61ff;
   --color-buttonBorder: rgba(0, 0, 0, 0.8);
 
-  /* radius */
-  --radius-default: 2px;
-  --radius-snackbar: 5px;
-  --radius-button: 6px;
-
   /* shadow */
   --shadow: 0 0 0.5px rgba(0, 0, 0, 0.2), 0 2px 14px rgba(0, 0, 0, 0.15);
 
   /* transition */
   --transition: all 150ms ease-out;
-
-  /* spacing */
-  --spacing-default: 16px;
-  --spacing-text: 8px;
-  --spacing-list: 6px;
-  --spacing-bottom: 12px;
-
-  /* size */
-  --height-row-default: 40px;
-  --height-row-small: 32px;
 
   /* z-index */
   --zIndex-search: 3;
