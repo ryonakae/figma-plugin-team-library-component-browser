@@ -78,8 +78,67 @@ class Code {
     return formattedName
   }
 
-  isVariants(item: ComponentNode | ComponentSetNode): item is ComponentSetNode {
-    return (item as ComponentSetNode).variantGroupProperties !== undefined
+  addFigmaVariantsOrFigmaComponentToComponents(
+    component: ComponentNode | ComponentSetNode,
+    options: {
+      name: string
+      components: (FigmaComponent | FigmaVariants)[]
+      pageName: string
+      combinedName: string
+      isLocalComponent: boolean
+      publishStatus: PublishStatus
+    }
+  ): void {
+    // variantsを追加
+    if ('defaultVariant' in component) {
+      // console.log('add variants', component)
+
+      const variantsComponents: FigmaComponent[] = []
+
+      _.map(
+        (component.children as unknown) as ComponentNode[],
+        childComponent => {
+          variantsComponents.push({
+            name: this.formatComponentName(childComponent.name, true),
+            id: childComponent.id,
+            componentKey: childComponent.key,
+            pageName: options.pageName,
+            documentName: figma.root.name,
+            combinedName: options.combinedName,
+            isLocalComponent: options.isLocalComponent,
+            publishStatus: options.publishStatus
+          } as FigmaComponent)
+        }
+      )
+
+      options.components.push({
+        name: options.name,
+        id: component.id,
+        components: variantsComponents,
+        // variantGroupProperties: component.variantGroupProperties,
+        documentName: figma.root.name,
+        pageName: options.pageName,
+        combinedName: options.combinedName,
+        isLocalComponent: options.isLocalComponent,
+        publishStatus: options.publishStatus,
+        isCollapsed: true
+      } as FigmaVariants)
+    }
+    // コンポーネントを追加
+    else {
+      // console.log('add component', component)
+
+      options.components.push({
+        name: options.name,
+        id: component.id,
+        componentKey: component.key,
+        pageName: options.pageName,
+        documentName: figma.root.name,
+        combinedName: options.combinedName,
+        isLocalComponent: options.isLocalComponent,
+        publishStatus: options.publishStatus
+      } as FigmaComponent)
+    }
   }
 
   async getLocalLibrary(
@@ -100,7 +159,7 @@ class Code {
           node => node.type === 'COMPONENT' || node.type === 'COMPONENT_SET'
         ) as (ComponentNode | ComponentSetNode)[]
 
-        console.log(immediateComponents)
+        // console.log('immediateComponents', immediateComponents)
 
         // 各immediateComponentsをcomponentsに追加する
         await Promise.all(
@@ -121,52 +180,15 @@ class Code {
               }
             }
 
-            // variantsを追加
-            if (this.isVariants(component)) {
-              const variantsComponents: FigmaComponent[] = []
-
-              _.map(
-                (component.children as unknown) as ComponentNode[],
-                component => {
-                  variantsComponents.push({
-                    name: this.formatComponentName(component.name, true),
-                    id: component.id,
-                    componentKey: component.key,
-                    pageName: page.name,
-                    documentName: figma.root.name,
-                    combinedName,
-                    isLocalComponent: !isTeamLibrary,
-                    publishStatus
-                  } as FigmaComponent)
-                }
-              )
-
-              components.push({
-                name,
-                id: component.id,
-                components: variantsComponents,
-                variantGroupProperties: component.variantGroupProperties,
-                documentName: figma.root.name,
-                pageName: page.name,
-                combinedName,
-                isLocalComponent: !isTeamLibrary,
-                publishStatus,
-                isCollapsed: true
-              } as FigmaVariants)
-            }
-            // コンポーネントを追加
-            else {
-              components.push({
-                name,
-                id: component.id,
-                componentKey: component.key,
-                pageName: page.name,
-                documentName: figma.root.name,
-                combinedName,
-                isLocalComponent: !isTeamLibrary,
-                publishStatus
-              } as FigmaComponent)
-            }
+            // componentsに追加
+            this.addFigmaVariantsOrFigmaComponentToComponents(component, {
+              name,
+              components,
+              pageName: page.name,
+              combinedName,
+              isLocalComponent: !isTeamLibrary,
+              publishStatus
+            })
           })
         )
 
@@ -212,52 +234,15 @@ class Code {
                   }
                 }
 
-                // variantsを追加
-                if (this.isVariants(component)) {
-                  const variantsComponents: FigmaComponent[] = []
-
-                  _.map(
-                    (component.children as unknown) as ComponentNode[],
-                    component => {
-                      variantsComponents.push({
-                        name: this.formatComponentName(component.name, true),
-                        id: component.id,
-                        componentKey: component.key,
-                        pageName: page.name,
-                        documentName: figma.root.name,
-                        combinedName,
-                        isLocalComponent: !isTeamLibrary,
-                        publishStatus
-                      } as FigmaComponent)
-                    }
-                  )
-
-                  components.push({
-                    name,
-                    id: component.id,
-                    components: variantsComponents,
-                    variantGroupProperties: component.variantGroupProperties,
-                    documentName: figma.root.name,
-                    pageName: page.name,
-                    combinedName,
-                    isLocalComponent: !isTeamLibrary,
-                    publishStatus,
-                    isCollapsed: true
-                  } as FigmaVariants)
-                }
-                // コンポーネントを追加
-                else {
-                  components.push({
-                    name,
-                    id: component.id,
-                    componentKey: component.key,
-                    pageName: page.name,
-                    documentName: figma.root.name,
-                    combinedName,
-                    isLocalComponent: !isTeamLibrary,
-                    publishStatus
-                  } as FigmaComponent)
-                }
+                // componentsに追加
+                this.addFigmaVariantsOrFigmaComponentToComponents(component, {
+                  name,
+                  components,
+                  pageName: page.name,
+                  combinedName,
+                  isLocalComponent: !isTeamLibrary,
+                  publishStatus
+                })
               })
             )
           })

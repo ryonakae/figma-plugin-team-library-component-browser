@@ -40,7 +40,7 @@ type FigmaVariants = {
   id: string
   components: FigmaComponent[]
   // defaultVariant: ComponentNode
-  variantGroupProperties: { [property: string]: { values: string[] } }
+  // variantGroupProperties: { [property: string]: { values: string[] } }
   documentName: string
   pageName: string
   combinedName: string

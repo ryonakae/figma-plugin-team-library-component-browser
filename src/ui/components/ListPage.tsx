@@ -29,10 +29,6 @@ export default class ListPage extends React.PureComponent<Props, State> {
     this.props.store!.resizeUI()
   }
 
-  isVariants(item: FigmaComponent | FigmaVariants): item is FigmaVariants {
-    return (item as FigmaVariants).variantGroupProperties !== undefined
-  }
-
   render(): JSX.Element {
     const { isCollapsed } = this.state
 
@@ -53,12 +49,12 @@ export default class ListPage extends React.PureComponent<Props, State> {
         <div className="page-components">
           {this.props.components.map((component, index) => (
             <React.Fragment key={index}>
-              {this.isVariants(component) ? (
+              {'components' in component ? (
                 <ListVariants
                   name={component.name}
                   id={component.id}
                   components={component.components}
-                  variantGroupProperties={component.variantGroupProperties}
+                  // variantGroupProperties={component.variantGroupProperties}
                   documentName={component.documentName}
                   pageName={component.pageName}
                   combinedName={component.combinedName}
