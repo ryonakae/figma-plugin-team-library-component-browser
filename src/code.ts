@@ -121,6 +121,7 @@ class Code {
               }
             }
 
+            // variantsを追加
             if (this.isVariants(component)) {
               const variantsComponents: FigmaComponent[] = []
 
@@ -152,7 +153,9 @@ class Code {
                 publishStatus,
                 isCollapsed: true
               } as FigmaVariants)
-            } else {
+            }
+            // コンポーネントを追加
+            else {
               components.push({
                 name,
                 id: component.id,
@@ -209,6 +212,7 @@ class Code {
                   }
                 }
 
+                // variantsを追加
                 if (this.isVariants(component)) {
                   const variantsComponents: FigmaComponent[] = []
 
@@ -240,7 +244,9 @@ class Code {
                     publishStatus,
                     isCollapsed: true
                   } as FigmaVariants)
-                } else {
+                }
+                // コンポーネントを追加
+                else {
                   components.push({
                     name,
                     id: component.id,
