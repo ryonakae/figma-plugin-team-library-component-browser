@@ -32,24 +32,39 @@ type FigmaComponent = {
   pageName: string
   combinedName: string
   isLocalComponent: boolean
+  publishStatus: PublishStatus
+}
+
+type FigmaVariants = {
+  name: string
+  id: string
+  components: FigmaComponent[]
+  // defaultVariant: ComponentNode
+  variantGroupProperties: { [property: string]: { values: string[] } }
+  documentName: string
+  pageName: string
+  combinedName: string
+  isLocalComponent: boolean
+  publishStatus: PublishStatus
+  isCollapsed: boolean
 }
 
 type FigmaPage = {
   name: string
   id: string
-  components: FigmaComponent[]
+  components: (FigmaComponent | FigmaVariants)[]
   documentName: string
   isCollapsed: boolean
 }
 
-type FigmaDocument = {
+type FigmaLibrary = {
   name: string
   id: string
   pages: FigmaPage[]
   isCollapsed: boolean
 }
 
-type Library = FigmaDocument[]
+type Library = FigmaLibrary[]
 
 type PluginMessage = {
   type: MessageType
@@ -58,4 +73,40 @@ type PluginMessage = {
 
 type Message = {
   pluginMessage: PluginMessage
+}
+
+type NodeTypes =
+  | 'BOOLEAN_OPERATION'
+  | 'CODE_BLOCK'
+  | 'COMPONENT'
+  | 'COMPONENT_SET'
+  | 'CONNECTOR'
+  | 'DOCUMENT'
+  | 'ELLIPSE'
+  | 'EMBED'
+  | 'FRAME'
+  | 'GROUP'
+  | 'INSTANCE'
+  | 'LINE'
+  | 'LINK_UNFURL'
+  | 'PAGE'
+  | 'POLYGON'
+  | 'RECTANGLE'
+  | 'SHAPE_WITH_TEXT'
+  | 'SLICE'
+  | 'STAMP'
+  | 'STAR'
+  | 'STICKY'
+  | 'TEXT'
+  | 'VECTOR'
+  | 'WIDGET'
+
+type CreateInstanceOptions = {
+  key: FigmaComponent['componentKey']
+  name: FigmaComponent['name']
+  id: FigmaComponent['id']
+  options: {
+    isSwap: boolean
+    isOriginalSize: boolean
+  }
 }

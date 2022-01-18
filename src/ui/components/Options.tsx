@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
+import Store from '@/ui/Store'
 
 type Props = {
   store?: Store
@@ -56,6 +56,7 @@ export default class Options extends React.Component<Props, State> {
       isSwap,
       isOriginalSize,
       library,
+      isLoading,
       searchResults,
       searchWord
     } = this.props.store!
@@ -68,8 +69,12 @@ export default class Options extends React.Component<Props, State> {
     }
     // ライブラリがあるとき
     else {
+      // ローディング中は表示しない
+      if (isLoading) {
+        optionsClassName = ''
+      }
       // 検索中のとき
-      if (searchWord.length > 0) {
+      else if (searchWord.length > 0) {
         // searchResultsがある→検索結果を表示
         if (searchResults.length > 0) {
           optionsClassName = 'is-visible'
@@ -79,7 +84,7 @@ export default class Options extends React.Component<Props, State> {
           optionsClassName = ''
         }
       }
-      // 検索中ではない→ライブラリを表示
+      // それ以外はライブラリを表示
       else {
         optionsClassName = 'is-visible'
       }
@@ -92,13 +97,13 @@ export default class Options extends React.Component<Props, State> {
           <div className={`segmentedControl is-${String(isSwap)}`}>
             <div className="segmentedControl-segment">
               <img
-                src={require('@/app/assets/img/icon_hyphen.svg').default}
+                src={require('@/ui/assets/img/icon_hyphen.svg').default}
                 alt=""
               />
             </div>
             <div className="segmentedControl-segment">
               <img
-                src={require('@/app/assets/img/icon_check.svg').default}
+                src={require('@/ui/assets/img/icon_check.svg').default}
                 alt=""
               />
             </div>
@@ -112,13 +117,13 @@ export default class Options extends React.Component<Props, State> {
           <div className={`segmentedControl is-${String(isOriginalSize)}`}>
             <div className="segmentedControl-segment">
               <img
-                src={require('@/app/assets/img/icon_hyphen.svg').default}
+                src={require('@/ui/assets/img/icon_hyphen.svg').default}
                 alt=""
               />
             </div>
             <div className="segmentedControl-segment">
               <img
-                src={require('@/app/assets/img/icon_check.svg').default}
+                src={require('@/ui/assets/img/icon_check.svg').default}
                 alt=""
               />
             </div>

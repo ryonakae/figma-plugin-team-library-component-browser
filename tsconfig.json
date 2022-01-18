@@ -15,11 +15,10 @@
     "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"],
       "@/*": ["./src/*"],
       "*": ["./@types/*"]
     },
-    "types": ["@types/node", "@types/figma"]
+    "types": ["@types/node", "@figma/plugin-typings"]
   },
   "exclude": ["node_modules", "dist"]
 }

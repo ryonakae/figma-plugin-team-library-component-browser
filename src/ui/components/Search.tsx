@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
+import Store from '@/ui/Store'
 import _ from 'lodash'
 
 type Props = {
@@ -41,7 +41,7 @@ export default class Search extends React.Component<Props, State> {
     console.log('excute filter', searchWord)
 
     const flattenLibrary = this.props.store!.flattenLibrary
-    let results: FigmaComponent[] = []
+    let results: (FigmaComponent | FigmaVariants)[] = []
 
     // inputに1文字も入力されていなかったら、空の結果を返して以下の処理を中断
     if (searchWord.length === 0) {
@@ -92,7 +92,7 @@ export default class Search extends React.Component<Props, State> {
       <div className="search">
         <img
           className="search-icon"
-          src={require('@/app/assets/img/icon_search.svg').default}
+          src={require('@/ui/assets/img/icon_search.svg').default}
           alt=""
         />
         <input
@@ -109,10 +109,7 @@ export default class Search extends React.Component<Props, State> {
           }`}
           onClick={this.onClearClick.bind(this)}
         >
-          <img
-            src={require('@/app/assets/img/icon_close.svg').default}
-            alt=""
-          />
+          <img src={require('@/ui/assets/img/icon_close.svg').default} alt="" />
         </div>
       </div>
     )

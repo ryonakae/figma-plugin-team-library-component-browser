@@ -1,9 +1,10 @@
 import * as React from 'react'
-import ListComponent from '@/app/components/ListComponent'
+import ListComponent from '@/ui/components/ListComponent'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
+import Store from '@/ui/Store'
+import FormatedComponentTitle from '@/ui/components/FormatedComponentTitle'
 
-type Props = FigmaPage & {
+type Props = FigmaVariants & {
   store?: Store
 }
 type State = {
@@ -32,30 +33,40 @@ export default class ListPage extends React.PureComponent<Props, State> {
     const { isCollapsed } = this.state
 
     return (
-      <div className="page">
+      <div className={`variants ${isCollapsed && 'is-collapsed'}`}>
         <div
-          className={`page-title ${isCollapsed ? 'is-collapsed' : ''}`}
+          className={`variants-title`}
           onClick={this.toggleCollapse.bind(this)}
         >
-          <div className="page-title-icon">
+          <div className="variants-title-arrow">
             <img
-              src={require('@/app/assets/img/icon_arrow_down.svg').default}
+              src={require('@/ui/assets/img/icon_arrow_down.svg').default}
               alt=""
             />
           </div>
-          <div className="page-title-text">{this.props.name}</div>
+          <div className="variants-title-icon">
+            <img
+              src={require('@/ui/assets/img/icon_component.svg').default}
+              alt=""
+            />
+          </div>
+          <div className="variants-title-text">
+            <FormatedComponentTitle name={this.props.name} />
+          </div>
         </div>
-        <div className="page-components">
+        <div className="variants-components">
           {this.props.components.map((component, index) => (
             <ListComponent
               key={index}
               name={component.name}
               id={component.id}
               componentKey={component.componentKey}
-              documentName={component.documentName}
               pageName={component.pageName}
+              documentName={component.documentName}
               combinedName={component.combinedName}
               isLocalComponent={component.isLocalComponent}
+              publishStatus={component.publishStatus}
+              isVariantsComponent={true}
             />
           ))}
         </div>

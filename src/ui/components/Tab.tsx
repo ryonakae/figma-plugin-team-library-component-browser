@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
+import Store from '@/ui/Store'
 
 type Props = {
   store?: Store

@@ -1,10 +1,12 @@
 import * as React from 'react'
-import Util from '@/app/Util'
+import Util from '@/ui/Util'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
+import Store from '@/ui/Store'
+import FormatedComponentTitle from '@/ui/components/FormatedComponentTitle'
 
 type Props = FigmaComponent & {
   store?: Store
+  isVariantsComponent?: boolean
 }
 type State = {}
 
@@ -63,7 +65,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
       '*'
     )
 
-    // インスタンスのmasterComponentを変更する場合、なぜかエラーで処理が中断するコンポーネントがある
+    // インスタンスのmainComponentを変更する場合、なぜかエラーで処理が中断するコンポーネントがある
     // 仕方ないので、一定時間後にisHoldがまだ有効ならエラー表示にする
     const TIMEOUT_DURATION_MS = 10000
     setTimeout(() => {
@@ -109,7 +111,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
   }
 
   render(): JSX.Element {
-    const { name, id, componentKey, pageName } = this.props
+    const { name, id, componentKey, pageName, isVariantsComponent } = this.props
     const {
       currentSelectComponentName,
       currentSelectComponentKey,
@@ -124,20 +126,28 @@ export default class ListComponent extends React.PureComponent<Props, State> {
       <div>
         <div
           onClick={this.onListComponentClick.bind(this)}
-          className={`component ${this.isSelected ? 'is-selected' : ''}`}
+          className={`component ${this.isSelected &&
+            'is-selected'} ${isVariantsComponent && 'is-variantsComponent'}`}
         >
           <div className="component-info">
             <div className="component-icon">
-              <img
-                src={require('@/app/assets/img/icon_component.svg').default}
-                alt=""
-              />
+              {isVariantsComponent ? (
+                <img
+                  src={
+                    require('@/ui/assets/img/icon_variants_component.svg')
+                      .default
+                  }
+                  alt=""
+                />
+              ) : (
+                <img
+                  src={require('@/ui/assets/img/icon_component.svg').default}
+                  alt=""
+                />
+              )}
             </div>
             <div className="component-title">
-              <span>
-                {/* {pageName}/{name} */}
-                {name}
-              </span>
+              <FormatedComponentTitle name={name} />
             </div>
           </div>
           <div className="component-buttons">
@@ -146,7 +156,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
               onClick={this.onCreateClick.bind(this)}
             >
               <img
-                src={require('@/app/assets/img/icon_instance.svg').default}
+                src={require('@/ui/assets/img/icon_instance.svg').default}
                 alt=""
                 className="button-icon"
               />
@@ -159,7 +169,7 @@ export default class ListComponent extends React.PureComponent<Props, State> {
               >
                 <img
                   src={
-                    require('@/app/assets/img/icon_component_black.svg').default
+                    require('@/ui/assets/img/icon_component_black.svg').default
                   }
                   alt=""
                   className="button-icon"

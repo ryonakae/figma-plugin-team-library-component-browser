@@ -1,5 +1,5 @@
 import { observable, action } from 'mobx'
-import Util from '@/app/Util'
+import Util from '@/ui/Util'
 import _ from 'lodash'
 
 export default class Store {
@@ -89,8 +89,8 @@ export default class Store {
 
   @observable tabID: TabID = 'list'
   @observable library: Library = []
-  @observable flattenLibrary: FigmaComponent[] = []
-  @observable searchResults: FigmaComponent[] = []
+  @observable flattenLibrary: (FigmaComponent | FigmaVariants)[] = []
+  @observable searchResults: (FigmaComponent | FigmaVariants)[] = []
   @observable searchWord = ''
 
   @observable currentSelectComponentName = ''
@@ -110,12 +110,27 @@ export default class Store {
 
   @observable transitionDurationMS = 150
   @observable isHold = false
+  @observable isLoading = false
 
   @action updateTabID(tabID: TabID): void {
     this.tabID = tabID
   }
 
-  @action private updateLibrary(library: Library): void {
+  @action getLibrary(): void {
+    console.log('getLibrary')
+    this.isHold = true
+    this.isLoading = true
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'get'
+        }
+      } as Message,
+      '*'
+    )
+  }
+
+  @action private async updateLibrary(library: Library): Promise<void> {
     this.library = library
 
     _.map(this.library, document => {
@@ -126,10 +141,17 @@ export default class Store {
       })
     })
 
+    await Util.wait(200)
+
+    this.isLoading = false
+    this.isHold = false
+
     console.log('updateLibrary on Store', this.library, this.flattenLibrary)
   }
 
-  @action updateSearchResults(results: FigmaComponent[]): void {
+  @action updateSearchResults(
+    results: (FigmaComponent | FigmaVariants)[]
+  ): void {
     this.searchResults = results
   }
 
@@ -232,5 +254,9 @@ export default class Store {
 
   @action updateIsHold(bool: boolean): void {
     this.isHold = bool
+  }
+
+  @action updateIsLoading(bool: boolean): void {
+    this.isLoading = bool
   }
 }

@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { Provider } from 'mobx-react'
-import Store from '@/app/Store'
-import Tab from '@/app/components/Tab'
-import Main from '@/app/components/Main'
-import Dialog from '@/app/components/Dialog'
+import Store from '@/ui/Store'
+import Tab from '@/ui/components/Tab'
+import Main from '@/ui/components/Main'
+import Dialog from '@/ui/components/Dialog'
 
-import '@/app/assets/css/style.css'
+import '@/ui/assets/css/style.css'
 
 export default class App extends React.Component {
   render(): JSX.Element {

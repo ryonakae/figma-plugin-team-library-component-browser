@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
-import Util from '@/app/Util'
+import Store from '@/ui/Store'
+import Util from '@/ui/Util'
 
 type Props = {
   store?: Store
@@ -20,7 +20,6 @@ export default class Setting extends React.Component<Props, State> {
 
   async onSaveClick(): Promise<void> {
     this.props.store!.updateIsHold(true)
-    this.props.store!.notify('Now save or update this library data...')
     await Util.wait(this.props.store!.transitionDurationMS)
     parent.postMessage(
       {

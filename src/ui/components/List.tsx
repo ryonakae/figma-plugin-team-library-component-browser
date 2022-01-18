@@ -1,48 +1,26 @@
 import * as React from 'react'
 import { inject, observer } from 'mobx-react'
-import Store from '@/app/Store'
-import Util from '@/app/Util'
-import ListDocument from '@/app/components/ListDocument'
-import Options from '@/app/components/Options'
-import Search from '@/app/components/Search'
-import ListComponent from './ListComponent'
+import Store from '@/ui/Store'
+import Util from '@/ui/Util'
+import ListDocument from '@/ui/components/ListDocument'
+import Options from '@/ui/components/Options'
+import Search from '@/ui/components/Search'
+import ListComponent from '@/ui/components/ListComponent'
+import ListVariants from '@/ui/components/ListVariants'
 
 type Props = {
   store?: Store
 }
-type State = {
-  isLoading: boolean
-}
 
 @inject('store')
 @observer
-export default class List extends React.Component<Props, State> {
+export default class List extends React.Component<Props> {
   constructor(props) {
     super(props)
-    this.state = {
-      isLoading: false
-    }
   }
 
-  async getLibrary(): Promise<void> {
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: 'get'
-        }
-      } as Message,
-      '*'
-    )
-
-    await Util.wait(200)
-  }
-
-  async fetch(): Promise<void> {
-    this.props.store!.updateIsHold(true)
-    this.setState({ isLoading: true })
-    await this.getLibrary()
-    this.setState({ isLoading: false })
-    this.props.store!.updateIsHold(false)
+  fetch(): void {
+    this.props.store!.getLibrary()
   }
 
   refresh(): void {
@@ -51,15 +29,19 @@ export default class List extends React.Component<Props, State> {
     this.props.store!.setCurrentSelectComponent({ name: '', key: '' })
   }
 
-  async onRefreshClick(): Promise<void> {
-    await this.fetch()
+  onRefreshClick(): void {
+    this.fetch()
     this.refresh()
   }
 
-  async componentDidMount(): Promise<void> {
+  componentDidMount(): void {
     console.log('List did mount')
-    await this.fetch()
-    this.refresh()
+
+    // libraryが空のとき（初回起動のとき）だけfetchする
+    if (this.props.store!.library.length === 0) {
+      this.fetch()
+    }
+
     this.props.store!.resizeUI()
   }
 
@@ -89,11 +71,15 @@ export default class List extends React.Component<Props, State> {
     console.log('List will unmount')
   }
 
+  isVariants(item: FigmaComponent | FigmaVariants): item is FigmaVariants {
+    return (item as FigmaVariants).variantGroupProperties !== undefined
+  }
+
   render(): JSX.Element {
     const { searchWord } = this.props.store!
-    const library = this.props.store!.library as Array<FigmaDocument>
+    const library = this.props.store!.library as Array<FigmaLibrary>
     const searchResults = this.props.store!.searchResults
-    const isLoading = this.state.isLoading
+    const isLoading = this.props.store!.isLoading
 
     const ListContent: React.FC = () => {
       // ロード中ではないとき
@@ -141,20 +127,35 @@ export default class List extends React.Component<Props, State> {
                     Showing results from all libraries
                   </div>
 
-                  {searchResults.map((result, index) => {
-                    return (
-                      <ListComponent
-                        key={index}
-                        name={result.name}
-                        id={result.id}
-                        componentKey={result.componentKey}
-                        pageName={result.pageName}
-                        documentName={result.documentName}
-                        combinedName={result.combinedName}
-                        isLocalComponent={result.isLocalComponent}
-                      />
-                    )
-                  })}
+                  {searchResults.map((result, index) => (
+                    <React.Fragment key={index}>
+                      {this.isVariants(result) ? (
+                        <ListVariants
+                          name={result.name}
+                          id={result.id}
+                          components={result.components}
+                          variantGroupProperties={result.variantGroupProperties}
+                          documentName={result.documentName}
+                          pageName={result.pageName}
+                          combinedName={result.combinedName}
+                          isLocalComponent={result.isLocalComponent}
+                          publishStatus={result.publishStatus}
+                          isCollapsed={result.isCollapsed}
+                        />
+                      ) : (
+                        <ListComponent
+                          name={result.name}
+                          id={result.id}
+                          componentKey={result.componentKey}
+                          pageName={result.pageName}
+                          documentName={result.documentName}
+                          combinedName={result.combinedName}
+                          isLocalComponent={result.isLocalComponent}
+                          publishStatus={result.publishStatus}
+                        />
+                      )}
+                    </React.Fragment>
+                  ))}
                 </div>
               )
             }
@@ -204,8 +205,12 @@ export default class List extends React.Component<Props, State> {
     }
     // ライブラリがあるとき
     else {
+      // ローディング中は表示しない
+      if (isLoading) {
+        contentClassName = ''
+      }
       // 検索中のとき
-      if (searchWord.length > 0) {
+      else if (searchWord.length > 0) {
         // searchResultsがある→検索結果を表示
         if (searchResults.length > 0) {
           contentClassName = 'has-options'
@@ -215,7 +220,7 @@ export default class List extends React.Component<Props, State> {
           contentClassName = ''
         }
       }
-      // 検索中ではない→ライブラリを表示
+      // それ以外はライブラリを表示
       else {
         contentClassName = 'has-options'
       }
@@ -228,7 +233,7 @@ export default class List extends React.Component<Props, State> {
           <div className="iconButton" onClick={this.onRefreshClick.bind(this)}>
             <img
               className="iconButton-icon is-refresh"
-              src={require('@/app/assets/img/icon_refresh.svg').default}
+              src={require('@/ui/assets/img/icon_refresh.svg').default}
               alt=""
             />
           </div>
